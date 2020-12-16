@@ -1,0 +1,29 @@
+
+language: scala
+
+scala:
+  - 2.13.1
+
+jdk:
+  - openjdk11
+
+sudo: false
+addons:
+  apt:
+    packages:
+      - graphviz
+
+cache:
+  directories:
+    - $HOME/.ivy2
+    - $HOME/.coursier
+    - $HOME/.sbt
+
+stages:
+  - name: test
+
+jobs:
+  include:
+    - scala: 2.13.1 # Remember to update this in build.sbt, too.
+      script:
+        - sbt ++$TRAVIS_SCALA_VERSION test

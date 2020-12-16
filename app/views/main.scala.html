@@ -1,23 +1,24 @@
-@*
- * This template is called from the `index` template. This template
- * handles the rendering of the page header and body tags. It takes
- * two arguments, a `String` for the title of the page and an `Html`
- * object to insert into the body of the page.
- *@
-@(title: String)(content: Html)
-
+@import controllers.routes
+@(title: String, webJarsUtil: org.webjars.play.WebJarsUtil)(content: Html)
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        @* Here's where we render the page title `String`. *@
-        <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-        <script src="@routes.Assets.versioned("javascripts/hello.js")" type="text/javascript"></script>
-    </head>
-    <body>
-        @* And here's where we render the `Html` object containing
-         * the page content. *@
-        @content
-    </body>
+  <head>
+    <title>@title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    @webJarsUtil.locate("css/bootstrap.min.css").css()
+    @webJarsUtil.locate("css/all.css").css()
+    @webJarsUtil.locate("toastr.css").css()
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.ico")">
+    @webJarsUtil.locate("jquery.js").script()
+    @webJarsUtil.locate("js/bootstrap.min.js").script()
+    @webJarsUtil.locate("knockout.js").script()
+    @webJarsUtil.locate("knockout.mapping.js").script()
+    @webJarsUtil.locate("toastr.js").script()
+    <script src="@routes.Assets.versioned("javascripts/common.js")"></script>
+  </head>
+  <body>
+  @content
+  </body>
 </html>

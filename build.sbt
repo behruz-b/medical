@@ -1,17 +1,26 @@
-name := "play2"
+import Dependencies._
+
+name := "medical"
  
-version := "1.0" 
-      
-lazy val `play2` = (project in file(".")).enablePlugins(PlayScala)
+version := "1.0"
 
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
-      
-resolvers += "Akka Snapshot Repository" at "https://repo.akka.io/snapshots/"
-      
-scalaVersion := "2.12.2"
+includeFilter in(Assets, LessKeys.less) := "*.less"
+excludeFilter in(Assets, LessKeys.less) := "_*.less"
 
-libraryDependencies ++= Seq( jdbc , ehcache , ws , specs2 % Test , guice )
+lazy val `medical` = (project in file(".")).enablePlugins(PlayScala)
+scalacOptions ++= CompilerOptions.cOptions
 
-unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
-      
+scalaVersion := "2.13.1"
+
+addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+
+resolvers ++= Seq(
+  "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
+  "Akka Snapshot Repository" at "https://repo.akka.io/snapshots/",
+  Resolver.sonatypeRepo("releases"),
+  Resolver.sonatypeRepo("snapshots")
+)
+
+libraryDependencies ++= rootDependencies ++ Seq(jdbc, ehcache, ws, specs2 % Test, guice)
