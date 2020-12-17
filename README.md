@@ -1,4 +1,6 @@
 # Medical
+==========
+[![Build Status](https://travis-ci.org/behruz-b/medical.svg?branch=main)](https://travis-ci.org/behruz-b/medical)
 
 This project created on PlayFramework 2.8.7
 ## Installation
