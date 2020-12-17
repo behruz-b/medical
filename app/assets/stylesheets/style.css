@@ -1,0 +1,61 @@
+
+/*============================
+ [Table of CSS]
+
+1. General
+2. Error
+========================================*/
+
+/*-----------------
+	1. General
+-----------------------*/
+
+@import url('https://fonts.googleapis.com/css?family=Rubik:400,500,700');
+
+html {
+    height: 100%;
+}
+
+body {
+    font-family: 'Rubik', sans-serif;
+    font-size: 0.875rem;
+    color: #666;
+    background-color: #fafafa;
+    overflow-x: hidden;
+    height: 100%;
+}
+
+/*-----------------
+    2. Error
+-----------------------*/
+
+.error-box {
+    background-color: #fff;
+    border-radius: 5px;
+    line-height: 1;
+    margin: 0 auto;
+    max-width: 475px;
+    padding: 50px 30px 55px;
+    text-align: center;
+    width: 100%;
+}
+.error-wrapper {
+    background-color: #fff;
+    margin: 0;
+    color: #4F5155;
+    -moz-box-align: center;
+    -moz-box-pack: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+}
+.error-box h1 {
+    font-size: 150px;
+}
+.error-box p {
+    margin-bottom: 30px;
+}
+.error-box .btn {
+    text-transform: uppercase;
+}
