@@ -5,9 +5,9 @@ object AppProtocol {
   case class User(firstName: String,
                   lastName: String,
                   passwordSN: String,
-                  phone: Int,
+                  phone: String,
                   email: Option[String] = None,
-                  customerId: Option[Int] = None) {
+                  customerId: Option[String] = None) {
     def id: Option[Int] = None
   }
 
