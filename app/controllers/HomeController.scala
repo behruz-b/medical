@@ -23,11 +23,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
 
-  def index = Action {
+  def index: Action[AnyContent] = Action {
     Ok(indexTemplate())
   }
 
-  def notFound = Action {
+  def notFound: Action[AnyContent] = Action {
     Ok(notFoundTemplate())
   }
 

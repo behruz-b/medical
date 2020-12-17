@@ -8,12 +8,12 @@ import views.html.notFound
 import scala.concurrent._
 
 @Singleton
-class ErrorHandler  @Inject()(implicit val webJarsUtil: WebJarsUtil,
-                              notFound: notFound
-                             ) extends HttpErrorHandler {
+class ErrorHandler @Inject()(implicit val webJarsUtil: WebJarsUtil,
+                             notFound: notFound
+                            ) extends HttpErrorHandler {
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
-    Future.successful{
+    Future.successful {
       Ok(notFound())
     }
   }
