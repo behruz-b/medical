@@ -22,7 +22,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                implicit val webJarsUtil: WebJarsUtil,
                                addPersonToOrder: registration,
                                indexTemplate: index,
-                               @Named("user-manager") val userManager: ActorRef)
+                               @Named("patient-manager") val patientManager: ActorRef)
                               (implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging {
 
@@ -42,9 +42,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val passportSN = (request.body \ "passportSN").as[String]
     val phone = (request.body \ "phone").as[String]
     val email = (request.body \ "email").as[String]
-    val patient = User(firstname, lastname, passportSN, phone, email.some)
-    (userManager ? CreateNewUser(patient)).mapTo[User].map { user =>
-      Ok(Json.toJson(s"Siz ${user.firstName} muvaffaqiyatli ro'yxatdan utdingiz!"))
+    val patient = Patient(firstname, lastname, passportSN, phone, email.some)
+    (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
+      Ok(Json.toJson(s"Siz ${patient.firstName} muvaffaqiyatli ro'yxatdan utdingiz!"))
     }
   }
 

@@ -9,15 +9,15 @@ import protocols.AppProtocol._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 
-class UserManager @Inject()(implicit val ec: ExecutionContext) extends Actor with LazyLogging {
+class PatientManager @Inject()(implicit val ec: ExecutionContext) extends Actor with LazyLogging {
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
 
   override def receive: Receive = {
-    case CreateNewUser(patient) => createPatient(patient)
+    case CreatePatients(patient) => createPatient(patient)
   }
 
-  private def createPatient(patient: User): Unit = {
+  private def createPatient(patient: Patient): Unit = {
     logger.debug(s"patient: $patient")
   }
 }

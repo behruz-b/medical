@@ -2,7 +2,7 @@ package protocols
 
 object AppProtocol {
 
-  case class User(firstName: String,
+  case class Patient(firstName: String,
                   lastName: String,
                   passwordSN: String,
                   phone: String,
@@ -11,6 +11,6 @@ object AppProtocol {
     def id: Option[Int] = None
   }
 
-  case class CreateNewUser(user: User)
+  case class CreatePatients(patient: Patient)
 
 }
