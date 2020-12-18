@@ -11,4 +11,6 @@ object AppProtocol {
     def id: Option[Int] = None
   }
 
+  case class CreateNewUser(user: User)
+
 }
