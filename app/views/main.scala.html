@@ -20,6 +20,11 @@
     <script src="@routes.Assets.versioned("javascripts/common.js")"></script>
   </head>
   <body>
-  @content
+    <div class="main-wrapper">
+      @navbar()
+      <div class="page-wrapper">
+      @content
+      </div>
+    </div>
   </body>
 </html>

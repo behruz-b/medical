@@ -1,0 +1,70 @@
+@this(webJarsUtil: org.webjars.play.WebJarsUtil)
+@import scala.reflect.internal.util.NoSourceFile.content
+@()
+@main("Home Page", webJarsUtil) {
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/registration_patient.css")">
+    <script src="@routes.Assets.versioned("javascripts/registration.patient.js")" type="text/javascript"></script>
+    <body>
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <form class="toggle row" id="patient-form" action=""
+                enctype="multipart/form-data" method="post">
+        <div class="col-sm-12">
+            <div class="row border border-dark p-4 mb-5">
+                <div class="title-div">Personal information:</div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>First Name: <span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" name="firstName" data-bind="">
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Middle Name: <span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" name="middleName" data-bind="">
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Last Name: <span class="text-danger">*</span></label>
+                        <input class="form-control" type="text" name="lastName" data-bind="">
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Passport SN: </label>
+                        <input class="form-control" type="text" name="passport_sn" data-bind="">
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                        <!-- Date Picker Input -->
+                    <div class="form-group mb-4">
+                        <label>Date of Birth: <span class="text-danger">*</span></label>
+                        <div class="datepicker date input-group p-0 shadow-sm">
+                            <input type="text" placeholder="Choose a Date of birth" class="form-control py-4 px-4" id="reservationDate" data-bind="" name="birthday">
+                            <div class="input-group-append"><span class="input-group-text px-4"><i class="fa fa-clock"></i></span></div>
+                        </div>
+                    </div>
+                        <!-- End Date Picker Input -->
+                </div>
+                <div class="col-sm-6 text-center">
+                    <div class="form-group">
+                        <label class="display-block">Gender: <span class="text-danger">*</span></label>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="male" name="gender" class="form-check-input" value="1" data-bind="checked: vm.patient.gender">
+                            <label class="form-check-label" for="male">Male</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" name="gender" id="famale" class="form-check-input" value="2"  data-bind="checked: vm.patient.gender">
+                            <label class="form-check-label" for="famale">Famale</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+                </form>
+            </div>
+        </div>
+    </body>
+
+}

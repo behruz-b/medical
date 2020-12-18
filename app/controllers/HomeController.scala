@@ -16,6 +16,7 @@ import scala.concurrent.duration.DurationInt
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                val configuration: Configuration,
                                implicit val webJarsUtil: WebJarsUtil,
+                               addPersonToOrder: registration,
                                indexTemplate: index)
                               (implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging {
@@ -24,6 +25,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def index: Action[AnyContent] = Action {
     Ok(indexTemplate())
+  }
+
+  def addPerson: Action[AnyContent] = Action {
+    Ok(addPersonToOrder())
   }
 
 }
