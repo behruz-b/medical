@@ -5,5 +5,6 @@ import play.api.libs.concurrent.AkkaGuiceSupport
 
 class ActorsModule extends AbstractModule with AkkaGuiceSupport{
   override def configure(): Unit = {
+    bindActor[UserManager]("user-manager")
   }
 }

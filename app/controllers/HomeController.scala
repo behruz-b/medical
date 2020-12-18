@@ -1,6 +1,7 @@
 
 package controllers
 
+import akka.actor.ActorRef
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
@@ -17,7 +18,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                val configuration: Configuration,
                                implicit val webJarsUtil: WebJarsUtil,
                                addPersonToOrder: registration,
-                               indexTemplate: index)
+                               indexTemplate: index,
+                               @Named("user-manager") val userManager: ActorRef)
                               (implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging {
 
