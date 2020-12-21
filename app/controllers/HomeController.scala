@@ -9,7 +9,6 @@ import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
 import org.webjars.play.WebJarsUtil
-import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.AppProtocol._
@@ -20,9 +19,9 @@ import scala.concurrent.duration.DurationInt
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
-                               val configuration: Configuration,
                                implicit val webJarsUtil: WebJarsUtil,
                                addPersonToOrder: registration,
+                               adminLoginTemplate: admin.login,
                                indexTemplate: index,
                                @Named("patient-manager") val patientManager: ActorRef)
                               (implicit val ec: ExecutionContext)
@@ -50,6 +49,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
       Ok(Json.toJson(patient.customerId))
     }
+  }
+
+  def adminLogin: Action[AnyContent] = Action {
+    Ok(adminLoginTemplate())
   }
 
 }
