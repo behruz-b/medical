@@ -19,6 +19,7 @@ import scala.concurrent.duration.DurationInt
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                implicit val webJarsUtil: WebJarsUtil,
                                addPersonToOrder: registration,
+                               adminLoginTemplate: admin.login,
                                indexTemplate: index,
                                @Named("patient-manager") val patientManager: ActorRef)
                               (implicit val ec: ExecutionContext)
@@ -44,6 +45,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     (patientManager ? CreatePatients(patient)).mapTo[String].map { patient =>
       Ok(Json.toJson(s"Siz $patient muvaffaqiyatli ro'yxatdan utdingiz!"))
     }
+  }
+
+  def adminLogin: Action[AnyContent] = Action {
+    Ok(adminLoginTemplate())
   }
 
 }
