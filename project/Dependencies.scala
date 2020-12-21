@@ -21,7 +21,6 @@ object Dependencies {
     val momentJs = "2.8.1"
     val logBack = "1.3.0-alpha5"
     val logOver = "1.7.30"
-    val h2 = "1.4.200"
     val openTable = "0.10.0"
     val jsonJoda = "2.9.0"
     val pureConfig = "0.13.0"
@@ -49,7 +48,6 @@ object Dependencies {
       "ch.qos.logback" % "logback-classic" % Versions.logBack % Test
     )
     val dbLibs = Seq(
-      "com.h2database" % "h2" % Versions.h2 % Test,
       "com.opentable.components" % "otj-pg-embedded" % Versions.openTable % Test,
       "org.postgresql" % "postgresql" % Versions.postgreSql
     )
@@ -57,7 +55,8 @@ object Dependencies {
       "com.typesafe.akka" %% "akka-remote" % Versions.akka,
       "com.typesafe.akka" %% "akka-cluster-sharding-typed" % Versions.akka,
       "com.typesafe.akka" %% "akka-actor-typed" % Versions.akka,
-      "com.typesafe.akka" %% "akka-serialization-jackson" % Versions.akka
+      "com.typesafe.akka" %% "akka-serialization-jackson" % Versions.akka,
+      "com.typesafe.akka" %% "akka-testkit" % Versions.akka % Test
     )
     val doobieLibs = Seq(
       "org.tpolecat" %% "doobie-core" % Versions.doobie,

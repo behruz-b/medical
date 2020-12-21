@@ -12,9 +12,13 @@ scalacOptions ++= CompilerOptions.cOptions
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.12.12"
 
 addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+
+fork in Test := false
+
+testOptions in Test := Seq(Tests.Filter(s => s.endsWith("Spec")))
 
 resolvers ++= Seq(
   "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",

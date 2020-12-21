@@ -2,7 +2,7 @@ package protocols
 
 object AppProtocol {
 
-  //  TODO case class ichindagi polyala to'liq amas to'qil qilib keyin push etingla!
+  //  TODO case class ichindagi polyala to'liq amas to'liq qilib keyin push atingla!
   case class Patient(firstName: String,
                      lastName: String,
                      passwordSN: String,

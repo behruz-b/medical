@@ -14,7 +14,9 @@ class PatientManager @Inject()(implicit val ec: ExecutionContext) extends Actor 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
 
   override def receive: Receive = {
-    case CreatePatients(patient) => createPatient(patient)
+    case CreatePatients(patient) =>
+      println(s"PATIENNT:$patient")
+      createPatient(patient)
   }
 
   private def createPatient(patient: Patient): Unit = {
