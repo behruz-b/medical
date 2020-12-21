@@ -1,5 +1,7 @@
 package controllers
 
+import java.util.Date
+
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
@@ -42,9 +44,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val passportSN = (request.body \ "passportSN").as[String]
     val phone = (request.body \ "phone").as[String]
     val email = (request.body \ "email").as[String]
-    val patient = Patient(firstName, lastName, passportSN, phone, email.some)
+    val login = (request.body \ "login").as[String]
+    val password = (request.body \ "password").as[String]
+    val patient = Patient(new Date(), firstName, lastName, phone, email.some, passportSN, login, passportSN)
     (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
-      Ok(Json.toJson(s"Siz ${patient.firstName} muvaffaqiyatli ro'yxatdan utdingiz!"))
+      Ok(Json.toJson(patient.customerId))
     }
   }
 
