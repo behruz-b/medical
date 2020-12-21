@@ -1,9 +1,12 @@
 
 /*============================
+
  [Table of CSS]
 
-1. General
-2. Error
+    1. General
+    2. Error
+    3. Login
+
 ========================================*/
 
 /*-----------------
@@ -57,5 +60,79 @@ body {
     margin-bottom: 30px;
 }
 .error-box .btn {
+    text-transform: uppercase;
+}
+
+/*-----------------
+	3. Login
+-----------------------*/
+
+.account-page {
+    display: table-row;
+    height: 100%;
+    padding: 40px 0;
+}
+.account-title {
+    font-size: 32px;
+    font-weight: normal;
+    margin: 0 0 40px;
+    text-align: center;
+}
+.account-wrapper {
+    display: table;
+    table-layout: fixed;
+    height: 100%;
+    padding: 30px;
+    width: 100%;
+}
+.account-center {
+    display: table-cell;
+    vertical-align: middle;
+}
+.account-box {
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    margin: 0 auto;
+    padding: 20px;
+    width: 400px;
+}
+.account-logo {
+    margin-bottom: 20px;
+    text-align: center;
+}
+.account-box .form-group {
+    margin-bottom: 20px;
+}
+.account-box a {
+    color: #333;
+    font-size: 14px;
+}
+.account-box a:hover {
+    color: #009efb;
+}
+.account-box .form-control {
+    border: 1px solid #eaeaea;
+    border-radius: 0;
+    box-shadow: inherit;
+    font-size: 14px;
+    height: 40px;
+}
+.account-box textarea.form-control {
+    height: 130px;
+}
+.account-box label {
+    color: #323232;
+    font-size: 14px;
+    font-weight: normal;
+}
+.account-logo img {
+    max-height: 60px;
+    width: auto;
+}
+.account-box .account-btn {
+    border-radius: 50px;
+    font-size: 16px;
+    min-width: 150px;
+    padding: 8px 30px;
     text-transform: uppercase;
 }

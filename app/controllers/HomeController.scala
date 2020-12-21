@@ -21,6 +21,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                val configuration: Configuration,
                                implicit val webJarsUtil: WebJarsUtil,
                                addPersonToOrder: registration,
+                               adminLoginTemplate: admin.login,
                                indexTemplate: index,
                                @Named("patient-manager") val patientManager: ActorRef)
                               (implicit val ec: ExecutionContext)
@@ -46,6 +47,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
       Ok(Json.toJson(s"Siz ${patient.firstName} muvaffaqiyatli ro'yxatdan utdingiz!"))
     }
+  }
+
+  def adminLogin: Action[AnyContent] = Action {
+    Ok(adminLoginTemplate())
   }
 
 }
