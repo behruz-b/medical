@@ -10,8 +10,8 @@ import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import views.html._
 import protocols.AppProtocol._
+import views.html._
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
@@ -37,12 +37,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def createUser: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    val firstname = (request.body \ "firstName").as[String]
-    val lastname = (request.body \ "lastName").as[String]
+    val firstName = (request.body \ "firstName").as[String]
+    val lastName = (request.body \ "lastName").as[String]
     val passportSN = (request.body \ "passportSN").as[String]
     val phone = (request.body \ "phone").as[String]
     val email = (request.body \ "email").as[String]
-    val patient = Patient(firstname, lastname, passportSN, phone, email.some)
+    val patient = Patient(firstName, lastName, passportSN, phone, email.some)
     (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
       Ok(Json.toJson(s"Siz ${patient.firstName} muvaffaqiyatli ro'yxatdan utdingiz!"))
     }
