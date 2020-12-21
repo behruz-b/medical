@@ -23,6 +23,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                addPersonToOrder: registration,
                                adminLoginTemplate: admin.login,
                                indexTemplate: index,
+                               thankYouPageTemplate: thankYou,
                                @Named("patient-manager") val patientManager: ActorRef)
                               (implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging {
@@ -31,6 +32,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def index: Action[AnyContent] = Action {
     Ok(indexTemplate())
+  }
+
+  def thanks: Action[AnyContent] = Action {
+    Ok(thankYouPageTemplate())
   }
 
   def addPerson(): Action[AnyContent] = Action {
@@ -45,7 +50,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val email = (request.body \ "email").as[String]
     val login = (request.body \ "login").as[String]
     val password = (request.body \ "password").as[String]
-    val patient = Patient(new Date(), firstName, lastName, phone, email.some, passportSN, login, passportSN)
+    val patient = Patient(new Date(), firstName, lastName, phone, email.some, passportSN, login, password)
     (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
       Ok(Json.toJson(patient.customerId))
     }

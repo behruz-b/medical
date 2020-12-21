@@ -1,0 +1,16 @@
+@this(webJarsUtil: org.webjars.play.WebJarsUtil)
+@()
+  @main("thank you page", webJarsUtil) {
+    <div class="container">
+        <div class="jumbotron text-center">
+            <i class="fa fa-check-circle fa-10x" aria-hidden="true"></i>
+            <h1>Thank You!</h1>
+            <p class="lead">
+            <h1>You are registered on id</h1>
+            <hr>
+            <p class="lead">
+                <a class="btn btn-primary" href="@routes.HomeController.index()" role="button">Continue to homepage</a>
+            </p>
+        </div>
+    </div>
+  }
