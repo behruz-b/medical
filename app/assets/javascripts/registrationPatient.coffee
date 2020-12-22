@@ -15,7 +15,7 @@ $ ->
     getPatientsList: []
 
   handleError = (error) ->
-    if error.status is 500 or (error.status is 400 and error.responseText) or error.status is 200
+    if error.status is 500 or (error.status is 400 and error.responseText)
       toastr.error(error.responseText)
     else
       toastr.error('Something went wrong! Please try again.')
@@ -48,16 +48,10 @@ $ ->
         phone: vm.phone()
         login: vm.login()
         password: vm.password()
-      $.ajax
-        url: apiUrl.valPost
-        type: 'POST'
-        data: JSON.stringify(patient)
-        dataType: 'json'
-        contentType: 'application/json'
+      $.post(apiUrl.valPost, JSON.stringify(patient))
       .fail handleError
-      .done (response)  ->
-        toastr.success("OK")
-        vm.getPatientsList(response)
+      .done (response) ->
+        toastr.success(response)
 
 
   ko.applyBindings {vm}

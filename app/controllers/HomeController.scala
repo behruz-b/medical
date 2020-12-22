@@ -47,7 +47,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Try {
       val firstName = (request.body \ "firstName").as[String]
       val lastName = (request.body \ "lastName").as[String]
-      val passportSN = (request.body \ "passportSN").as[String]
+      val passportSN = (request.body \ "passportSn").as[String]
       val phone = (request.body \ "phone").as[String]
       val email = (request.body \ "email").as[String]
       val login = (request.body \ "login").as[String]
