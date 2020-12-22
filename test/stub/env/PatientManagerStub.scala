@@ -11,15 +11,14 @@ object PatientManagerStub {
 
 class PatientManagerStub extends Actor with LazyLogging {
 
-  println("STARTING...")
   override def receive: Receive = {
     case CreatePatients(patient) =>
       println(s"FAKE_PATIENT:$patient")
       sender() ! createPatient(patient)
   }
 
-  def createPatient(patient: Patient): String = {
-    patient.firstName
+  def createPatient(patient: Patient): Patient = {
+    patient
   }
 
 }

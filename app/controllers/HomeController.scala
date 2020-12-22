@@ -53,6 +53,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val patient = Patient(new Date(), firstName, lastName, phone, email.some, passportSN, login, password)
     (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
       Ok(Json.toJson(patient.customerId))
+    }.recover {
+      case error =>
+        logger.debug(s"Error occurred while create patient. Error: $error")
+        BadRequest("Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!")
     }
   }
 

@@ -15,11 +15,11 @@ class PatientManager @Inject()(implicit val ec: ExecutionContext) extends Actor 
 
   override def receive: Receive = {
     case CreatePatients(patient) =>
-      println(s"PATIENNT:$patient")
-      createPatient(patient)
+      sender() ! createPatient(patient)
   }
 
-  private def createPatient(patient: Patient): Unit = {
+  private def createPatient(patient: Patient): Patient = {
     logger.debug(s"patient: $patient")
+    patient
   }
 }
