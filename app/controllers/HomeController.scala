@@ -1,6 +1,6 @@
 package controllers
 
-import java.util.Date
+import java.time._
 
 import akka.actor.ActorRef
 import akka.pattern.ask
@@ -26,7 +26,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                thankYouPageTemplate: thankYou,
                                @Named("patient-manager") val patientManager: ActorRef)
                               (implicit val ec: ExecutionContext)
-  extends BaseController with LazyLogging {
+  extends BaseController with LazyLogging with CommonMethods {
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
 
@@ -50,7 +50,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val email = (request.body \ "email").as[String]
     val login = (request.body \ "login").as[String]
     val password = (request.body \ "password").as[String]
-    val patient = Patient(new Date(), firstName, lastName, phone, email.some, passportSN, login, password)
+    val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, login, password, generateCustomerId.some)
     (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
       Ok(Json.toJson(patient.customerId))
     }.recover {
@@ -63,5 +63,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def adminLogin: Action[AnyContent] = Action {
     Ok(adminLoginTemplate())
   }
+
+  private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(7)
 
 }

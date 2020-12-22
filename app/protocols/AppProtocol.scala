@@ -1,12 +1,10 @@
 package protocols
 
-import java.util.Date
-
+import java.time.LocalDateTime
 
 object AppProtocol {
 
-  //  TODO case class ichindagi polyala to'liq amas to'qil qilib keyin push etingla!
-  case class Patient(createAt: Date,
+  case class Patient(createAt: LocalDateTime,
                      firstName: String,
                      lastName: String,
                      phone: String,
