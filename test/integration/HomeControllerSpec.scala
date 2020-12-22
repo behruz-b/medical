@@ -7,7 +7,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
 class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
-  val patient: JsValue = Json.parse(
+  val Patient: JsValue = Json.parse(
     """
    {
       "firstName": "Test",
@@ -18,14 +18,31 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
       "login": "Test",
       "password": "Test"
     }""")
+  val BadPatient: JsValue = Json.parse(
+    """
+   {
+      "firstName": "Test",
+      "lastName": "Test",
+      "passportSN": "Test",
+      "phone": "Test",
+      "email": "Test",
+      "login": "Test"
+    }""")
 
   "Create patient" should {
     "return OK" in {
       val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createUser().url)
-        .withJsonBody(patient)
+        .withJsonBody(Patient)
       ).get
 
       status(sendRequest) mustBe OK
+    }
+    "return BAD_REQUEST" in {
+      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createUser().url)
+        .withJsonBody(BadPatient)
+      ).get
+
+      status(sendRequest) mustBe BAD_REQUEST
     }
   }
 

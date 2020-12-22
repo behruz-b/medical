@@ -14,8 +14,9 @@ import play.api.mvc._
 import protocols.AppProtocol._
 import views.html._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
+import scala.util.Try
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
@@ -43,21 +44,23 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def createUser: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    val firstName = (request.body \ "firstName").as[String]
-    val lastName = (request.body \ "lastName").as[String]
-    val passportSN = (request.body \ "passportSN").as[String]
-    val phone = (request.body \ "phone").as[String]
-    val email = (request.body \ "email").as[String]
-    val login = (request.body \ "login").as[String]
-    val password = (request.body \ "password").as[String]
-    val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, login, password, generateCustomerId.some)
-    (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
-      Ok(Json.toJson(patient.customerId))
-    }.recover {
-      case error =>
-        logger.debug(s"Error occurred while create patient. Error: $error")
-        BadRequest("Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!")
-    }
+    Try {
+      val firstName = (request.body \ "firstName").as[String]
+      val lastName = (request.body \ "lastName").as[String]
+      val passportSN = (request.body \ "passportSN").as[String]
+      val phone = (request.body \ "phone").as[String]
+      val email = (request.body \ "email").as[String]
+      val login = (request.body \ "login").as[String]
+      val password = (request.body \ "password").as[String]
+      val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, login, password, generateCustomerId.some)
+      (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
+        Ok(Json.toJson(patient.customerId))
+      }.recover {
+        case error =>
+          logger.error("Error occurred while create patient. Error:", error)
+          BadRequest("Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!")
+      }
+    }.getOrElse(Future.successful(BadRequest("So'rovda xatolik bor. Iltimos qaytadan harakat qilib ko'ring!")))
   }
 
   def adminLogin: Action[AnyContent] = Action {
