@@ -1,6 +1,7 @@
+
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
 @()
-  @main("Registration", webJarsUtil) {
+@main("Registration!", webJarsUtil) {
     <div class="account-wrapper">
       <div class="account-page">
         <div class="account-center">
@@ -10,38 +11,37 @@
               </div>
               <div class="form-group">
                   <label>Frist name</label>
-                  <input type="text" class="form-control">
+                  <input type="text" class="form-control" data-bind="value: vm.firstName">
               </div>
               <div class="form-group">
                 <label>Last name</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" data-bind="value: vm.lastName">
               </div>
               <div class="form-group">
                 <label>Passport Seria Number</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" data-bind="value: vm.passportSn">
               </div>
               <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" class="form-control">
+                <input type="email" class="form-control" data-bind="value: vm.email">
               </div>
               <div class="form-group">
                 <label>Mobile Number</label>
-                <input type="number" class="form-control">
+                <input type="number" class="form-control" data-bind="value: vm.phone">
               </div>
               <div class="form-group">
                   <label>Login</label>
-                  <input type="text" class="form-control">
+                  <input type="text" class="form-control" data-bind="value: vm.login">
               </div>
               <div class="form-group">
                 <label>Password</label>
-                <input type="password" class="form-control">
+                <input type="password" class="form-control" data-bind="value: vm.password">
               </div>
               <div class="form-group text-center">
-                <button class="btn btn-primary account-btn" type="submit">Submit</button>
+                <button class="btn btn-primary account-btn" type="submit" data-bind="click: vm.onSubmitValidation">Submit</button>
               </div>
           </div>
         </div>
       </div>
     </div>
-
-  }
+}
