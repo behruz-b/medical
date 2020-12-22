@@ -3,7 +3,6 @@ GET     /                           controllers.HomeController.index
 GET     /admin                      controllers.HomeController.adminLogin
 GET     /add-person                 controllers.HomeController.addPerson
 GET     /thank                      controllers.HomeController.thanks
-
 POST    /createPatient              controllers.HomeController.createUser
 
 # Map static resources from the /public folder to the /assets URL path

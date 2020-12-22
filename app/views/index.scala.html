@@ -1,9 +1,15 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
 @()
 @main("Home Page", webJarsUtil) {
-  <div class="error-wrapper">
-    <div class="error-box">
-      <h3>Welcome to Smart Medical!</h3>
+
+  <div class="page-wrapper">
+    @sidebar()
+    <div class="content">
+      <div class="row">
+        <div class="col-sm-12">
+          <h4 class="page-title">Welcome to Scala</h4>
+        </div>
+      </div>
     </div>
   </div>
 }

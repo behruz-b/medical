@@ -17,15 +17,14 @@
     @webJarsUtil.locate("knockout.js").script()
     @webJarsUtil.locate("knockout.mapping.js").script()
     @webJarsUtil.locate("toastr.js").script()
+    <script src="@routes.Assets.versioned("javascripts/app.js")"></script>
     <script src="@routes.Assets.versioned("javascripts/common.js")"></script>
     <script src="@routes.Assets.versioned("javascripts/registrationPatient.js")"></script>
   </head>
   <body>
     <div class="main-wrapper">
       @navbar()
-      <div class="page-wrapper">
       @content
-      </div>
     </div>
   </body>
 </html>
