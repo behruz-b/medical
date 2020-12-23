@@ -50,9 +50,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val passportSN = (request.body \ "passportSn").as[String]
       val phone = (request.body \ "phone").as[String]
       val email = (request.body \ "email").as[String]
-      val login = (request.body \ "login").as[String]
-      val password = (request.body \ "password").as[String]
-      val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, login, password, generateCustomerId.some)
+      val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, generateLogin, generatePassword, generateCustomerId.some)
       (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
         Ok(Json.toJson(patient.customerId))
       }.recover {
@@ -69,4 +67,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
 
+  private def generateLogin = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
+
+  private def generatePassword = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
 }

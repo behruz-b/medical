@@ -10,8 +10,6 @@ $ ->
     passportSn: ''
     email: ''
     phone: ''
-    login: ''
-    password: ''
     getPatientsList: []
 
   handleError = (error) ->
@@ -33,12 +31,6 @@ $ ->
     else if !vm.phone()
       toastr.error("please enter your phone:")
       return no
-    else if !vm.login()
-      toastr.error("please enter your login:")
-      return no
-    else if !vm.password()
-      toastr.error("please enter your password:")
-      return no
     else
       patient =
         firstName: vm.firstName()
@@ -46,8 +38,6 @@ $ ->
         passportSn: vm.passportSn()
         email: vm.email()
         phone: vm.phone()
-        login: vm.login()
-        password: vm.password()
       $.post(apiUrl.valPost, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
