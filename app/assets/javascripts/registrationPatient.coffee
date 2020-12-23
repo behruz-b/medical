@@ -1,6 +1,8 @@
 $ ->
   my.initAjax()
 
+  Glob = window.Glob || {}
+
   apiUrl =
     valPost: '/createPatient'
 
@@ -11,6 +13,7 @@ $ ->
     email: ''
     phone: ''
     getPatientsList: []
+    language: Glob.language
 
   handleError = (error) ->
     if error.status is 500 or (error.status is 400 and error.responseText)
@@ -43,5 +46,15 @@ $ ->
       .done (response) ->
         toastr.success(response)
 
+  vm.translate = (fieldName) -> ko.computed () ->
+    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
+    vm.labels[fieldName][index]
+
+  vm.labels =
+    welcome: [
+      "Welcome to Smart Medical!"
+      "Добро пожаловать в Smart Medical!"
+      "Smart Medical-ga xush kelibsiz!"
+    ]
 
   ko.applyBindings {vm}

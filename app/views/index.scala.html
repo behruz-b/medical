@@ -1,13 +1,19 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@()
+@(lang: String)
 @main("Home Page", webJarsUtil) {
+
+  <script type="text/javascript">
+    var Glob = {
+      language: '@lang'
+    }
+  </script>
 
   <div class="page-wrapper">
     @sidebar()
     <div class="content">
       <div class="row">
         <div class="col-sm-12">
-          <h4 class="page-title">Welcome to Scala</h4>
+          <h4 class="page-title"><span data-bind="text: vm.translate('welcome')"></span></h4>
         </div>
       </div>
     </div>

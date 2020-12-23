@@ -31,8 +31,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
 
-  def index: Action[AnyContent] = Action {
-    Ok(indexTemplate())
+  def index(language: String): Action[AnyContent] = Action {
+    Ok(indexTemplate(language))
   }
 
   def thanks: Action[AnyContent] = Action {
