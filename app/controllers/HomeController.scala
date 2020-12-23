@@ -67,6 +67,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok(adminLoginTemplate())
   }
 
-  private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(7)
+  private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
 
 }
