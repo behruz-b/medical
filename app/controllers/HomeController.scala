@@ -39,8 +39,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok(thankYouPageTemplate())
   }
 
-  def addPerson(): Action[AnyContent] = Action {
-    Ok(addPersonToOrder())
+  def addPerson(language: String): Action[AnyContent] = Action {
+    Ok(addPersonToOrder(language))
   }
 
   def createUser: Action[JsValue] = Action.async(parse.json) { implicit request =>

@@ -1,7 +1,7 @@
 # An example controller showing a sample home page
 GET     /:lang                      controllers.HomeController.index(lang)
 GET     /admin                      controllers.HomeController.adminLogin
-GET     /add-person                 controllers.HomeController.addPerson
+GET     /add-person/:lang           controllers.HomeController.addPerson(lang)
 GET     /thank                      controllers.HomeController.thanks
 POST    /createPatient              controllers.HomeController.createUser
 
