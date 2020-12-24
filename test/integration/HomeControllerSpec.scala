@@ -14,9 +14,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
       "lastName": "Test",
       "passportSn": "Test",
       "phone": "Test",
-      "email": "Test",
-      "login": "Test",
-      "password": "Test"
+      "email": "Test"
     }""")
   val BadPatient: JsValue = Json.parse(
     """
@@ -24,9 +22,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
       "firstName": "Test",
       "lastName": "Test",
       "passportSn": "Test",
-      "phone": "Test",
-      "email": "Test",
-      "login": "Test"
+      "email": "Test"
     }""")
 
   "Create patient" should {
@@ -49,15 +45,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   "Login page" should {
     "return OK" in {
-      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.adminLogin().url)).get
-
-      status(sendRequest) mustBe OK
-    }
-  }
-
-  "Registration page" should {
-    "return OK" in {
-      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.addPerson().url)).get
+      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.adminLogin("uz").url)).get
 
       status(sendRequest) mustBe OK
     }
@@ -65,7 +53,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   "Index page" should {
     "return OK" in {
-      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.index().url)).get
+      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.index("uz").url)).get
 
       status(sendRequest) mustBe OK
     }
