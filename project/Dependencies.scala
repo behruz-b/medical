@@ -79,7 +79,7 @@ object Dependencies {
       "org.webjars" % "toastr" % Versions.toastr,
       "org.webjars" % "font-awesome" % Versions.fontAwesome,
       "org.webjars" % "momentjs" % Versions.momentJs,
-    "org.webjars.bower" % "jquery-mask-plugin" % Versions.jQueryMask
+      "org.webjars.bower" % "jquery-mask-plugin" % Versions.jQueryMask
     )
   }
   val rootDependencies: Seq[ModuleID] = Seq(

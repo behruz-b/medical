@@ -23,6 +23,10 @@ body {
     font-size: 0.875rem;
     color: #666;
     background-color: #013244;
+    background-image: url("../images/background-register.jpg");
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
     overflow: hidden;
     height: 100%;
 }
@@ -66,11 +70,24 @@ body {
     text-transform: uppercase;
 }
 
-.input-circle {
-    border-radius: 10px;
-}
-
 .box-align-center {
     top: 20% !important;
     position: sticky;
+}
+
+.input-box {
+    border: none;
+    border-bottom: 1px solid white;
+    background: transparent;
+}
+
+.input-box:hover, .input-box:focus {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    border-bottom: 1px solid green;
+}
+
+.label {
+    color: white;
 }

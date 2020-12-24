@@ -52,7 +52,6 @@
 
   $particleBaseSize: 8;
 
-
   @for $i from 1 through $particleNum {
     &:nth-child(#{$i}) {
       $circleSize: random($particleBaseSize);
