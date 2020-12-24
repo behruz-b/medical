@@ -23,6 +23,7 @@ object Dependencies {
     val logOver = "1.7.30"
     val openTable = "0.10.0"
     val jsonJoda = "2.9.0"
+    val jQueryMask = "1.14.12"
     val pureConfig = "0.13.0"
   }
 
@@ -75,7 +76,8 @@ object Dependencies {
       "org.webjars" % "knockout" % Versions.knockout,
       "org.webjars" % "toastr" % Versions.toastr,
       "org.webjars" % "font-awesome" % Versions.fontAwesome,
-      "org.webjars" % "momentjs" % Versions.momentJs
+      "org.webjars" % "momentjs" % Versions.momentJs,
+    "org.webjars.bower" % "jquery-mask-plugin" % Versions.jQueryMask
     )
   }
   val rootDependencies: Seq[ModuleID] = Seq(

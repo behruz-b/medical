@@ -12,7 +12,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
    {
       "firstName": "Test",
       "lastName": "Test",
-      "passportSN": "Test",
+      "passportSn": "Test",
       "phone": "Test",
       "email": "Test",
       "login": "Test",
@@ -23,20 +23,21 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
    {
       "firstName": "Test",
       "lastName": "Test",
-      "passportSN": "Test",
+      "passportSn": "Test",
       "phone": "Test",
       "email": "Test",
       "login": "Test"
     }""")
 
   "Create patient" should {
-    "return OK" in {
+    "return should be OK" in {
       val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createUser().url)
         .withJsonBody(Patient)
       ).get
 
       status(sendRequest) mustBe OK
     }
+
     "return BAD_REQUEST" in {
       val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createUser().url)
         .withJsonBody(BadPatient)

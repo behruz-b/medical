@@ -14,33 +14,21 @@ import play.api.mvc._
 import protocols.AppProtocol._
 import views.html._
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
-                               implicit val webJarsUtil: WebJarsUtil,
-                               addPersonToOrder: registration,
-                               adminLoginTemplate: admin.login,
                                indexTemplate: index,
-                               thankYouPageTemplate: thankYou,
                                @Named("patient-manager") val patientManager: ActorRef)
-                              (implicit val ec: ExecutionContext)
+                              (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging with CommonMethods {
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
 
   def index(language: String): Action[AnyContent] = Action {
     Ok(indexTemplate(language))
-  }
-
-  def thanks: Action[AnyContent] = Action {
-    Ok(thankYouPageTemplate())
-  }
-
-  def addPerson(): Action[AnyContent] = Action {
-    Ok(addPersonToOrder())
   }
 
   def createUser: Action[JsValue] = Action.async(parse.json) { implicit request =>
@@ -53,16 +41,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, generateLogin, generatePassword, generateCustomerId.some)
       (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
         Ok(Json.toJson(patient.customerId))
-      }.recover {
-        case error =>
-          logger.error("Error occurred while create patient. Error:", error)
-          BadRequest("Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!")
       }
-    }.getOrElse(Future.successful(BadRequest("So'rovda xatolik bor. Iltimos qaytadan harakat qilib ko'ring!")))
-  }
-
-  def adminLogin: Action[AnyContent] = Action {
-    Ok(adminLoginTemplate())
+    } match {
+      case Success(res) => res
+      case Failure(exception) =>
+        logger.error("Error occurred while create patient. Error:", exception)
+        Future.successful(BadRequest("Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
+    }
   }
 
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)

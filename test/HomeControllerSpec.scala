@@ -8,7 +8,7 @@ class HomeControllerSpec extends PlayStubEnv {
    {
       "firstName": "Test",
       "lastName": "Test",
-      "passportSN": "Test",
+      "passportSn": "Test",
       "phone": "Test",
       "email": "Test",
       "login": "Test",

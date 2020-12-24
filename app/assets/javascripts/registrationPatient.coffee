@@ -4,12 +4,13 @@ $ ->
   Glob = window.Glob || {}
 
   apiUrl =
-    valPost: '/createPatient'
+    registerUrl: '/createPatient'
 
   vm = ko.mapping.fromJS
     firstName: ''
     lastName: ''
-    passportSn: ''
+    passportSeries: ''
+    passportNumber: ''
     email: ''
     phone: ''
     getPatientsList: []
@@ -41,7 +42,7 @@ $ ->
         passportSn: vm.passportSn()
         email: vm.email()
         phone: vm.phone()
-      $.post(apiUrl.valPost, JSON.stringify(patient))
+      $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
         toastr.success(response)
