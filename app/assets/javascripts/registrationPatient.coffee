@@ -89,5 +89,4 @@ $ ->
       "Ism"
     ]
 
-
   ko.applyBindings {vm}
