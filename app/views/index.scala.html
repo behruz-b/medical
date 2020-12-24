@@ -1,68 +1,72 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
 @(lang: String = "uz")
-  @main("Home Page", webJarsUtil) {
-    <script >
-            function autotab(el) {
-              if (el.value.length === +el.getAttribute("maxlength")) {
-                $("#p_number").focus()
+@main("Home Page", webJarsUtil) {
+  <script >
+          function autotab(el) {
+            if (el.value.length === +el.getAttribute("maxlength")) {
+              $("#p_number").focus()
+            }
+          }
+
+          function autoBack(el) {
+            $('html').keydown(function (event) {
+              if (el.value.length === 0 && event.keyCode === 8) {
+                $("#p_series").focus()
               }
-            }
+            })
+          }
 
-            function autoBack(el) {
-              $('html').keydown(function (event) {
-                if (el.value.length === 0 && event.keyCode === 8) {
-                  $("#p_series").focus()
-                }
-              })
-            }
-
-            const Glob = {
-              language: '@lang'
-            };
-    </script>
-    <div class="row box-align-center">
-      <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
-        <h2 class="text-white">Registration Form</h2>
-        <form name="register_form" class="row">
-          <div class="form-group col-sm-6 col-12">
-            <label for="first_name" class="label">First name</label>
-            <input class="form-control input-box" type="text" id="first_name" name="first_name">
-          </div>
-          <div class="form-group col-sm-6 col-12">
-            <label for="last_name" class="label">Last name</label>
-            <input class="form-control input-box" type="text" id="last_name" name="last_name">
-          </div>
-          <div class="form-group col-sm-6 col-12">
-            <label for="passport_sn" class="label">Email</label>
-            <input class="form-control input-box" type="text" id="passport_sn" name="passport_sn">
-          </div>
-          <div class="form-group col-sm-6 col-12">
-            <label for="passport_sn" class="label">Phone number</label>
-            <input class="form-control input-box" type="text" id="passport_sn" name="passport_sn">
-          </div>
-          <div class="form-group col-sm-12">
-            <div class="row">
-              <label class="col-sm-6 offset-sm-3 col-12 label">Passport Series number</label>
-              <label class="col-sm-2 offset-sm-3 col-3 pr-0">
-                <input class="form-control input-box" data-bind="masked: vm.passportSeries, mask: 'SS'"
-                id="p_series" maxlength="2" name="p_series" onkeydown="autotab(this)" type="text">
-              </label>
-              <label class="col-sm-4 col-9">
-                <input class="form-control input-box" data-bind="masked: vm.passportNumber ,mask: '9999999'" id="p_number" name="p_number" onkeydown="autoBack(this)" type="text">
-              </label>
+          const Glob = {
+            language: '@lang'
+          };
+  </script>
+  <div class="row box-align-center">
+    <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
+      <h2 class="text-white">Registration Form</h2>
+      <form name="register_form" class="row">
+        <div class="form-group col-sm-6 col-12">
+          <input class="form-control input-box" type="text" id="first_name" data-bind="value: vm.firstName" name="first_name" value="" onchange="this.setAttribute('value', this.value);">
+          <label for="first_name" class="label">First name</label>
+        </div>
+        <div class="form-group col-sm-6 col-12">
+          <input class="form-control input-box" type="text" id="last_name" name="last_name" data-bind="value: vm.lastName" value="" onchange="this.setAttribute('value', this.value);">
+          <label for="last_name" class="label">Last name</label>
+        </div>
+        <div class="form-group col-sm-6 col-12">
+          <input class="form-control input-box" type="email" id="email" name="email" data-bind="value: vm.email" value="" onchange="this.setAttribute('value', this.value);">
+          <label for="passport_sn" class="label">Email</label>
+        </div>
+        <div class="form-group col-sm-6 col-12">
+          <input class="form-control input-box" type="text" id="phone" name="phone" data-bind="value: vm.phone" value="" onchange="this.setAttribute('value', this.value);">
+          <label for="passport_sn" class="label">Phone number</label>
+        </div>
+        <div class="form-group col-sm-12">
+          <div class="row">
+            <div class="col-sm-2 offset-sm-3 col-3 pr-0">
+              <input class="form-control input-box" data-bind="masked: vm.passportSeries, mask: 'SS'"
+              id="p_series" maxlength="2" name="p_series" onkeydown="autotab(this)" type="text">
             </div>
-          </div>
-          <div class="col-12">
-            <div class="text-center">
-              <button class="btn btn-success w-75">Register</button>
+            <div class="col-sm-4 col-9">
+              <input class="form-control input-box" data-bind="masked: vm.passportNumber ,mask: '9999999'"
+              id="p_number" name="p_number" onkeydown="autoBack(this)" type="text">
             </div>
+            <label class="col-sm-6 offset-sm-3 col-12 label" id="passport_sn">Passport Series number</label>
           </div>
-        </form>
-      </div>
+        </div>
+        <div class="col-12">
+          <div class="text-center">
+            <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit">Register</button>
+          </div>
+        </div>
+      </form>
     </div>
+  </div>
   @for(_ <- 0 to 100) {
     <div class="circle-container">
       <div class="circle"></div>
     </div>
   }
-  }
+  <script >
+
+  </script>
+}

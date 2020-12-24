@@ -79,6 +79,7 @@ body {
     border: none;
     border-bottom: 1px solid white;
     background: transparent;
+    color: white !important;
 }
 
 .input-box:hover, .input-box:focus {
@@ -88,6 +89,28 @@ body {
     border-bottom: 1px solid green;
 }
 
+.form-group {
+    margin-top: 2em;
+}
+
+.form-group input:focus + label,
+.form-group input:not([value=""]) + label {
+    transform: translateY(-25px);
+    font-size: 14px;
+    color: greenyellow;
+}
+
+.move-top {
+    transform: translateY(-25px);
+    font-size: 14px;
+    color: greenyellow !important;
+}
+
 .label {
-    color: white;
+    color: gray;
+    position: absolute;
+    bottom: 0;
+    font-size: 15px;
+    pointer-events: none;
+    transition: all 0.3s ease;
 }

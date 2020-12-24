@@ -13,7 +13,6 @@ $ ->
     passportNumber: ''
     email: ''
     phone: ''
-    getPatientsList: []
     language: Glob.language
 
   handleError = (error) ->
@@ -22,30 +21,57 @@ $ ->
     else
       toastr.error('Something went wrong! Please try again.')
 
-  vm.onSubmitValidation = ->
+  vm.onSubmit = ->
+    toastr.clear()
     if !vm.firstName()
-      toastr.error("Please enter your firstName:")
+      toastr.error("Iltimos ismingizni kiriting!")
       return no
     else if !vm.lastName()
-      toastr.error("please enter your lastName:")
-      return no
-    else if !vm.passportSn()
-      toastr.error("please enter your passportSN:")
+      toastr.error("Iltimos familiyangizni kiriting!")
       return no
     else if !vm.phone()
-      toastr.error("please enter your phone:")
+      toastr.error("Iltimos telefon raqamingizni kiriting!")
+      return no
+    else if !vm.passportSeries()
+      toastr.error("Iltimos passport seriasini kiriting!")
+      return no
+    else if !vm.passportNumber()
+      toastr.error("Iltimos passport raqamini kiriting!")
       return no
     else
       patient =
         firstName: vm.firstName()
         lastName: vm.lastName()
-        passportSn: vm.passportSn()
+        passportSn: vm.passportSeries() + vm.passportNumber()
         email: vm.email()
         phone: vm.phone()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
         toastr.success(response)
+
+  $label = $('#passport_sn')
+  $pNumber = document.getElementById('p_number')
+  $pSeries = document.getElementById('p_series')
+
+  checkSize = (el) ->
+    if el.value.length > 0
+      $label.removeClass 'move-top'
+      $label.addClass 'move-top'
+    else
+      $label.removeClass 'move-top'
+
+  $pNumber.addEventListener 'focusin', (_) ->
+    $label.addClass 'move-top'
+
+  $pNumber.addEventListener 'focusout', (event) ->
+    checkSize event.target
+
+  $pSeries.addEventListener 'focusin', (_) ->
+    $label.addClass 'move-top'
+
+  $pSeries.addEventListener 'focusout', (event) ->
+    checkSize event.target
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
