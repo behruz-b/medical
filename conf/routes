@@ -1,6 +1,8 @@
 # An example controller showing a sample home page
+GET     /                           controllers.HomeController.index(language = "uz")
 GET     /:lang                      controllers.HomeController.index(lang)
-GET     /admin                      controllers.HomeController.adminLogin
+GET     /admin/:lang                controllers.HomeController.adminLogin(lang: String)
+POST    /admin                      controllers.HomeController.loginPost
 GET     /add-person/:lang           controllers.HomeController.addPerson(lang)
 GET     /thank                      controllers.HomeController.thanks
 POST    /createPatient              controllers.HomeController.createUser

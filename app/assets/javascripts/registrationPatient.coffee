@@ -44,7 +44,7 @@ $ ->
       $.post(apiUrl.valPost, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
-        toastr.success(response)
+        alert(response)
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
@@ -56,5 +56,11 @@ $ ->
       "Добро пожаловать в Smart Medical!"
       "Smart Medical-ga xush kelibsiz!"
     ]
+    name: [
+      "First name"
+      "Имя"
+      "Ism"
+    ]
+
 
   ko.applyBindings {vm}

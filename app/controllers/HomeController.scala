@@ -9,6 +9,7 @@ import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
 import org.webjars.play.WebJarsUtil
+import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.AppProtocol._
@@ -61,8 +62,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }.getOrElse(Future.successful(BadRequest("So'rovda xatolik bor. Iltimos qaytadan harakat qilib ko'ring!")))
   }
 
-  def adminLogin: Action[AnyContent] = Action {
-    Ok(adminLoginTemplate())
+  def adminLogin(language: String): Action[AnyContent] = Action {
+    Ok(adminLoginTemplate(language))
+  }
+
+  def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
+    val body = request.body.asFormUrlEncoded
+    val login = body.get("adminName").flatMap(_.headOption)
+    val password = body.get("adminPass").flatMap(_.headOption)
+    Future.successful(Redirect(controllers.routes.HomeController.index("uz"))
+      .addingToSession("login" -> s"$login", "pass" -> s"$password")) // TODO need to replace with sessionKey
   }
 
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
