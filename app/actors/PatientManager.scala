@@ -23,3 +23,4 @@ class PatientManager @Inject()(implicit val ec: ExecutionContext) extends Actor 
     patient
   }
 }
+// TODO test pullRequest
