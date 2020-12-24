@@ -1,8 +1,15 @@
 import Dependencies._
+import org.irundaia.sbt.sass._
 
 name := "medical"
 
 version := "1.0"
+
+SassKeys.cssStyle := Maxified
+
+SassKeys.generateSourceMaps := false
+
+SassKeys.syntaxDetection := ForceScss
 
 includeFilter in(Assets, LessKeys.less) := "*.less"
 excludeFilter in(Assets, LessKeys.less) := "_*.less"

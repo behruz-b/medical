@@ -1,62 +1,64 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(lang: String)
-@main("Home Page", webJarsUtil) {
-  <script >
-          function autotab(el) {
-            if (el.value.length === +el.getAttribute("maxlength")) {
-              $("#p_number").focus()
-            }
-          }
-
-          function autoBack(el) {
-            $('html').keydown(function (event) {
-              if (el.value.length === 0 && event.keyCode === 8) {
-                $("#p_series").focus()
+@(lang: String = "uz")
+  @main("Home Page", webJarsUtil) {
+    <script >
+            function autotab(el) {
+              if (el.value.length === +el.getAttribute("maxlength")) {
+                $("#p_number").focus()
               }
-            })
-          }
+            }
 
-          <
-          script
-          type = "text/javascript" >
-          var Glob = {
-            language: '@lang'
-          }
-  </script>
-  <div class="pt-5 pb-5 row">
-    <div class="col-sm-4 offset-sm-4 border-dark border">
-      <h2>Registration Form</h2>
-      <form name="register_form" class="row">
-        <div class="form-group col-sm-6">
-          <label for="first_name" class="label">First name</label>
-          <input class="form-control" type="text" id="first_name" name="first_name">
-        </div>
-        <div class="form-group col-sm-6">
-          <label for="last_name" class="label">Last name</label>
-          <input class="form-control" type="text" id="last_name" name="last_name">
-        </div>
-        <div class="form-group col-sm-6">
-          <label for="passport_sn" class="label">Email</label>
-          <input class="form-control" type="text" id="passport_sn" name="passport_sn">
-        </div>
-        <div class="form-group col-sm-6">
-          <label for="passport_sn" class="label">Phone number</label>
-          <input class="form-control" type="text" id="passport_sn" name="passport_sn">
-        </div>
-        <div class="form-group col-sm-12">
-          <div class="row">
-            <label class="col-sm-6 offset-sm-3 label">Passport Series number</label>
+            function autoBack(el) {
+              $('html').keydown(function (event) {
+                if (el.value.length === 0 && event.keyCode === 8) {
+                  $("#p_series").focus()
+                }
+              })
+            }
 
-            <label class="col-sm-2 offset-sm-3 pr-0">
-              <input class="form-control " data-bind="masked: vm.passportSeries, mask: 'SS'"
-              id="p_series" maxlength="2" name="p_series" onkeydown="autotab(this)" type="text">
-            </label>
-            <label class="col-sm-4">
-              <input class="form-control" data-bind="masked: vm.passportNumber ,mask: '9999999'" id="p_number" name="p_number" onkeydown="autoBack(this)" type="text">
-            </label>
+            const Glob = {
+              language: '@lang'
+            };
+    </script>
+    @for(_ <- 0 to 100) {
+      <div class="circle-container">
+        <div class="circle"></div>
+      </div>
+    }
+    <div class="pt-5 pb-5 row box-align-center">
+      <div class="col-lg-4 offset-lg-4 offset-sm-2 col-sm-8 border-dark border">
+        <h2>Registration Form</h2>
+        <form name="register_form" class="row">
+          <div class="form-group col-sm-6 col-12">
+            <label for="first_name" class="label">First name</label>
+            <input class="form-control input-circle" type="text" id="first_name" name="first_name">
           </div>
-        </div>
-      </form>
+          <div class="form-group col-sm-6 col-12">
+            <label for="last_name" class="label">Last name</label>
+            <input class="form-control input-circle" type="text" id="last_name" name="last_name">
+          </div>
+          <div class="form-group col-sm-6 col-12">
+            <label for="passport_sn" class="label">Email</label>
+            <input class="form-control input-circle" type="text" id="passport_sn" name="passport_sn">
+          </div>
+          <div class="form-group col-sm-6 col-12">
+            <label for="passport_sn" class="label">Phone number</label>
+            <input class="form-control input-circle" type="text" id="passport_sn" name="passport_sn">
+          </div>
+          <div class="form-group col-sm-12">
+            <div class="row">
+              <label class="col-sm-6 offset-sm-3 col-12 label">Passport Series number</label>
+
+              <label class="col-sm-2 offset-sm-3 col-3 pr-0">
+                <input class="form-control input-circle" data-bind="masked: vm.passportSeries, mask: 'SS'"
+                id="p_series" maxlength="2" name="p_series" onkeydown="autotab(this)" type="text">
+              </label>
+              <label class="col-sm-4 col-9">
+                <input class="form-control input-circle" data-bind="masked: vm.passportNumber ,mask: '9999999'" id="p_number" name="p_number" onkeydown="autoBack(this)" type="text">
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
-}
+  }

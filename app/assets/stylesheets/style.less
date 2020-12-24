@@ -1,4 +1,3 @@
-
 /*============================
 
  [Table of CSS]
@@ -12,7 +11,7 @@
 /*-----------------
 	1. General
 -----------------------*/
-
+@import "utils/style.css";
 @import url('https://fonts.googleapis.com/css?family=Rubik:400,500,700');
 
 html {
@@ -23,8 +22,8 @@ body {
     font-family: 'Rubik', sans-serif;
     font-size: 0.875rem;
     color: #666;
-    background-color: #fafafa;
-    overflow-x: hidden;
+    background-color: #013244;
+    overflow: hidden;
     height: 100%;
 }
 
@@ -42,6 +41,7 @@ body {
     text-align: center;
     width: 100%;
 }
+
 .error-wrapper {
     background-color: #fff;
     margin: 0;
@@ -53,12 +53,24 @@ body {
     justify-content: center;
     height: 100%;
 }
+
 .error-box h1 {
     font-size: 150px;
 }
+
 .error-box p {
     margin-bottom: 30px;
 }
+
 .error-box .btn {
     text-transform: uppercase;
+}
+
+.input-circle {
+    border-radius: 10px;
+}
+
+.box-align-center {
+    top: 20% !important;
+    position: sticky;
 }

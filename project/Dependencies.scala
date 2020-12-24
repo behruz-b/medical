@@ -25,6 +25,7 @@ object Dependencies {
     val jsonJoda = "2.9.0"
     val jQueryMask = "1.14.12"
     val pureConfig = "0.13.0"
+    val compass = "0.12.7"
   }
 
   object Libraries {
@@ -73,6 +74,7 @@ object Dependencies {
       "org.webjars" % "jquery" % Versions.jquery,
       "org.webjars" % "bootstrap" % Versions.bootstrap,
       "org.webjars.bower" % "knockout-mapping" % Versions.koMapping,
+      "org.webjars.bower" % "compass-mixins" % Versions.compass,
       "org.webjars" % "knockout" % Versions.knockout,
       "org.webjars" % "toastr" % Versions.toastr,
       "org.webjars" % "font-awesome" % Versions.fontAwesome,
