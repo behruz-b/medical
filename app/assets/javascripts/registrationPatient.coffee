@@ -48,7 +48,7 @@ $ ->
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
-        toastr.success(response)
+        alert(response)
 
   $label = $('#passport_sn')
   $pNumber = document.getElementById('p_number')
@@ -83,5 +83,11 @@ $ ->
       "Добро пожаловать в Smart Medical!"
       "Smart Medical-ga xush kelibsiz!"
     ]
+    name: [
+      "First name"
+      "Имя"
+      "Ism"
+    ]
+
 
   ko.applyBindings {vm}

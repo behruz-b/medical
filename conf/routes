@@ -1,7 +1,11 @@
 # An example controller showing a sample home page
-GET     /                                @controllers.HomeController.index(language = "uz")
-GET     /:lang                           @controllers.HomeController.index(lang)
-POST    /createPatient                   @controllers.HomeController.createUser
+GET     /                           controllers.HomeController.index(language = "uz")
+GET     /:lang                      controllers.HomeController.index(lang)
+GET     /admin/:lang                controllers.HomeController.adminLogin(lang: String)
+POST    /admin                      controllers.HomeController.loginPost
+GET     /add-person/:lang           controllers.HomeController.addPerson(lang)
+GET     /thank                      controllers.HomeController.thanks
+POST    /createPatient              controllers.HomeController.createUser
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
