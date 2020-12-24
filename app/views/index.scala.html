@@ -20,6 +20,7 @@
             language: '@lang'
           };
   </script>
+  <!-- ko if: vm.page() == "home" -->
   <div class="row box-align-center">
     <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
       <h2 class="text-white">Registration Form</h2>
@@ -61,6 +62,10 @@
       </form>
     </div>
   </div>
+  <!-- /ko -->
+  <!-- ko if: vm.page() == "result" -->
+    @thankYou(lang)
+  <!-- /ko -->
   @for(_ <- 0 to 100) {
     <div class="circle-container">
       <div class="circle"></div>

@@ -6,6 +6,10 @@ $ ->
   apiUrl =
     registerUrl: '/createPatient'
 
+  Page =
+    home: "home"
+    result: "result"
+
   vm = ko.mapping.fromJS
     firstName: ''
     lastName: ''
@@ -13,7 +17,9 @@ $ ->
     passportNumber: ''
     email: ''
     phone: ''
+    customerId: ''
     language: Glob.language
+    page: Page.home
 
   handleError = (error) ->
     if error.status is 500 or (error.status is 400 and error.responseText)
@@ -48,7 +54,8 @@ $ ->
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
-        alert(response)
+        vm.customerId(response)
+        vm.page(Page.result)
 
   $label = $('#passport_sn')
   $pNumber = document.getElementById('p_number')

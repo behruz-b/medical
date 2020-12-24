@@ -2,6 +2,8 @@
 <div class="bg-white text-center">
   <i class="fa fa-check-circle fa-10x m-2 mt-5"></i>
   <h3>Thank you!</h3>
-  <h3>You are registered on id</h3>
+  <h3>You are registered on id:
+    <span class="text-success" data-bind="text: vm.customerId()"><span>
+  </h3>
   <a class="btn btn-primary mt-2" href="@routes.HomeController.index(lang)">GO TO HOME PAGE</a>
 </div>
