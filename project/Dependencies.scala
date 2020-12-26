@@ -6,7 +6,7 @@ object Dependencies {
     val cats = "2.1.1"
     val fs2 = "2.4.0"
     val akka = "2.6.10"
-    val doobie = "0.9.0"
+    val doobie = "0.9.4"
     val scalaLogging = "3.9.2"
     val postgreSql = "42.2.18"
     val scalaTestPlus = "5.1.0"
