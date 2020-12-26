@@ -40,9 +40,18 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val passportSN = (request.body \ "passportSn").as[String]
       val phone = (request.body \ "phone").as[String]
       val email = (request.body \ "email").as[String]
-      val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, generateLogin, generatePassword, generateCustomerId.some)
-      (patientManager ? CreatePatients(patient)).mapTo[Patient].map { patient =>
-        Ok(Json.toJson(patient.customerId))
+      val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, generateCustomerId, generateLogin, generatePassword)
+      (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
+        case Right(_) =>
+          logger.debug(s"SUCCEESS")
+          Ok(Json.toJson(patient.customer_id))
+        case Left(e) =>
+          logger.debug(s"ERROR")
+          BadRequest(e)
+      }.recover {
+        case e =>
+          logger.error("Error while creating patient", e)
+          BadRequest("Error")
       }
     } match {
       case Success(res) => res

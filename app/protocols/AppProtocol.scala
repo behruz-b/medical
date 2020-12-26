@@ -4,18 +4,18 @@ import java.time.LocalDateTime
 
 object AppProtocol {
 
-  case class Patient(createAt: LocalDateTime,
-                     firstName: String,
-                     lastName: String,
+  case class Patient(create_at: LocalDateTime,
+                     firstname: String,
+                     lastname: String,
                      phone: String,
                      email: Option[String] = None,
-                     passportSn: String,
+                     passport: String,
+                     customer_id: String,
                      login: String,
-                     password: String,
-                     customerId: Option[String] = None) {
+                     password: String) {
     def id: Option[Int] = None
   }
 
-  case class CreatePatients(patient: Patient)
+  case class CreatePatient(patient: Patient)
 
 }

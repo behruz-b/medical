@@ -1,10 +1,10 @@
 package doobie.domain
 
-import protocols.DoobieProtocol.DoobieTest
+import protocols.AppProtocol.Patient
 
 trait CreatorRepositoryAlgebra[F[_]] {
 
-  def create(name: String, login: String): F[Int]
+  def create(patient: Patient): F[Int]
 
 }
 
