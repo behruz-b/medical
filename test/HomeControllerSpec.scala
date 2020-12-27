@@ -10,9 +10,7 @@ class HomeControllerSpec extends PlayStubEnv {
       "lastName": "Test",
       "passportSn": "Test",
       "phone": "Test",
-      "email": "Test",
-      "login": "Test",
-      "password": "Test"
+      "email": "Test"
     }""")
 
   "Create patient" should {
