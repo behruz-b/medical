@@ -19,7 +19,7 @@ This project created on PlayFramework 2.8.7
 
 ### 3. Updating your fork from original repo to keep up with their changes:
 
-    git pull upstream master
+    git pull upstream main
 
 ## Installation
 
