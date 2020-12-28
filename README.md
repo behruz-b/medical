@@ -9,7 +9,7 @@ This project created on PlayFramework 2.8.7
 
 ### 1. Clone your fork:
 
-    git clone git@github.com:behruz-b/medical.git
+    git clone git@github.com:github-username/medical.git
 
 ### 2. Add remote from original repository in your forked repository: 
 
