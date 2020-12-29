@@ -17,5 +17,6 @@ object AppProtocol {
   }
 
   case class CreatePatient(patient: Patient)
+  case class GetPatientByCustomerId(customerId: String)
 
 }

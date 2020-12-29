@@ -23,6 +23,9 @@ class PatientManager @Inject()(val configuration: Configuration,
   override def receive: Receive = {
     case CreatePatient(patient) =>
       createPatient(patient).pipeTo(sender())
+
+    case GetPatientByCustomerId(customerId) =>
+      getPatientByCustomerId(customerId)
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
@@ -35,6 +38,19 @@ class PatientManager @Inject()(val configuration: Configuration,
       case e: Throwable =>
         logger.error("Error", e)
         Left("Error happened while creating patient")
+    }
+  }
+
+  private def getPatientByCustomerId(customerId: String): Future[Either[String, Option[Patient]]] = {
+    (for {
+      patient <- DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture()
+    } yield {
+      logger.debug(s"result: $patient")
+      Right(patient)
+    }).recover {
+      case e: Throwable =>
+        logger.error("Error", e)
+        Left("Error happened while requesting patient")
     }
   }
 }
