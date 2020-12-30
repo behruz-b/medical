@@ -35,13 +35,13 @@ $ ->
     else if !vm.lastName()
       toastr.error("Iltimos familiyangizni kiriting!")
       return no
-    else if vm.email() and !my.isValidEmail(vm.email)
-      toastr.error("Iltimos emailni togri kiriting!")
+    else if vm.email() and !my.isValidEmail(vm.email())
+      toastr.error("Iltimos emailni to'gri kiriting!")
       return no
     else if !vm.phone()
       toastr.error("Iltimos telefon raqamingizni kiriting!")
     else if vm.phone() and !my.isValidPhone(vm.phone().replace(/[(|)|-]/g, "").trim())
-      toastr.error("Iltimos telefon raqamingizni togri kiriting!")
+      toastr.error("Iltimos telefon raqamingizni to'gri kiriting!")
       return no
     else if !vm.passportSeries()
       toastr.error("Iltimos passport seriasini kiriting!")
