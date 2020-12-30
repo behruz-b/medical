@@ -38,7 +38,7 @@
           <label for="passport_sn" class="label">Email</label>
         </div>
         <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="phone" name="phone" data-bind="value: vm.phone" value="" onchange="this.setAttribute('value', this.value);">
+          <input class="form-control input-box" type="text" id="phone" name="phone" data-bind="masked: vm.phone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
           <label for="passport_sn" class="label">Phone number</label>
         </div>
         <div class="form-group col-sm-12">
