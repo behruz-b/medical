@@ -1,0 +1,30 @@
+@this(webJarsUtil: org.webjars.play.WebJarsUtil)
+@(lang: String = "uz")
+@main("Doc Page", webJarsUtil) {
+    <script >
+            const Glob = {
+                language: '@lang'
+            };
+    </script>
+    <!— ko if: vm.page() == "home" —>
+    <div class="row box-align-center">
+        <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
+            <h2 class="text-white">Doctor Form</h2>
+            <form name="register_form" class="row">
+                <div class="form-group col-sm-6 col-12">
+                    <input class="form-control input-box" type="text" id="id" data-bind="value: vm.id" name="id" value="" onchange="this.setAttribute('value', this.value);">
+                    <label for="id" class="label">ID</label>
+                </div>
+                <div class="form-group col-sm-6 col-12">
+                    <input class="form-control input-box" type="file" accept="image/*;capture=camera" id="file" name="file" data-bind="value: vm.file">
+                    <label for="file" class="label">File</label>
+                </div>
+                <div class="col-12">
+                    <div class="text-center">
+                        <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onFileSend">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
