@@ -11,3 +11,5 @@ CREATE TABLE "Patients" ("id" SERIAL PRIMARY KEY,
                          "customer_id" VARCHAR NOT NULL,
                          "login" VARCHAR NOT NULL,
                          "password" VARCHAR NOT NULL);
+
+ALTER TABLE "Patients" ADD COLUMN lab_images VARCHAR NULL;
