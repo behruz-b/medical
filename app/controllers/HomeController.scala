@@ -22,7 +22,6 @@ import scala.util.{Failure, Success, Try}
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
-                               val configuration: Configuration,
                                indexTemplate: index,
                                adminLoginTemplate: admin.login,
                                docPageTemp: doc,
