@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 object AppProtocol {
 
-  case class Patient(create_at: LocalDateTime,
+  case class Patient(created_at: LocalDateTime,
                      firstname: String,
                      lastname: String,
                      phone: String,

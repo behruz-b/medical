@@ -25,7 +25,7 @@ object MessageSQL extends CommonSQL  {
   }
 
   def create(patient: Patient): doobie.ConnectionIO[Int] = {
-    val values = fr"(${javaLdTime2JavaSqlTimestamp(patient.create_at)},${patient.firstname}, ${patient.lastname}, ${patient.phone}, ${patient.email}, ${patient.passport}, ${patient.customer_id}, ${patient.login}, ${patient.password})"
+    val values = fr"(${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname}, ${patient.phone}, ${patient.email}, ${patient.passport}, ${patient.customer_id}, ${patient.login}, ${patient.password})"
 
     sql"""insert into "Patients" (created_at, firstname, lastname, phone, email, passport, customer_id, login, password)
           values $values""".update.withUniqueGeneratedKeys[Int]("id")
