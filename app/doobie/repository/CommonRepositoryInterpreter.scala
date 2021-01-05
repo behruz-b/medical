@@ -11,6 +11,7 @@ trait CommonSQL {
 
   def create(patient: Patient): ConnectionIO[Int]
   def getByCustomerId(customerId: String): Query0[Patient]
+  def getPatientByLogin(login: String): Query0[Patient]
 
 }
 
@@ -24,6 +25,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   }
   override def getByCustomerId(customerId: String): fs2.Stream[F,Patient] = {
     commonSql.getByCustomerId(customerId).stream.transact(xa)
+  }
+  def getPatientByLogin(login: String): fs2.Stream[F,Patient] = {
+    commonSql.getPatientByLogin(login).stream.transact(xa)
   }
 
 }

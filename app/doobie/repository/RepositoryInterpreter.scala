@@ -37,6 +37,10 @@ object MessageSQL extends CommonSQL  {
     querySql.query[Patient]
   }
 
+  def getPatientByLogin(login: String): doobie.Query0[Patient] = {
+    sql"""select created_at,firstname,lastname,phone,email,passport,customer_id,login,password from "Patients" WHERE login = $login""".query[Patient]
+  }
+
 }
 
 class RepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](override val xa: Transactor[F])

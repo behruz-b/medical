@@ -28,6 +28,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   extends BaseController with LazyLogging with CommonMethods {
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
+  val loginKey = "patient_key"
 
   def index(language: String = "uz"): Action[AnyContent] = Action {
     Ok(indexTemplate(language))
@@ -66,11 +67,34 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
-    val body = request.body.asFormUrlEncoded
-    val login = body.get("adminName").flatMap(_.headOption)
-    val password = body.get("adminPass").flatMap(_.headOption)
-    Future.successful(Redirect(controllers.routes.HomeController.index("uz"))
-      .addingToSession("login" -> s"$login", "pass" -> s"$password")) // TODO need to replace with sessionKey
+    request.session.get(loginKey) match {
+      case Some(_) => Future.successful(BadRequest("You are already authorized"))
+      case None =>
+        val body = request.body.asFormUrlEncoded
+        val login = body.get("adminName").flatMap(_.headOption)
+        val password = body.get("adminPass").flatMap(_.headOption)
+        if (login.exists(_.nonEmpty) || password.exists(_.nonEmpty)) {
+          (patientManager ? GetPatientByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
+            case Right(_) =>
+              Redirect(routes.HomeController.index("uz")).addingToSession(loginKey -> login.get)
+            case Left(error) =>
+              BadRequest(error)
+          }.recover {
+            case error: Throwable =>
+              logger.error(s"Error occurred while check user: $error")
+              BadRequest("Authorization failed")
+          }
+        } else {
+          Future.successful(BadRequest("Login or Password undefined"))
+        }
+    }
+  }
+
+  def logout: Action[AnyContent] = Action { implicit request =>
+    request.session.get(loginKey) match {
+      case Some(_) => Redirect(routes.HomeController.index("uz")).withSession(request.session - loginKey)
+      case None => BadRequest("You are not authorized")
+    }
   }
 
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)

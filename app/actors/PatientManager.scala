@@ -26,6 +26,9 @@ class PatientManager @Inject()(val configuration: Configuration,
 
     case GetPatientByCustomerId(customerId) =>
       getPatientByCustomerId(customerId)
+
+    case GetPatientByLogin(login, password) =>
+      getPatientByLogin(login, password).pipeTo(sender())
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
@@ -51,6 +54,19 @@ class PatientManager @Inject()(val configuration: Configuration,
       case e: Throwable =>
         logger.error("Error", e)
         Left("Error happened while requesting patient")
+    }
+  }
+
+  private def getPatientByLogin(login: String, password: String): Future[Either[String, String]] = {
+    (for {
+      result <- DoobieModule.repo.getPatientByLogin(login).compile.last.unsafeToFuture()
+    } yield {
+      logger.debug(s"result: ${result.map(_.password == password)}, $result")
+      Right("Successfully")
+    }).recover {
+      case e: Throwable =>
+        logger.error("Error", e)
+        Left("Error happened while requesting Login or Password")
     }
   }
 }
