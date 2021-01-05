@@ -9,6 +9,7 @@ import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
 import org.webjars.play.WebJarsUtil
+import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -23,6 +24,7 @@ import scala.util.{Failure, Success, Try}
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: index,
                                adminLoginTemplate: admin.login,
+                               docPageTemp: doc,
                                @Named("patient-manager") val patientManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging with CommonMethods {
@@ -64,6 +66,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def adminLogin(language: String): Action[AnyContent] = Action {
     Ok(adminLoginTemplate(language))
+  }
+
+  def doc(language: String): Action[AnyContent] = Action {
+    Ok(docPageTemp(language))
   }
 
   def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
