@@ -53,7 +53,7 @@ $ ->
       patient =
         firstName: vm.firstName()
         lastName: vm.lastName()
-        passportSn: vm.passportSeries() + vm.passportNumber()
+        passportSn: vm.passportSeries().toUpperCase() + vm.passportNumber()
         email: vm.email()
         phone: vm.phone()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
