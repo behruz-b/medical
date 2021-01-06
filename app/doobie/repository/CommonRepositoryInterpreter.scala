@@ -9,7 +9,7 @@ import protocols.AppProtocol.Patient
 trait CommonSQL {
 
   def create(patient: Patient): ConnectionIO[Int]
-  def labResult(patient: Patient): ConnectionIO[Int]
+  def addAnalysisResult(customerId: String, analysisFileName: String): Update0
   def getByCustomerId(customerId: String): Query0[Patient]
   def getPatientByLogin(login: String): Query0[Patient]
 
@@ -23,13 +23,13 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def create(patient: Patient): F[Int] = {
     commonSql.create(patient).transact(xa)
   }
-  override def labResult(patient: Patient): F[Int] = {
-    commonSql.labResult(patient).transact(xa)
+  override def addAnalysisResult(customerId: String, analysisFileName: String): F[Int] = {
+    commonSql.addAnalysisResult(customerId, analysisFileName).run.transact(xa)
   }
   override def getByCustomerId(customerId: String): fs2.Stream[F,Patient] = {
     commonSql.getByCustomerId(customerId).stream.transact(xa)
   }
-  def getPatientByLogin(login: String): fs2.Stream[F,Patient] = {
+  override def getPatientByLogin(login: String): fs2.Stream[F,Patient] = {
     commonSql.getPatientByLogin(login).stream.transact(xa)
   }
 

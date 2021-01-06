@@ -12,4 +12,4 @@ CREATE TABLE "Patients" ("id" SERIAL PRIMARY KEY,
                          "login" VARCHAR NOT NULL,
                          "password" VARCHAR NOT NULL);
 
-ALTER TABLE "Patients" ADD COLUMN lab_images VARCHAR NULL;
+ALTER TABLE "Patients" ADD COLUMN analysis_image_name VARCHAR NULL;

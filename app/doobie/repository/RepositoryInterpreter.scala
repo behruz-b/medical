@@ -17,7 +17,7 @@ object MessageSQL extends CommonSQL  {
   implicit val patientRead: Read[Patient] =
     Read[(Timestamp, String, String, String, Option[String], String, String, String, String, Option[String])].map {
       case (created_at, firstname, lastname, phone, email, passport, customer_id, login, password, lab_image) =>
-        new Patient(created_at.toLocalDateTime, firstname, lastname, phone, email, passport, customer_id, login, password, lab_image)
+        Patient(created_at.toLocalDateTime, firstname, lastname, phone, email, passport, customer_id, login, password, lab_image)
     }
 
   private def javaLdTime2JavaSqlTimestamp(ldTime: LocalDateTime): Timestamp = {
@@ -31,10 +31,9 @@ object MessageSQL extends CommonSQL  {
           values $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 
-  def labResult(patient: Patient): doobie.ConnectionIO[Int] = {
-
-    sql"""UPDATE "Patients" SET lab_image=${patient.lab_image}
-          WHERE customer_id=${patient.customer_id}""".update.withUniqueGeneratedKeys[Int]("id")
+  def addAnalysisResult(customerId: String, analysisFileName: String): Update0 = {
+    sql"""UPDATE "Patients" SET analysis_image_name=$analysisFileName
+          WHERE customer_id=$customerId""".update
   }
 
   def getByCustomerId(customerId: String): Query0[Patient] = {

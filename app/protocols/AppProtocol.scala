@@ -13,12 +13,12 @@ object AppProtocol {
                      customer_id: String,
                      login: String,
                      password: String,
-                     lab_image: Option[String] = None) {
+                     analysis_image_name: Option[String] = None) {
     def id: Option[Int] = None
   }
 
   case class CreatePatient(patient: Patient)
-  case class LabResult(patient: Patient)
+  case class AddAnalysisResult(customerId: String, analysisFileName: String)
   case class GetPatientByCustomerId(customerId: String)
   case class GetPatientByLogin(login: String, password: String)
 

@@ -20,9 +20,17 @@ class PatientManager @Inject()(val configuration: Configuration,
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
   private val DoobieModule = DoobieUtil.doobieModule(configuration)
 
+// For testing purpose test DB
+//  override def preStart: Unit = {
+//    self ! AddAnalysisResult("U-668", "Sample Image Name of Analysis")
+//  }
+
   override def receive: Receive = {
     case CreatePatient(patient) =>
       createPatient(patient).pipeTo(sender())
+
+    case AddAnalysisResult(customerId, analysisFileName) =>
+      addAnalysisResult(customerId, analysisFileName).pipeTo(sender())
 
     case GetPatientByCustomerId(customerId) =>
       getPatientByCustomerId(customerId)
@@ -67,6 +75,23 @@ class PatientManager @Inject()(val configuration: Configuration,
       case e: Throwable =>
         logger.error("Error", e)
         Left("Error happened while requesting Login or Password")
+    }
+  }
+
+  private def addAnalysisResult(customerId: String, analysisFileName: String): Future[Either[String, String]] = {
+    (for {
+      result <- DoobieModule.repo.addAnalysisResult(customerId, analysisFileName).unsafeToFuture()
+    } yield {
+      logger.debug(s"result: $result")
+      if (result == 1) {
+        Right("Successfully")
+      } else {
+        Left("Error while adding Analysis File to DB")
+      }
+    }).recover {
+      case e: Throwable =>
+        logger.error("Error", e)
+        Left("Error happened while adding Analysis File to DB")
     }
   }
 }
