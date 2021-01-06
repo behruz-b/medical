@@ -102,5 +102,45 @@ $ ->
       "Имя"
       "Ism"
     ]
+    thankYou: [
+      "Thank you!"
+      "Спасибо!"
+      "Rahmat!"
+    ]
+    yourID: [
+      "You are registered on ID:"
+      "Вы зарегистрированы по ID:"
+      "Siz ro'yxatdan o'tdingiz! Sizning ID:"
+    ]
+    toHome: [
+      "GO TO HOME PAGE"
+      "Главная"
+      "Bosh sahifaga"
+    ]
+    addAnalysisResult: [
+      "Add Analysis Result"
+      "Добавить результат анализа"
+      "Tahlil natijasini qo'shish"
+    ]
+    file: [
+      "File"
+      "Файл"
+      "Fayl"
+    ]
+    submit: [
+      "Submit"
+      "Отправить"
+      "Jo'natish"
+    ]
+    notFound: [
+      "Oops! Page not found!"
+      "Ой! Страница не найдена!"
+      "Afsus! Sahifa topilmadi!"
+    ]
+    notFoundDescription: [
+      "The page you were looking for doesn't exist. You may have mistyped the address or the page may have moved."
+      "Страница, которую вы искали, не существует. Возможно, вы ошиблись при вводе адреса или страница могла быть перемещена."
+      "Siz izlayotgan sahifa mavjud emas. Ehtimol, siz manzilni noto'g'ri yozgansiz yoki sahifa ko'chib ketgan bo'lishi mumkin."
+    ]
 
   ko.applyBindings {vm}

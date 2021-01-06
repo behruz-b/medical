@@ -1,16 +1,3 @@
-/*============================
-
- [Table of CSS]
-
-    1. General
-    2. Error
-    3. Login
-
-========================================*/
-
-/*-----------------
-	1. General
------------------------*/
 @import "utils/style.css";
 @import url('https://fonts.googleapis.com/css?family=Rubik:400,500,700');
 
@@ -29,45 +16,6 @@ body {
     background-size: cover;
     overflow: hidden;
     height: 100%;
-}
-
-/*-----------------
-    2. Error
------------------------*/
-
-.error-box {
-    background-color: #fff;
-    border-radius: 5px;
-    line-height: 1;
-    margin: 0 auto;
-    max-width: 475px;
-    padding: 50px 30px 55px;
-    text-align: center;
-    width: 100%;
-}
-
-.error-wrapper {
-    background-color: #fff;
-    margin: 0;
-    color: #4F5155;
-    -moz-box-align: center;
-    -moz-box-pack: center;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    height: 100%;
-}
-
-.error-box h1 {
-    font-size: 150px;
-}
-
-.error-box p {
-    margin-bottom: 30px;
-}
-
-.error-box .btn {
-    text-transform: uppercase;
 }
 
 .box-align-center {
@@ -114,3 +62,80 @@ body {
     pointer-events: none;
     transition: all 0.3s ease;
 }
+
+/* START Thank you page style */
+.content-thankyou {
+    width: 100%;
+    padding: 20px;
+    box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    text-align: center;
+    align-items: center;
+    color: #fff;
+}
+
+.content-thankyou a {
+    display: inline-block;
+    padding: 8px 20px;
+    margin-top: 15px;
+    background: #fff;
+    color: #000;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+/* END Thank you page style */
+
+/* START Not found page style */
+.content-notFound {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    padding: 20px;
+    box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    border-left: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
+    text-align: center;
+    align-items: center;
+    color: #fff;
+}
+
+.content-notFound h2 {
+    position: absolute;
+    top: -20px;
+    right: 20px;
+    font-size: 11em;
+    color: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.content-notFound h3 {
+    margin-top: 115px;
+    font-size: 2em;
+    z-index: 1;
+}
+
+.content-notFound p {
+    padding: 5px;
+    font-size: 1.5em;
+    font-weight: 300;
+}
+
+.content-notFound a {
+    display: inline-block;
+    padding: 8px 20px;
+    margin-top: 15px;
+    background: #fff;
+    color: #000;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+/* START Not Found page style */
