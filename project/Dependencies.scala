@@ -38,7 +38,7 @@ object Dependencies {
     val scalaTestPlus = "org.scalatestplus.play" %% "scalatestplus-play" % Versions.scalaTestPlus % Test
     val scalaJHttp = "org.scalaj" %% "scalaj-http" % "2.4.2"
     val jsonJoda = "com.typesafe.play" %% "play-json-joda" % Versions.jsonJoda
-    val pureConfig = "com.github.pureconfig" %% "pureconfig" % Versions.pureConfig
+    val pureConfig = Seq("com.github.pureconfig" %% "pureconfig" % Versions.pureConfig)
     val playMailerLibs = Seq(
       "com.typesafe.play" %% "play-mailer" % Versions.playMailer,
       "com.typesafe.play" %% "play-mailer-guice" % Versions.playMailer
@@ -96,5 +96,6 @@ object Dependencies {
     Libraries.dbLibs ++
     Libraries.akka ++
     Libraries.doobieLibs ++
+    Libraries.pureConfig ++
     Libraries.webjarsLibs
 }
