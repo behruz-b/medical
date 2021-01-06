@@ -27,6 +27,8 @@ $ ->
     else
       toastr.error('Something went wrong! Please try again.')
 
+  $thankYou = $('#thankYou')
+
   vm.onSubmit = ->
     toastr.clear()
     if !vm.firstName()
@@ -60,7 +62,7 @@ $ ->
       .fail handleError
       .done (response) ->
         vm.customerId(response)
-        vm.page(Page.result)
+        $thankYou.modal('show')
 
   $label = $('#passport_sn')
   $pNumber = document.getElementById('p_number')
