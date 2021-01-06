@@ -6,27 +6,25 @@
       language: '@lang'
     }
   </script>
-  <div class="account-wrapper mt-5">
-    <div class="account-page">
-      <div class="account-center">
-        <div class="account-box">
-          <form action="/admin" method="post" class="form-signin" enctype="multipart/form-data">
-            <div class="account-logo">
-              <a href="/"><img src="@routes.Assets.versioned("./images/logo-dark.png")" alt="#"></a>
+  <div class="row box-align-center">
+    <div class="offset-lg-2 col-lg-4 offset-sm-2 col-sm-8 p-4">
+      <div class="content-login">
+        <h2 class="text-center">Admin Panel</h2>
+        <form action="/admin" method="post" class="row" enctype="multipart/form-data">
+          <div class="form-group col-sm-12 col-12">
+            <input class="form-control input-box" autofocus="" autocomplete="false" type="text" id="login" name="adminName" required>
+            <label for="login" class="label">Login</label>
+          </div>
+          <div class="form-group col-sm-12 col-12">
+            <input class="form-control input-box" type="password" id="password" name="adminPass" required>
+            <label for="password" class="label">Password</label>
+          </div>
+          <div class="col-12">
+            <div class="text-center">
+              <button class="btn btn-success w-75 mt-5">Login</button>
             </div>
-            <div class="form-group">
-              <label>Login</label>
-              <input type="text" autofocus="" autocomplete="false" name="adminName" class="form-control" required>
-            </div>
-            <div class="form-group">
-              <label>Password</label>
-              <input type="password" name="adminPass" class="form-control" required>
-            </div>
-            <div class="form-group text-center">
-              <button type="submit" class="btn btn-primary account-btn">Login</button>
-            </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
