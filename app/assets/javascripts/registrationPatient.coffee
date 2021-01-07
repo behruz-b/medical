@@ -97,10 +97,30 @@ $ ->
       "Добро пожаловать в Smart Medical!"
       "Smart Medical-ga xush kelibsiz!"
     ]
-    name: [
+    firstname: [
       "First name"
       "Имя"
       "Ism"
+    ]
+    lastname: [
+      "Last name"
+      "Фамилия"
+      "Familiya"
+    ]
+    email: [
+      "Email"
+      "Email"
+      "Email"
+    ]
+    phoneNumber: [
+      "Phone number"
+      "Телефонный номер"
+      "Telefon raqami"
+    ]
+    passportSerialNumber: [
+      "Passport serial number"
+      "Серийный номер паспорта"
+      "Pasport seriya raqami"
     ]
     thankYou: [
       "Thank you!"
@@ -142,5 +162,6 @@ $ ->
       "Страница, которую вы искали, не существует. Возможно, вы ошиблись при вводе адреса или страница могла быть перемещена."
       "Siz izlayotgan sahifa mavjud emas. Ehtimol, siz manzilni noto'g'ri yozgansiz yoki sahifa ko'chib ketgan bo'lishi mumkin."
     ]
+
 
   ko.applyBindings {vm}

@@ -27,19 +27,19 @@
       <form name="register_form" class="row">
         <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="text" id="first_name" data-bind="value: vm.firstName" name="first_name" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="first_name" class="label">First name</label>
+          <label for="first_name" class="label"><span data-bind="text: vm.translate('firstname')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="text" id="last_name" name="last_name" data-bind="value: vm.lastName" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="last_name" class="label">Last name</label>
+          <label for="last_name" class="label"><span data-bind="text: vm.translate('lastname')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="email" id="email" name="email" data-bind="value: vm.email" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="passport_sn" class="label">Email</label>
+          <label for="passport_sn" class="label"><span data-bind="text: vm.translate('email')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="text" id="phone" name="phone" data-bind="masked: vm.phone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="passport_sn" class="label">Phone number</label>
+          <label for="passport_sn" class="label"><span data-bind="text: vm.translate('phoneNumber')"></span></label>
         </div>
         <div class="form-group col-sm-12">
           <div class="row">
@@ -51,7 +51,7 @@
               <input class="form-control input-box" data-bind="masked: vm.passportNumber ,mask: '9999999'"
               id="p_number" name="p_number" onkeydown="autoBack(this)" type="text">
             </div>
-            <label class="col-sm-6 offset-sm-3 col-12 label" id="passport_sn">Passport Series number</label>
+            <label class="col-sm-6 offset-sm-3 col-12 label" id="passport_sn"><span data-bind="text: vm.translate('passportSerialNumber')"></span></label>
           </div>
         </div>
         <div class="col-12">
