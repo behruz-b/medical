@@ -1,7 +1,7 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
 @(lang: String = "uz")
 @main("Home Page", webJarsUtil) {
-  <script >
+  <script>
           function autotab(el) {
             if (el.value.length === +el.getAttribute("maxlength")) {
               $("#p_number").focus()
@@ -23,15 +23,15 @@
   <!-- ko if: vm.page() == "home" -->
   <div class="row box-align-center">
     <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
-      <h2 class="text-white">Registration Form</h2>
+      <h2 class="text-white"><span data-bind="text: vm.translate('registrationForm')"></span></h2>
       <form name="register_form" class="row">
         <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="text" id="first_name" data-bind="value: vm.firstName" name="first_name" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="first_name" class="label"><span data-bind="text: vm.translate('firstname')"></span></label>
+          <label for="first_name" class="label"><span data-bind="text: vm.translate('firstName')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="text" id="last_name" name="last_name" data-bind="value: vm.lastName" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="last_name" class="label"><span data-bind="text: vm.translate('lastname')"></span></label>
+          <label for="last_name" class="label"><span data-bind="text: vm.translate('lastName')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="email" id="email" name="email" data-bind="value: vm.email" value="" onchange="this.setAttribute('value', this.value);">
@@ -56,7 +56,7 @@
         </div>
         <div class="col-12">
           <div class="text-center">
-            <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit">Register</button>
+            <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit"><span data-bind="text: vm.translate('register')"></span></button>
           </div>
         </div>
       </form>

@@ -9,19 +9,19 @@
   <div class="row box-align-center">
     <div class="offset-lg-2 col-lg-4 offset-sm-2 col-sm-8 p-4">
       <div class="content-login">
-        <h2 class="text-center">Admin Panel</h2>
+        <h2 class="text-center"><span data-bind="text: vm.translate('adminPanel')"></span></h2>
         <form action="/admin" method="post" class="row" enctype="multipart/form-data">
           <div class="form-group col-sm-12 col-12">
             <input class="form-control input-box" autofocus="" autocomplete="false" type="text" id="login" name="adminName" required>
-            <label for="login" class="label">Login</label>
+            <label for="login" class="label"><span data-bind="text: vm.translate('login')"></span></label>
           </div>
           <div class="form-group col-sm-12 col-12">
             <input class="form-control input-box" type="password" id="password" name="adminPass" required>
-            <label for="password" class="label">Password</label>
+            <label for="password" class="label"><span data-bind="text: vm.translate('password')"></span></label>
           </div>
           <div class="col-12">
             <div class="text-center">
-              <button class="btn btn-success w-75 mt-5">Login</button>
+              <button class="btn btn-success w-75 mt-5"><span data-bind="text: vm.translate('login')"></span></button>
             </div>
           </div>
         </form>

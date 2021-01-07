@@ -1,18 +1,13 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(lang: String = "uz")
+@()
 @main("Not found!", webJarsUtil) {
-  <script>
-          var Glob = {
-            language: '@lang'
-          };
-  </script>
   <div class="row box-align-center">
     <div class="offset-lg-2 col-lg-4 offset-sm-2 col-sm-8 p-4">
       <div class="content-notFound">
         <h2>404</h2>
-        <h3><i class="fa fa-exclamation-triangle"></i> Oops! Page Not Found! <span data-bind="text: vm.translate('notFound')"></span></h3>
+        <h3><i class="fa fa-exclamation-triangle"></i> Oops! Page Not Found!</h3>
         <p>The page you were looking for doesn't exist. You may have mistyped the address or the page may have moved.</p>
-        <a href="@routes.HomeController.index(lang)">GO TO HOME PAGE</a>
+        <a href="/">GO TO HOME PAGE</a>
       </div>
     </div>
   </div>

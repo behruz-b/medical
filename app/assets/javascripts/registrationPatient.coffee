@@ -97,19 +97,29 @@ $ ->
       "Добро пожаловать в Smart Medical!"
       "Smart Medical-ga xush kelibsiz!"
     ]
-    firstname: [
+    registrationForm: [
+      "Registration Form"
+      "Форма регистрации"
+      "Ro'yxatdan o'tish shakli"
+    ]
+    register: [
+      "Register"
+      "Регистрация"
+      "Ro'yxatdan o'tish"
+    ]
+    firstName: [
       "First name"
       "Имя"
       "Ism"
     ]
-    lastname: [
+    lastName: [
       "Last name"
       "Фамилия"
       "Familiya"
     ]
     email: [
       "Email"
-      "Email"
+      "Эл. адрес"
       "Email"
     ]
     phoneNumber: [
@@ -136,6 +146,21 @@ $ ->
       "GO TO HOME PAGE"
       "Главная"
       "Bosh sahifaga"
+    ]
+    adminPanel: [
+      "Admin Panel"
+      "Главная"
+      "Admin boshqaruvi"
+    ]
+    login: [
+      "Login"
+      "Логин"
+      "Login"
+    ]
+    password: [
+      "Password"
+      "Пароль"
+      "Parol"
     ]
     addAnalysisResult: [
       "Add Analysis Result"
