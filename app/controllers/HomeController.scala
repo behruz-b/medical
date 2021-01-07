@@ -72,6 +72,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok(docPageTemp(language))
   }
 
+  def getPatients = Action.async {
+    (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
+      Ok(Json.toJson(patients))
+    }
+  }
+
   def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     request.session.get(loginKey) match {
       case Some(_) => Future.successful(BadRequest("You are already authorized"))

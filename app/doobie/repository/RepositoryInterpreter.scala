@@ -45,6 +45,10 @@ object MessageSQL extends CommonSQL  {
     sql"""select created_at,firstname,lastname,phone,email,passport,customer_id,login,password from "Patients" WHERE login = $login""".query[Patient]
   }
 
+  def getPatients: ConnectionIO[List[Patient]] = {
+    val querySql = fr"""SELECT create_at,firstname,lastname,phone,email,passport,customer_id,login,password FROM "Patients" ORDER BY create_at """
+    querySql.query[Patient].to[List]
+  }
 }
 
 class RepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](override val xa: Transactor[F])

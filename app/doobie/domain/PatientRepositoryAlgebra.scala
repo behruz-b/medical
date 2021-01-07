@@ -8,6 +8,7 @@ trait PatientRepositoryAlgebra[F[_]] {
   def addAnalysisResult(customerId: String, analysisFileName: String): F[Int]
   def getByCustomerId(customerId: String): fs2.Stream[F,Patient]
   def getPatientByLogin(login: String):fs2.Stream[F,Patient]
+  def getPatients: F[List[Patient]]
 
 }
 

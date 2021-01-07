@@ -12,6 +12,7 @@ trait CommonSQL {
   def addAnalysisResult(customerId: String, analysisFileName: String): Update0
   def getByCustomerId(customerId: String): Query0[Patient]
   def getPatientByLogin(login: String): Query0[Patient]
+  def getPatients: ConnectionIO[List[Patient]]
 
 }
 
@@ -31,6 +32,10 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   }
   override def getPatientByLogin(login: String): fs2.Stream[F,Patient] = {
     commonSql.getPatientByLogin(login).stream.transact(xa)
+  }
+
+  override def getPatients: F[List[Patient]] = {
+    commonSql.getPatients.transact(xa)
   }
 
 }

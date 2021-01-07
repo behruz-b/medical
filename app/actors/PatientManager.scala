@@ -37,6 +37,9 @@ class PatientManager @Inject()(val configuration: Configuration,
 
     case GetPatientByLogin(login, password) =>
       getPatientByLogin(login, password).pipeTo(sender())
+
+    case GetPatients =>
+      getPatients.pipeTo(sender())
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
@@ -92,6 +95,14 @@ class PatientManager @Inject()(val configuration: Configuration,
       case e: Throwable =>
         logger.error("Error", e)
         Left("Error happened while adding Analysis File to DB")
+    }
+  }
+  private def getPatients: Future[List[Patient]] = {
+    for {
+      patients <- DoobieModule.repo.getPatients.unsafeToFuture()
+    } yield {
+      logger.debug(s"result: $patients")
+      patients
     }
   }
 }
