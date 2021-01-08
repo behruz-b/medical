@@ -142,36 +142,6 @@ $ ->
       "Главная"
       "Bosh sahifaga"
     ]
-    adminPanel: [
-      "Admin Panel"
-      "Главная"
-      "Admin boshqaruvi"
-    ]
-    login: [
-      "Login"
-      "Логин"
-      "Login"
-    ]
-    password: [
-      "Password"
-      "Пароль"
-      "Parol"
-    ]
-    addAnalysisResult: [
-      "Add Analysis Result"
-      "Добавить результат анализа"
-      "Tahlil natijasini qo'shish"
-    ]
-    file: [
-      "File"
-      "Файл"
-      "Fayl"
-    ]
-    submit: [
-      "Submit"
-      "Отправить"
-      "Jo'natish"
-    ]
     notFound: [
       "Oops! Page not found!"
       "Ой! Страница не найдена!"
