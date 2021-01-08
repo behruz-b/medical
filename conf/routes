@@ -1,8 +1,8 @@
 # An example controller showing a sample home page
 GET     /                                           @controllers.HomeController.index(language = "uz")
-GET     /$lang<"uz|en|ru">                          @controllers.HomeController.index(lang: String)
-GET     /admin/$lang<"uz|en|ru">                    @controllers.HomeController.adminLogin(lang: String)
-GET     /addAnalysisResult/$lang<"uz|en|ru">        @controllers.HomeController.addAnalysisResult(lang: String)
+GET     /$lang<uz|en|ru>                          @controllers.HomeController.index(lang: String)
+GET     /$lang<uz|en|ru>/admin                    @controllers.HomeController.adminLogin(lang: String)
+GET     /$lang<uz|en|ru>/addAnalysisResult        @controllers.HomeController.addAnalysisResult(lang: String)
 POST    /admin                                      @controllers.HomeController.loginPost
 POST    /createPatient                              @controllers.HomeController.createUser
 GET     /patients                                   @controllers.HomeController.getPatients
