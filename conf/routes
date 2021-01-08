@@ -2,7 +2,7 @@
 GET     /                           controllers.HomeController.index(language = "uz")
 GET     /:lang                      controllers.HomeController.index(lang)
 GET     /admin/:lang                controllers.HomeController.adminLogin(lang: String)
-GET     /doc/:lang                  controllers.HomeController.doc(lang)
+GET     /addAnalysisResult/:lang    controllers.HomeController.addAnalysisResult(lang)
 POST    /admin                      controllers.HomeController.loginPost
 POST    /createPatient              controllers.HomeController.createUser
 GET     /patients                   controllers.HomeController.getPatients

@@ -23,7 +23,7 @@ import scala.util.{Failure, Success, Try}
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: index,
                                adminLoginTemplate: admin.login,
-                               docPageTemp: doc,
+                               addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                @Named("patient-manager") val patientManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging with CommonMethods {
@@ -67,8 +67,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok(adminLoginTemplate(language))
   }
 
-  def doc(language: String): Action[AnyContent] = Action {
-    Ok(docPageTemp(language))
+  def addAnalysisResult(language: String): Action[AnyContent] = Action {
+    Ok(addAnalysisResultPageTemp(language))
   }
 
   def getPatients = Action.async {
