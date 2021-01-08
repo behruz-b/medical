@@ -35,6 +35,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok(indexTemplate(language))
   }
 
+  def logout: Action[AnyContent] = Action { implicit request =>
+    request.session.get(loginKey) match {
+      case Some(_) => Redirect(routes.HomeController.index("uz")).withSession(request.session - loginKey)
+      case None => BadRequest("You are not authorized")
+    }
+  }
+
   def createUser: Action[JsValue] = Action.async(parse.json) { implicit request =>
     Try {
       val firstName = (request.body \ "firstName").as[String]
@@ -98,13 +105,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         } else {
           Future.successful(BadRequest("Login or Password undefined"))
         }
-    }
-  }
-
-  def logout: Action[AnyContent] = Action { implicit request =>
-    request.session.get(loginKey) match {
-      case Some(_) => Redirect(routes.HomeController.index("uz")).withSession(request.session - loginKey)
-      case None => BadRequest("You are not authorized")
     }
   }
 
