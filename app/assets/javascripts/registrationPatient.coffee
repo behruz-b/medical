@@ -70,17 +70,17 @@ $ ->
     else
       $label.removeClass 'move-top'
 
-  $pNumber.addEventListener 'focusin', (_) ->
-    $label.addClass 'move-top'
+    $pNumber.addEventListener 'focusin', (_) ->
+      $label.addClass 'move-top'
 
-  $pNumber.addEventListener 'focusout', (event) ->
-    checkSize event.target
+    $pNumber.addEventListener 'focusout', (event) ->
+      checkSize event.target
 
-  $pSeries.addEventListener 'focusin', (_) ->
-    $label.addClass 'move-top'
+    $pSeries.addEventListener 'focusin', (_) ->
+      $label.addClass 'move-top'
 
-  $pSeries.addEventListener 'focusout', (event) ->
-    checkSize event.target
+    $pSeries.addEventListener 'focusout', (event) ->
+      checkSize event.target
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
