@@ -9,7 +9,6 @@ import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
 import javax.inject._
 import org.webjars.play.WebJarsUtil
-import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
