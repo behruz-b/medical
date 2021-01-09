@@ -70,11 +70,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def adminLogin(language: String): Action[AnyContent] = Action {
+  def adminLogin(language: String = "uz"): Action[AnyContent] = Action {
     Ok(adminLoginTemplate(language))
   }
 
-  def addAnalysisResult(language: String): Action[AnyContent] = Action {
+  def addAnalysisResult(language: String = "uz"): Action[AnyContent] = Action {
     Ok(addAnalysisResultPageTemp(language))
   }
 
