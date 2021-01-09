@@ -31,13 +31,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
   val loginKey = "patient_key"
 
-  def index(language: String = "uz"): Action[AnyContent] = Action {
+  def index(language: String): Action[AnyContent] = Action {
     Ok(indexTemplate(language))
   }
 
   def logout: Action[AnyContent] = Action { implicit request =>
     request.session.get(loginKey) match {
-      case Some(_) => Redirect(routes.HomeController.index("uz")).withSession(request.session - loginKey)
+      case Some(_) => Redirect(routes.HomeController.index()).withSession(request.session - loginKey)
       case None => BadRequest("You are not authorized")
     }
   }
@@ -70,15 +70,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def adminLogin(language: String = "uz"): Action[AnyContent] = Action {
+  def admin(language: String): Action[AnyContent] = Action {
+    logger.debug(s"language: $language")
     Ok(adminLoginTemplate(language))
   }
 
-  def addAnalysisResult(language: String = "uz"): Action[AnyContent] = Action {
+  def addAnalysisResult(language: String): Action[AnyContent] = Action {
     Ok(addAnalysisResultPageTemp(language))
   }
 
-  def getPatients = Action.async {
+  def getPatients: Action[AnyContent] = Action.async {
     (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
       Ok(Json.toJson(patients))
     }
@@ -94,7 +95,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         if (login.exists(_.nonEmpty) || password.exists(_.nonEmpty)) {
           (patientManager ? GetPatientByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
             case Right(_) =>
-              Redirect(routes.HomeController.index("uz")).addingToSession(loginKey -> login.get)
+              Redirect(routes.HomeController.index()).addingToSession(loginKey -> login.get)
             case Left(error) =>
               BadRequest(error)
           }.recover {

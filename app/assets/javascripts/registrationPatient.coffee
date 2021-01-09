@@ -4,7 +4,7 @@ $ ->
   Glob = window.Glob || {}
 
   apiUrl =
-    registerUrl: '/createPatient'
+    registerUrl: '/patient'
 
   vm = ko.mapping.fromJS
     firstName: ''
