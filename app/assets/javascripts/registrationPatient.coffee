@@ -92,6 +92,11 @@ $ ->
       "Добро пожаловать в Smart Medical!"
       "Smart Medical-ga xush kelibsiz!"
     ]
+    toHome: [
+      "Close"
+      "Закрыть"
+      "Yopish"
+    ]
     registrationForm: [
       "Registration Form"
       "Форма регистрации"
@@ -136,11 +141,6 @@ $ ->
       "You are registered on ID:"
       "Вы зарегистрированы по ID:"
       "Siz ro'yxatdan o'tdingiz! Sizning ID:"
-    ]
-    toHome: [
-      "GO TO HOME PAGE"
-      "Главная"
-      "Bosh sahifaga"
     ]
     notFound: [
       "Oops! Page not found!"
