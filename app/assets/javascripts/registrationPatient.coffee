@@ -5,6 +5,7 @@ $ ->
 
   apiUrl =
     registerUrl: '/patient'
+    patientsUrl: '/patients'
 
   vm = ko.mapping.fromJS
     firstName: ''
@@ -15,6 +16,7 @@ $ ->
     phone: ''
     customerId: ''
     language: Glob.language
+    patients: []
 
   handleError = (error) ->
     if error.status is 500 or (error.status is 400 and error.responseText)
@@ -23,6 +25,12 @@ $ ->
       toastr.error('Something went wrong! Please try again.')
 
   $thankYou = $('#thankYou')
+
+  vm.getPatients = ->
+    $.get(apiUrl.patientsUrl)
+    .fail handleError
+    .done (response) ->
+      vm.patients(response)
 
   vm.onSubmit = ->
     toastr.clear()
@@ -70,17 +78,17 @@ $ ->
     else
       $label.removeClass 'move-top'
 
-    $pNumber.addEventListener 'focusin', (_) ->
-      $label.addClass 'move-top'
+  $pNumber.addEventListener 'focusin', (_) ->
+    $label.addClass 'move-top'
 
-    $pNumber.addEventListener 'focusout', (event) ->
-      checkSize event.target
+  $pNumber.addEventListener 'focusout', (event) ->
+    checkSize event.target
 
-    $pSeries.addEventListener 'focusin', (_) ->
-      $label.addClass 'move-top'
+  $pSeries.addEventListener 'focusin', (_) ->
+    $label.addClass 'move-top'
 
-    $pSeries.addEventListener 'focusout', (event) ->
-      checkSize event.target
+  $pSeries.addEventListener 'focusout', (event) ->
+    checkSize event.target
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
