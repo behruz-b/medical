@@ -7,13 +7,16 @@ $ ->
     registerUrl: '/patient'
     patientsUrl: '/patients'
 
-  vm = ko.mapping.fromJS
+  defaultPatient =
     firstName: ''
     lastName: ''
     passportSeries: ''
     passportNumber: ''
     email: ''
     phone: ''
+
+  vm = ko.mapping.fromJS
+    patient: defaultPatient
     customerId: ''
     language: Glob.language
     patients: []
@@ -34,37 +37,38 @@ $ ->
 
   vm.onSubmit = ->
     toastr.clear()
-    if !vm.firstName()
+    if !vm.patient.firstName()
       toastr.error("Iltimos ismingizni kiriting!")
       return no
-    else if !vm.lastName()
+    else if !vm.patient.lastName()
       toastr.error("Iltimos familiyangizni kiriting!")
       return no
-    else if vm.email() and !my.isValidEmail(vm.email())
+    else if vm.patient.email() and !my.isValidEmail(vm.patient.email())
       toastr.error("Iltimos emailni to'gri kiriting!")
       return no
-    else if !vm.phone()
+    else if !vm.patient.phone()
       toastr.error("Iltimos telefon raqamingizni kiriting!")
-    else if vm.phone() and !my.isValidPhone(vm.phone().replace(/[(|)|-]/g, "").trim())
+    else if vm.patient.phone() and !my.isValidPhone(vm.patient.phone().replace(/[(|)|-]/g, "").trim())
       toastr.error("Iltimos telefon raqamingizni to'gri kiriting!")
       return no
-    else if !vm.passportSeries()
+    else if !vm.patient.passportSeries()
       toastr.error("Iltimos passport seriasini kiriting!")
       return no
-    else if !vm.passportNumber()
+    else if !vm.patient.passportNumber()
       toastr.error("Iltimos passport raqamini kiriting!")
       return no
     else
       patient =
-        firstName: vm.firstName()
-        lastName: vm.lastName()
-        passportSn: vm.passportSeries().toUpperCase() + vm.passportNumber()
-        email: vm.email()
-        phone: vm.phone()
+        firstName: vm.patient.firstName()
+        lastName: vm.patient.lastName()
+        passportSn: vm.patient.passportSeries().toUpperCase() + vm.patient.passportNumber()
+        email: vm.patient.email()
+        phone: vm.patient.phone()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
         vm.customerId(response)
+        ko.mapping.fromJS(defaultPatient, {}, vm.patient)
         $thankYou.modal('show')
 
   $label = $('#passport_sn')
@@ -143,12 +147,12 @@ $ ->
     thankYou: [
       "Thank you!"
       "Спасибо!"
-      "Rahmat!"
+      "Rahmat! Siz ro'yxatdan o'tdingiz!"
     ]
     yourID: [
       "You are registered on ID:"
       "Вы зарегистрированы по ID:"
-      "Siz ro'yxatdan o'tdingiz! Sizning ID:"
+      "Sizning ID:"
     ]
     notFound: [
       "Oops! Page not found!"
