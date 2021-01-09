@@ -92,7 +92,7 @@ $ ->
       "Добро пожаловать в Smart Medical!"
       "Smart Medical-ga xush kelibsiz!"
     ]
-    toHome: [
+    closeModal: [
       "Close"
       "Закрыть"
       "Yopish"
