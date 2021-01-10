@@ -45,7 +45,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   "Login page" should {
     "return OK" in {
-      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.adminLogin("uz").url)).get
+      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.admin().url)).get
 
       status(sendRequest) mustBe OK
     }
@@ -53,7 +53,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   "Index page" should {
     "return OK" in {
-      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.index("uz").url)).get
+      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.index().url)).get
 
       status(sendRequest) mustBe OK
     }
