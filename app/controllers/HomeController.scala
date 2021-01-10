@@ -1,20 +1,22 @@
 package controllers
 
 import java.time._
-
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
+
 import javax.inject._
 import org.webjars.play.WebJarsUtil
+import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.AppProtocol._
 import views.html._
 
+import java.nio.file.Paths
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -23,6 +25,7 @@ import scala.util.{Failure, Success, Try}
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: index,
                                adminLoginTemplate: admin.login,
+                               configuration: Configuration,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                @Named("patient-manager") val patientManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
@@ -30,6 +33,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
   val loginKey = "patient_key"
+  val tempFilesPath = configuration.get[String]("analaysis_folder")
 
   def index(language: String): Action[AnyContent] = Action {
     Ok(indexTemplate(language))
@@ -83,6 +87,30 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
       Ok(Json.toJson(patients))
     }
+  }
+
+  def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData) { request =>
+    request.body
+      .file("file")
+      .map { picture =>
+        // only get the last part of the filename
+        // otherwise someone can send a path like ../../home/foo/bar.txt to write to other files on the system
+        val filename    = Paths.get(picture.filename).getFileName
+        val fileSize    = picture.fileSize
+        val contentType = picture.contentType
+
+        logger.debug(s"filename: $filename")
+        logger.debug(s"fileSize: $fileSize")
+        logger.debug(s"contentType: $contentType")
+
+        // need to create folder "patients_results" out of the project
+
+        picture.ref.copyTo(Paths.get(s"$tempFilesPath/$filename"), replace = true)
+        Ok("File uploaded")
+      }
+      .getOrElse {
+        Redirect(routes.HomeController.index()).flashing("error" -> "Missing file")
+      }
   }
 
   def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>

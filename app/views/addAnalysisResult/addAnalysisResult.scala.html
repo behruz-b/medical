@@ -9,18 +9,18 @@
     <div class="row box-align-center">
         <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
             <h2 class="text-white"><span data-bind="text: vm.translate('addAnalysisResult')"></span></h2>
-            <form name="register_form" class="row">
+            <form name="register_form" class="row" action="/doc" method="post" enctype="multipart/form-data">
                 <div class="form-group col-sm-6 col-12">
                     <input class="form-control input-box" type="text" id="id" data-bind="value: vm.id" name="id" value="" onchange="this.setAttribute('value', this.value);">
                     <label for="id" class="label">ID</label>
                 </div>
                 <div class="form-group col-sm-6 col-12">
-                    <input class="form-control input-box" type="file" accept="image/*;capture=camera" id="file" name="file" data-bind="value: vm.file">
+                    <input class="form-control" type="file" accept="image/*;capture=camera" id="file" name="file" data-bind="value: vm.file">
                     <label for="file" class="label"><span data-bind="text: vm.translate('file')"></span></label>
                 </div>
                 <div class="col-12">
                     <div class="text-center">
-                        <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onFileSend"><span data-bind="text: vm.translate('submit')"></span></button>
+                        <button class="btn btn-success w-75 mt-5" type="submit"><span data-bind="text: vm.translate('submit')"></span></button>
                     </div>
                 </div>
             </form>

@@ -7,6 +7,7 @@ POST    /login                                      @controllers.HomeController.
 GET     /logout                                     @controllers.HomeController.logout
 
 GET     /doc                                        @controllers.HomeController.addAnalysisResult(language = "uz")
+POST    /doc                                        @controllers.HomeController.upload
 
 POST    /patient                                    @controllers.HomeController.createUser
 GET     /patients                                   @controllers.HomeController.getPatients
