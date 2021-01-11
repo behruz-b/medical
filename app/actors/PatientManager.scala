@@ -72,8 +72,12 @@ class PatientManager @Inject()(val configuration: Configuration,
     (for {
       result <- DoobieModule.repo.getPatientByLogin(login).compile.last.unsafeToFuture()
     } yield {
-      logger.debug(s"result: ${result.map(_.password == password)}, $result")
-      Right("Successfully")
+      logger.debug(s"result: ${result.exists(_.password == password)}, $result")
+      if (result.exists(_.password == password)) {
+        Right("Successfully")
+      } else {
+        Left("Incorrect login or password")
+      }
     }).recover {
       case e: Throwable =>
         logger.error("Error", e)
