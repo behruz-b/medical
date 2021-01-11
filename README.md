@@ -11,13 +11,13 @@ This project created on PlayFramework 2.8.7
 
     git clone git@github.com:github-username/medical.git
 
-### 2. Add remote from original repository in your forked repository: 
+### 2. Add remote from an original repository in your forked repository: 
 
     cd /home/user/IdeaProjects/medical
     git remote add upstream git://github.com/behruz-b/medical.git
     git fetch upstream
 
-### 3. Updating your fork from original repo to keep up with their changes:
+### 3. Updating your fork from an original repository to keep up with their changes:
 
     git pull upstream main
 

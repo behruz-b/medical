@@ -1,14 +1,25 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
 @()
-@main("Not found", webJarsUtil) {
-  <div class="row box-align-center">
-    <div class="offset-lg-1 col-lg-7 offset-sm-1 col-sm-10 offset-md-1 col-md-8 offset-xs-2 col-xs-10 p-4">
-      <div class="content-notFound">
-        <h2>404</h2>
-        <h3><i class="fa fa-exclamation-triangle"></i> Oops! Page Not Found!</h3>
-        <p>The page you were looking for doesn't exist. You may have mistyped the address or the page may have moved.</p>
-        <a href="/">GO TO HOME PAGE</a>
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Page Not Found!</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    @webJarsUtil.locate("css/bootstrap.min.css").css()
+    @webJarsUtil.locate("css/all.css").css()
+    <link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/404.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    </head>
+  <body>
+    <div class="text-center box-align-center">
+      <div class="text-blue">
+        <h2>OOPS ERROR!!!</h2>
+        <h2 class="font-weight-bold fof-text">4<i class="fa fa-heartbeat"></i>4</h2>
+        <h1 class="text-black-50 mb-3">PAGE NOT FOUND</h1>
+        <a href="@routes.HomeController.index()" class="btn btn-lg bg-blue rounded-btn text-white" >BACK TO HOME</a>
       </div>
     </div>
-  </div>
-}
+  </body>
+</html>
