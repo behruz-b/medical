@@ -1,7 +1,7 @@
 # An example controller showing a sample home page
 GET     /                                           @controllers.HomeController.index(language = "uz")
 
-GET     /admin                                      @controllers.HomeController.admin(lang: String ?= "uz")
+GET     /login                                      @controllers.HomeController.login(lang: String ?= "uz")
 
 POST    /login                                      @controllers.HomeController.loginPost
 GET     /logout                                     @controllers.HomeController.logout

@@ -24,7 +24,7 @@ import scala.util.{Failure, Success, Try}
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: index,
-                               adminLoginTemplate: admin.login,
+                               loginPage: admin.login,
                                configuration: Configuration,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                @Named("patient-manager") val patientManager: ActorRef)
@@ -33,7 +33,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
   val loginKey = "patient_key"
-  val tempFilesPath = configuration.get[String]("analaysis_folder")
+  val tempFilesPath: String = configuration.get[String]("analaysis_folder")
 
   def index(language: String): Action[AnyContent] = Action {
     Ok(indexTemplate(language))
@@ -74,18 +74,21 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def admin(language: String): Action[AnyContent] = Action {
-    logger.debug(s"language: $language")
-    Ok(adminLoginTemplate(language))
+  def login(language: String): Action[AnyContent] = Action {
+    Ok(loginPage(language))
   }
 
-  def addAnalysisResult(language: String): Action[AnyContent] = Action {
-    Ok(addAnalysisResultPageTemp(language))
+  def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
+    request.session.get(loginKey).fold(Redirect(routes.HomeController.login())){ _ =>
+      Ok(addAnalysisResultPageTemp(language))
+    }
   }
 
-  def getPatients: Action[AnyContent] = Action.async {
-    (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
-      Ok(Json.toJson(patients))
+  def getPatients: Action[AnyContent] = Action.async { implicit request =>
+    request.session.get(loginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
+      (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
+        Ok(Json.toJson(patients))
+      }
     }
   }
 
