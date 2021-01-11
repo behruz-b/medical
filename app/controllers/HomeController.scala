@@ -92,30 +92,34 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData) { request =>
+  def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     request.body
       .file("file")
       .map { picture =>
-        // only get the last part of the filename
-        // otherwise someone can send a path like ../../home/foo/bar.txt to write to other files on the system
-        val filename    = Paths.get(picture.filename).getFileName
-        val fileSize    = picture.fileSize
-        val contentType = picture.contentType
-
         val body = request.body.asFormUrlEncoded
-        val customerId = body.get("id").flatMap(_.headOption)
-        logger.debug(s"filename: $filename")
-        logger.debug(s"fileSize: $fileSize")
-        logger.debug(s"contentType: $contentType")
-
-        // need to create folder "patients_results" out of the project
-        val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
-        val path = tempFilesPath + "/" + customerId.getOrElse("")
-        picture.ref.copyTo(Paths.get(s"$path" + "_" + s"$time_stamp.png"), replace = true)
-        Ok("File uploaded")
-      }
-      .getOrElse {
-        Redirect(routes.HomeController.index()).flashing("error" -> "Missing file")
+        body.get("id").flatMap(_.headOption) match {
+          case Some(customerId) =>
+            // need to create folder "patients_results" out of the project
+            val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
+            val analysisFileName = customerId  + "_" +  time_stamp + ".png"
+            picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
+            (patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]].map {
+              case Right(_) =>
+                logger.debug(s"SUCCEESS")
+                Ok(Json.toJson("Muvaffaqiyatli yakunlandi"))
+              case Left(e) =>
+                logger.debug(s"ERROR")
+                BadRequest(e)
+            }.recover {
+              case error: Throwable =>
+                logger.error("Error while creating image", error)
+                BadRequest("Error")
+            }
+          case None =>
+            Future.successful(BadRequest("Error"))
+        }
+      }.getOrElse {
+        Future.successful(Redirect(routes.HomeController.index()).flashing("error" -> "Missing file"))
       }
   }
 
