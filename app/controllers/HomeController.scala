@@ -1,12 +1,11 @@
 package controllers
-
+import java.util.Date
 import java.time._
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-
 import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
@@ -15,8 +14,9 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.AppProtocol._
 import views.html._
-
 import java.nio.file.Paths
+import java.text.SimpleDateFormat
+
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -102,13 +102,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         val fileSize    = picture.fileSize
         val contentType = picture.contentType
 
+        val body = request.body.asFormUrlEncoded
+        val customerId = body.get("id").flatMap(_.headOption)
         logger.debug(s"filename: $filename")
         logger.debug(s"fileSize: $fileSize")
         logger.debug(s"contentType: $contentType")
 
         // need to create folder "patients_results" out of the project
-
-        picture.ref.copyTo(Paths.get(s"$tempFilesPath/$filename"), replace = true)
+        val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
+        val path = tempFilesPath + "/" + customerId.getOrElse("")
+        picture.ref.copyTo(Paths.get(s"$path" + "_" + s"$time_stamp.png"), replace = true)
         Ok("File uploaded")
       }
       .getOrElse {
