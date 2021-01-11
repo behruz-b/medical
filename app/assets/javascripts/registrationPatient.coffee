@@ -54,8 +54,14 @@ $ ->
     else if !vm.patient.passportSeries()
       toastr.error("Iltimos passport seriasini kiriting!")
       return no
+    else if vm.patient.passportSeries() and vm.patient.passportSeries().length != 2
+      toastr.error("Iltimos passport seriasini to'liq kiriting!")
+      return no
     else if !vm.patient.passportNumber()
       toastr.error("Iltimos passport raqamini kiriting!")
+      return no
+    else if vm.patient.passportNumber() and vm.patient.passportNumber().length != 7
+      toastr.error("Iltimos passport raqamini to`liq kiriting!")
       return no
     else
       patient =
