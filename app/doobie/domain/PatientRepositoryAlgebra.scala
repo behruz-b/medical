@@ -1,13 +1,16 @@
 package doobie.domain
 
 import protocols.AppProtocol.Patient
+import protocols.UserProtocol.User
 
 trait PatientRepositoryAlgebra[F[_]] {
 
   def create(patient: Patient): F[Int]
+  def createUser(user: User): F[Int]
   def addAnalysisResult(customerId: String, analysisFileName: String): F[Int]
   def getByCustomerId(customerId: String): fs2.Stream[F,Patient]
   def getPatientByLogin(login: String):fs2.Stream[F,Patient]
+  def getUserByLogin(login: String):fs2.Stream[F,User]
   def getPatients: F[List[Patient]]
 
 }

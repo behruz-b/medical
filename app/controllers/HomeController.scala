@@ -6,6 +6,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
+
 import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
@@ -13,10 +14,11 @@ import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.AppProtocol._
+import protocols.UserProtocol.CheckUserByLogin
 import views.html._
+
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -27,21 +29,27 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                loginPage: admin.login,
                                configuration: Configuration,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
-                               @Named("patient-manager") val patientManager: ActorRef)
+                               @Named("patient-manager") val patientManager: ActorRef,
+                               @Named("user-manager") val userManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging with CommonMethods {
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
-  val loginKey = "patient_key"
-  val tempFilesPath: String = configuration.get[String]("analaysis_folder")
+  val LoginKey = "login_session_key"
+  val DoctorLoginKey = "doctor_role"
+  val AdminLoginKey = "admin_role"
+  val tempFilesPath: String = configuration.get[String]("analysis_folder")
 
-  def index(language: String): Action[AnyContent] = Action {
-    Ok(indexTemplate(language))
+  def index(language: String): Action[AnyContent] = Action { implicit request =>
+    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { _ =>
+      logger.debug(s"request: ${request.uri}")
+      Ok(indexTemplate(language))
+    }
   }
 
   def logout: Action[AnyContent] = Action { implicit request =>
-    request.session.get(loginKey) match {
-      case Some(_) => Redirect(routes.HomeController.index()).withSession(request.session - loginKey)
+    request.session.get(LoginKey) match {
+      case Some(_) => Redirect(routes.HomeController.index()).withSession(request.session - LoginKey)
       case None => BadRequest("You are not authorized")
     }
   }
@@ -79,13 +87,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
-    request.session.get(loginKey).fold(Redirect(routes.HomeController.login())){ _ =>
-      Ok(addAnalysisResultPageTemp(language))
+    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())){ role_key =>
+      if (role_key == DoctorLoginKey) {
+        Ok(addAnalysisResultPageTemp(language))
+      } else {
+        Unauthorized("You haven't got right role to see page")
+      }
     }
   }
 
   def getPatients: Action[AnyContent] = Action.async { implicit request =>
-    request.session.get(loginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
+    request.session.get(LoginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
         Ok(Json.toJson(patients))
       }
@@ -106,7 +118,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
             (patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]].map {
               case Right(_) =>
                 logger.debug(s"SUCCEESS")
-                Ok(Json.toJson("Muvaffaqiyatli yakunlandi"))
+                Ok(Json.toJson("Muvaffaqiyatli yuklandi"))
               case Left(e) =>
                 logger.debug(s"ERROR")
                 BadRequest(e)
@@ -124,16 +136,20 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
-    request.session.get(loginKey) match {
+    request.session.get(LoginKey) match {
       case Some(_) => Future.successful(BadRequest("You are already authorized"))
       case None =>
         val body = request.body.asFormUrlEncoded
         val login = body.get("adminName").flatMap(_.headOption)
         val password = body.get("adminPass").flatMap(_.headOption)
         if (login.exists(_.nonEmpty) || password.exists(_.nonEmpty)) {
-          (patientManager ? GetPatientByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
-            case Right(_) =>
-              Redirect(routes.HomeController.index()).addingToSession(loginKey -> login.get)
+          (userManager ? CheckUserByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
+            case Right(role) =>
+              role match {
+                case "doctor" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
+                case "admin" => Redirect("/reg").addingToSession(LoginKey -> AdminLoginKey)
+                case _ => Unauthorized("Your haven't got right Role")
+              }
             case Left(error) =>
               BadRequest(error)
           }.recover {
