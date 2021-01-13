@@ -1,12 +1,12 @@
 package controllers
 import java.util.Date
 import java.time._
+
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-
 import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
@@ -16,9 +16,10 @@ import play.api.mvc._
 import protocols.AppProtocol._
 import protocols.UserProtocol.CheckUserByLogin
 import views.html._
-
 import java.nio.file.Paths
+import java.security.SecureRandom
 import java.text.SimpleDateFormat
+
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -93,6 +94,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())){ role_key =>
       if (role_key == DoctorLoginKey) {
         Ok(addAnalysisResultPageTemp(language))
+//      } else if (role_key == RegLoginKey) {
+//        Ok(addAnalysisResultPageTemp(language))
       } else {
         Unauthorized("You haven't got right role to see page")
       }
@@ -176,5 +179,5 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   private def generateLogin = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
 
-  private def generatePassword = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
+  private def generatePassword = getRandomPassword(7)
 }

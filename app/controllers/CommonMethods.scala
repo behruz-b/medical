@@ -1,8 +1,18 @@
 package controllers
 
+import java.security.SecureRandom
+
 import scala.util.Random
 
 trait CommonMethods {
+  def getRandomPassword(length: Int): String = {
+    val algorithm = new SecureRandom
+    val passwordChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray
+    val password = new StringBuilder
+    for (_ <- 0 to length) password.append(passwordChars(algorithm.nextInt(passwordChars.length)))
+    password.toString
+  }
+
   def getRandomDigit(length: Int): Int = {
     Seq.fill(length)(Random.nextInt(9)).mkString("").toInt
   }
