@@ -17,7 +17,6 @@ import protocols.AppProtocol._
 import protocols.UserProtocol.CheckUserByLogin
 import views.html._
 import java.nio.file.Paths
-import java.security.SecureRandom
 import java.text.SimpleDateFormat
 
 import scala.concurrent.duration.DurationInt
@@ -43,7 +42,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
     request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { _ =>
-      logger.debug(s"request: ${request.uri}")
       Ok(indexTemplate(language))
     }
   }

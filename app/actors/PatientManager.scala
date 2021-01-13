@@ -1,29 +1,36 @@
 package actors
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.Actor
 import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
+import play.api.libs.json.Json
+import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
 import protocols.AppProtocol._
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
+import scala.concurrent.{ExecutionContext, Future}
 
 class PatientManager @Inject()(val configuration: Configuration,
-                               val environment: Environment)
+                               val environment: Environment,
+                               ws: WSClient)
                               (implicit val ec: ExecutionContext)
   extends Actor with LazyLogging {
 
+  private val SmsProviderConfig = configuration.get[Configuration]("sms-provider")
+  private val Url: String = SmsProviderConfig.get[String]("url")
+  private val Login: String = SmsProviderConfig.get[String]("login")
+  private val Password: String = SmsProviderConfig.get[String]("password")
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
   private val DoobieModule = DoobieUtil.doobieModule(configuration)
 
-// For testing purpose test DB
-//  override def preStart: Unit = {
-//    self ! AddAnalysisResult("U-668", "Sample Image Name of Analysis")
-//  }
+  // For testing purpose test DB
+  //  override def preStart: Unit = {
+  //    self ! AddAnalysisResult("U-668", "Sample Image Name of Analysis")
+  //  }
 
   override def receive: Receive = {
     case CreatePatient(patient) =>
@@ -44,13 +51,12 @@ class PatientManager @Inject()(val configuration: Configuration,
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
     (for {
-      result <- DoobieModule.repo.create(patient).unsafeToFuture()
+      _ <- DoobieModule.repo.create(patient).unsafeToFuture()
     } yield {
-      logger.debug(s"result: $result")
       Right("Successfully added")
     }).recover {
-      case e: Throwable =>
-        logger.error("Error", e)
+      case error: Throwable =>
+        logger.error("Error occurred while create patient.", error)
         Left("Error happened while creating patient")
     }
   }
@@ -59,11 +65,10 @@ class PatientManager @Inject()(val configuration: Configuration,
     (for {
       patient <- DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture()
     } yield {
-      logger.debug(s"result: $patient")
       Right(patient)
     }).recover {
-      case e: Throwable =>
-        logger.error("Error", e)
+      case error: Throwable =>
+        logger.error("Error occurred while get patient by customer id.", error)
         Left("Error happened while requesting patient")
     }
   }
@@ -89,7 +94,6 @@ class PatientManager @Inject()(val configuration: Configuration,
     (for {
       result <- DoobieModule.repo.addAnalysisResult(customerId, analysisFileName).unsafeToFuture()
     } yield {
-      logger.debug(s"result: $result")
       if (result == 1) {
         Right("Successfully")
       } else {
@@ -97,16 +101,37 @@ class PatientManager @Inject()(val configuration: Configuration,
       }
     }).recover {
       case e: Throwable =>
-        logger.error("Error", e)
+        logger.error("Error occurred while add analysis result.", e)
         Left("Error happened while adding Analysis File to DB")
     }
   }
+
   private def getPatients: Future[List[Patient]] = {
     for {
       patients <- DoobieModule.repo.getPatients.unsafeToFuture()
     } yield {
-      logger.debug(s"result: $patients")
       patients
     }
+  }
+
+  /**
+   * @param number is the phone number to which the sms should be sent
+   * @param text   is the text of the message to be sent sms
+   * @return Sms status via
+   * {{{case class SmsStatus}}}
+   */
+
+  private def sendSMS(number: String, text: String): Future[String] = {
+    val data = Json.obj("phone" -> number, "text" -> text)
+    for {
+      result <- ws.url(Url)
+        .addHttpHeaders("login" -> Login)
+        .addHttpHeaders("login" -> Password)
+        .post(data)
+      status <- ws.url(Url)
+        .addHttpHeaders("login" -> Login)
+        .addHttpHeaders("login" -> Password)
+        .post(result.body)
+    } yield status.body
   }
 }

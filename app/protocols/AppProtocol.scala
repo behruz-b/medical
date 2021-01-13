@@ -20,7 +20,7 @@ object AppProtocol {
                      analysis_image_name: Option[String] = None) {
     def id: Option[Int] = None
   }
-  implicit val patientFormat = Json.format[Patient]
+  implicit val patientFormat: OFormat[Patient] = Json.format[Patient]
 
   case class CreatePatient(patient: Patient)
   case class AddAnalysisResult(customerId: String, analysisFileName: String)
@@ -28,5 +28,20 @@ object AppProtocol {
   case class GetPatientByLogin(login: String, password: String)
   case object GetPatients
 
+  /**
+   *
+   * ==Overview==
+   *
+   * Case class SmsStatus description.
+   *  {{{
+   *  code: Int,
+   *  delivered-date: Date, Format(Y-m-d H:i:s),
+   *  description: String,
+   *  message-count: Int,
+   *  ordinal: Int
+   *  }}}
+   */
+
+  case class SmsStatus(code: Int, `delivered-date`: LocalDateTime, description: String, `message-count`: Int, ordinal: Int)
 
 }
