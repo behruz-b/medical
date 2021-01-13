@@ -17,8 +17,6 @@ object DbConfig {
 
   val config = ConfigSource.default(ConfigSource.file(path)).loadOrThrow[Config]
 
-  println(config)
-
   val DbTransactor = Transactor.fromDriverManager[IO](
     config.db.default.driver,
     config.db.default.url,
