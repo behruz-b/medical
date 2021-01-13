@@ -1,7 +1,13 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(lang: String = "uz")
-@addAnalysisResult.main("Add Analysis Result", webJarsUtil) {
+@(lang: String = "uz")(implicit flash: Flash)
+@addAnalysisResult.main("Add Analysis Result", webJarsUtil){
     <script>
+        @flash.get("success").map { response =>
+            toastr.success("@response")
+        }
+        @flash.get("error").map { response =>
+            toastr.error("@response")
+        }
             var Glob = {
                 language: '@lang'
             };

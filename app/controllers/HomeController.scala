@@ -118,17 +118,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
             (patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]].map {
               case Right(_) =>
                 logger.debug(s"SUCCEESS")
-                Ok(Json.toJson("Muvaffaqiyatli yuklandi"))
+                Redirect("/doc").flashing("success" -> "Fayl yuklandi!")
               case Left(e) =>
-                logger.debug(s"ERROR")
-                BadRequest(e)
+                logger.error(s"ERROR, e: $e")
+                Redirect("/doc").flashing("error" -> "Ma'lumotlar bazasiga yozishda xatolik yuz berdi")
             }.recover {
               case error: Throwable =>
                 logger.error("Error while creating image", error)
-                BadRequest("Error")
+                Redirect("/doc").flashing("error" -> "Something went wrong")
             }
           case None =>
-            Future.successful(BadRequest("Error"))
+            Future.successful(Redirect("/doc").flashing("error" -> "Ma'lumotlar bazasidan bunday ID topilmadi"))
         }
       }.getOrElse {
         Future.successful(Redirect(routes.HomeController.index()).flashing("error" -> "Missing file"))
