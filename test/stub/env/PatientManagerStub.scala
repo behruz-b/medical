@@ -4,7 +4,7 @@ import akka.actor
 import akka.actor.{Actor, Props}
 import akka.pattern.pipe
 import com.typesafe.scalalogging.LazyLogging
-import protocols.AppProtocol._
+import protocols.PatientProtocol._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

@@ -1,6 +1,6 @@
 package doobie.domain
 
-import protocols.AppProtocol.Patient
+import protocols.PatientProtocol.Patient
 import protocols.UserProtocol.User
 
 trait PatientRepositoryAlgebra[F[_]] {

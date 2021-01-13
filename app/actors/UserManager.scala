@@ -7,7 +7,7 @@ import cats.implicits.catsSyntaxOptionId
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
 import play.api.{Configuration, Environment}
-import protocols.AppProtocol._
+import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLogin, CreateUser, User}
 
 import java.time.LocalDateTime

@@ -6,7 +6,7 @@ import doobie.repository.MessageSQL._
 import doobieTests.DbConfig.DbTransactor
 import org.scalatest._
 import org.scalatest.matchers.should.Matchers
-import protocols.AppProtocol.Patient
+import protocols.PatientProtocol.Patient
 
 import java.time.LocalDateTime
 

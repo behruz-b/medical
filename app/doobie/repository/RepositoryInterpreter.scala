@@ -4,7 +4,7 @@ import cats.effect.Bracket
 import doobie._
 import doobie.domain.PatientRepositoryAlgebra
 import doobie.implicits._
-import protocols.AppProtocol.Patient
+import protocols.PatientProtocol.Patient
 import doobie.implicits.javasql._
 import doobie.util.Read
 import protocols.UserProtocol.User

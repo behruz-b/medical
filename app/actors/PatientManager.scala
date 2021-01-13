@@ -5,20 +5,26 @@ import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
+import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
-import protocols.AppProtocol._
+import protocols.PatientProtocol._
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
 
 class PatientManager @Inject()(val configuration: Configuration,
-                               val environment: Environment)
+                               val environment: Environment,
+                               val ws: WSClient)
                               (implicit val ec: ExecutionContext)
   extends Actor with LazyLogging {
 
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
   private val DoobieModule = DoobieUtil.doobieModule(configuration)
+  private val smsConfig = configuration.get[Configuration]("sms_config")
+  private val SmsApi = smsConfig.get[String]("api")
+  private val SmsLogin = smsConfig.get[String]("login")
+  private val SmsPassword = smsConfig.get[String]("password")
 
 // For testing purpose test DB
 //  override def preStart: Unit = {
@@ -40,6 +46,9 @@ class PatientManager @Inject()(val configuration: Configuration,
 
     case GetPatients =>
       getPatients.pipeTo(sender())
+
+    case SendSmsToCustomer(customerId) =>
+      sendSMS(customerId).pipeTo(sender())
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
@@ -107,6 +116,48 @@ class PatientManager @Inject()(val configuration: Configuration,
     } yield {
       logger.debug(s"result: $patients")
       patients
+    }
+  }
+
+  private def sendSMS(customerId: String): Future[Either[String, String]] = {
+    logger.debug(s"SMS API: $SmsApi, SMS Login: $SmsLogin, SMS Password: $SmsPassword")
+    (for  {
+      patient <- getPatientByCustomerId(customerId)
+    } yield {
+      patient match {
+        case Right(p) =>
+          if (p.map(_.phone).nonEmpty) {
+            actualSendingSMS(p.get.phone, customerId)
+          } else {
+            logger.error(s"Phone is undefined for customer: $p")
+            Future.successful(Left("Customer phone is undefined"))
+          }
+        case Left(e) =>
+          logger.error(s"Error happened", e)
+          Future.successful(Left("Error occurred while sending SMS to Customer"))
+      }
+    }).flatten
+
+  }
+
+  private def actualSendingSMS(phone: String, customerId: String): Future[Either[String, String]] ={
+    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"${SmsText(customerId)}"}]"""
+    val result = ws.url(SmsApi)
+      .withRequestTimeout(15.seconds)
+      .withHttpHeaders("Content-Type" -> "application/x-www-form-urlencoded")
+      .post(data)
+    result.map { r =>
+      logger.debug(s"SMS API Result: $r")
+      r.status match {
+        case 200 =>
+          val id = (r.json \ "request_id").asOpt[String]
+          logger.debug(s"RequestId: $id")
+          Right("Successfully sent")
+        case _ =>
+          val errorText = (r.json \\ "text").head.asOpt[String]
+          logger.debug(s"Error Text: $errorText")
+          Left("Error happened")
+      }
     }
   }
 }

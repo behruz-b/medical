@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import play.api.libs.json._
 
 
-object AppProtocol {
+object PatientProtocol {
 
   case class Patient(created_at: LocalDateTime,
                      firstname: String,
@@ -27,6 +27,9 @@ object AppProtocol {
   case class GetPatientByCustomerId(customerId: String)
   case class GetPatientByLogin(login: String, password: String)
   case object GetPatients
+  case class SendSmsToCustomer(customerId: String)
 
-
+  val SmsText: String => String = (customerId: String) =>
+    s"Tahlil natijasini kuyidagi xavola orqali olishingiz mumkin:" +
+      s"http://localhost:9000/analysis-result/$customerId"
 }

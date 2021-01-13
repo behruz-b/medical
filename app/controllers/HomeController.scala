@@ -5,6 +5,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.implicits._
+import cats.data.EitherT
 import com.typesafe.scalalogging.LazyLogging
 
 import javax.inject._
@@ -13,7 +14,7 @@ import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import protocols.AppProtocol._
+import protocols.PatientProtocol._
 import protocols.UserProtocol.CheckUserByLogin
 import views.html._
 
@@ -61,7 +62,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val passportSN = (request.body \ "passportSn").as[String]
       val phone = (request.body \ "phone").as[String]
       val email = (request.body \ "email").as[String]
-//      val company_code = (request.body \ "company_code").as[String]
+      //      val company_code = (request.body \ "company_code").as[String]
       val company_code = request.host
       logger.debug(s"companyCode: $company_code")
       val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, generateCustomerId,
@@ -90,7 +91,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())){ role_key =>
+    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { role_key =>
       if (role_key == DoctorLoginKey) {
         Ok(addAnalysisResultPageTemp(language))
       } else {
@@ -108,7 +109,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
-    request.body
+    val result = request.body
       .file("file")
       .map { picture =>
         val body = request.body.asFormUrlEncoded
@@ -116,27 +117,32 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           case Some(customerId) =>
             // need to create folder "patients_results" out of the project
             val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
-            val analysisFileName = customerId  + "_" +  time_stamp + ".png"
+            val analysisFileName = customerId + "_" + time_stamp + ".png"
             picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
-            (patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]].map {
-              case Right(_) =>
-                logger.debug(s"SUCCEESS")
-                Redirect("/doc").flashing("success" -> "Fayl yuklandi!")
-              case Left(e) =>
-                logger.error(s"ERROR, e: $e")
-                Redirect("/doc").flashing("error" -> "Ma'lumotlar bazasiga yozishda xatolik yuz berdi")
-            }.recover {
-              case error: Throwable =>
+            (for {
+              _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
+              _ <- EitherT((patientManager ? SendSmsToCustomer).mapTo[Either[String, String]])
+            } yield {
+              logger.debug(s"=======================")
+              Redirect("/doc").flashing("success" -> "File is uploaded")
+            }).recover {
+              case error =>
                 logger.error("Error while creating image", error)
                 Redirect("/doc").flashing("error" -> "Something went wrong")
-            }
+            }.value
           case None =>
-            Future.successful(Redirect("/doc").flashing("error" -> "Ma'lumotlar bazasidan bunday ID topilmadi"))
+            Future.successful(Right(Redirect("/doc").flashing("error" -> "Customer ID not found")))
         }
       }.getOrElse {
-        logger.debug(s"No file to upload")
-        Future.successful(Redirect(routes.HomeController.index()).flashing("error" -> "Missing file"))
-      }
+      logger.debug(s"No file to upload")
+      Future.successful(Right(Redirect(routes.HomeController.index()).flashing("error" -> "Missing file")))
+    }
+    result.map {
+      case Right(r) => r
+      case Left(error) =>
+        logger.error(s"Something bad happened", error)
+        Redirect("/doc").flashing("error" -> "Something bad happened")
+    }
   }
 
   def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
@@ -172,9 +178,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def stubSmsRequest: Action[AnyContent] = Action { implicit request =>
+    val body = request.body.asFormUrlEncoded
+    logger.debug(s"Stub SMS Request: $body")
+    Ok(Json.toJson("""{"request_id": "aaaa11111"}"""))
+  }
+
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
 
   private def generateLogin = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
 
   private def generatePassword = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
+
 }
