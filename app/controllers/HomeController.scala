@@ -131,6 +131,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
             Future.successful(BadRequest("Error"))
         }
       }.getOrElse {
+        logger.debug(s"No file to upload")
         Future.successful(Redirect(routes.HomeController.index()).flashing("error" -> "Missing file"))
       }
   }
