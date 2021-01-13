@@ -14,6 +14,7 @@ object AppProtocol {
                      email: Option[String] = None,
                      passport: String,
                      customer_id: String,
+                     company_code: String,
                      login: String,
                      password: String,
                      analysis_image_name: Option[String] = None) {

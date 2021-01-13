@@ -9,7 +9,7 @@ CREATE TABLE "Patients" ("id" SERIAL PRIMARY KEY,
                          "email" VARCHAR NULL,
                          "passport" VARCHAR NOT NULL,
                          "customer_id" VARCHAR NOT NULL,
+                         "company_code" VARCHAR NOT NULL,
                          "login" VARCHAR NOT NULL,
-                         "password" VARCHAR NOT NULL);
-
-ALTER TABLE "Patients" ADD COLUMN analysis_image_name VARCHAR NULL;
+                         "password" VARCHAR NOT NULL,
+                         "analysis_image_name" VARCHAR NULL);

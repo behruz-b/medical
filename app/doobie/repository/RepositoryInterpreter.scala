@@ -16,9 +16,9 @@ object MessageSQL extends CommonSQL  {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
-    Read[(Timestamp, String, String, String, Option[String], String, String, String, String, Option[String])].map {
-      case (created_at, firstname, lastname, phone, email, passport, customer_id, login, password, lab_image) =>
-        Patient(created_at.toLocalDateTime, firstname, lastname, phone, email, passport, customer_id, login, password, lab_image)
+    Read[(Timestamp, String, String, String, Option[String], String, String, String, String, String, Option[String])].map {
+      case (created_at, firstname, lastname, phone, email, passport, customer_id, company_code, login, password, lab_image) =>
+        Patient(created_at.toLocalDateTime, firstname, lastname, phone, email, passport, customer_id, company_code, login, password, lab_image)
     }
   implicit val userRead: Read[User] =
     Read[(Timestamp, String, String, String, Option[String], String, String, String, String)].map {
@@ -31,9 +31,9 @@ object MessageSQL extends CommonSQL  {
   }
 
   def create(patient: Patient): doobie.ConnectionIO[Int] = {
-    val values = fr"(${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname}, ${patient.phone}, ${patient.email}, ${patient.passport}, ${patient.customer_id}, ${patient.login}, ${patient.password})"
+    val values = fr"(${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname}, ${patient.phone}, ${patient.email}, ${patient.passport}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password})"
 
-    sql"""insert into "Patients" (created_at, firstname, lastname, phone, email, passport, customer_id, login, password)
+    sql"""insert into "Patients" (created_at, firstname, lastname, phone, email, passport, customer_id, company_code, login, password)
           values $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
   def createUser(user: User): doobie.ConnectionIO[Int] = {
