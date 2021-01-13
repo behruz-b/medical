@@ -37,7 +37,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
   val LoginKey = "login_session_key"
   val DoctorLoginKey = "doctor_role"
-  val AdminLoginKey = "admin_role"
+  val RegLoginKey = "reg_role"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
@@ -137,7 +137,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     request.session.get(LoginKey) match {
-      case Some(_) => Future.successful(BadRequest("You are already authorized"))
+      case Some(loginKey) =>
+        loginKey match {
+          case DoctorLoginKey => Future.successful(Redirect("/doc"))
+          case RegLoginKey => Future.successful(Redirect("/reg"))
+          case _ => Future.successful(Unauthorized("Your haven't got right Role"))
+        }
       case None =>
         val body = request.body.asFormUrlEncoded
         val login = body.get("adminName").flatMap(_.headOption)
@@ -147,7 +152,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
             case Right(role) =>
               role match {
                 case "doctor" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
-                case "admin" => Redirect("/reg").addingToSession(LoginKey -> AdminLoginKey)
+                case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey)
                 case _ => Unauthorized("Your haven't got right Role")
               }
             case Left(error) =>
