@@ -40,7 +40,7 @@ class PatientManager @Inject()(val configuration: Configuration,
       addAnalysisResult(customerId, analysisFileName).pipeTo(sender())
 
     case GetPatientByCustomerId(customerId) =>
-      getPatientByCustomerId(customerId)
+      getPatientByCustomerId(customerId).pipeTo(sender())
 
     case GetPatientByLogin(login, password) =>
       getPatientByLogin(login, password).pipeTo(sender())
@@ -61,11 +61,11 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def getPatientByCustomerId(customerId: String): Future[Either[String, Option[Patient]]] = {
+  private def getPatientByCustomerId(customerId: String): Future[Either[String, Patient]] = {
     (for {
       patient <- DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture()
     } yield {
-      Right(patient)
+      Right(patient.get)
     }).recover {
       case error: Throwable =>
         logger.error("Error occurred while get patient by customer id.", error)

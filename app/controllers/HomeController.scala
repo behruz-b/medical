@@ -28,6 +28,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: index,
                                loginPage: admin.login,
                                configuration: Configuration,
+                               analysisResultTemplate: analysisResult,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef)
@@ -43,6 +44,32 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def index(language: String): Action[AnyContent] = Action { implicit request =>
     request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { _ =>
       Ok(indexTemplate(language))
+    }
+  }
+
+  def analysisResult(customerId: String): Action[AnyContent] = Action.async {
+    (patientManager ? GetPatientByCustomerId(customerId.toUpperCase)).mapTo[Either[String, Patient]].map {
+      case Right(patient) =>
+        logger.debug(s"SUCCEESS")
+        if (patient.analysis_image_name.isDefined) {
+          val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
+          val directoryPath = new java.io.File("./public/temp")
+          directoryPath.mkdirs()
+          val tempFile = java.io.File.createTempFile("elegant_analysis_", ".png", directoryPath)
+          val fos = new java.io.FileOutputStream(tempFile)
+          fos.write(fileBytes)
+          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))
+        } else {
+          logger.error("Error while getting analysis file name")
+          BadRequest("Error")
+        }
+      case Left(e) =>
+        logger.debug(s"ERROR")
+        BadRequest(e)
+    }.recover {
+      case e =>
+        logger.error("Error while getting patient", e)
+        BadRequest("Error")
     }
   }
 

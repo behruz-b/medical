@@ -1,0 +1,25 @@
+@this(webJarsUtil: org.webjars.play.WebJarsUtil)
+@()
+@main("Patients", webJarsUtil) {
+    <div class="container" style="margin-top: 10%">
+        <label for="table">Patients Table</label>
+        <table class="table table-striped" id="table">
+            <thead>
+                <tr>
+                    <td>First Name</td>
+                    <td>Last Name</td>
+                    <td>Phone Number</td>
+                    <td>Email</td>
+                    <td>Passport Number Series</td>
+                </tr>
+            </thead>
+            <tr data-bind="foreach: vm.patients()">
+                <td data-bind="text: $data.firstName"></td>
+                <td data-bind="text: $data.lastName"></td>
+                <td data-bind="text: $data.phoneNumber"></td>
+                <td data-bind="text: $data.email"></td>
+                <td data-bind="text: $data.passportNS"></td>
+            </tr>
+        </table>
+    </div>
+}

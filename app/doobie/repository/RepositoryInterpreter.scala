@@ -49,7 +49,7 @@ object MessageSQL extends CommonSQL  {
   }
 
   def getByCustomerId(customerId: String): Query0[Patient] = {
-    val querySql = fr"""SELECT created_at,firstname,lastname,phone,email,passport,customer_id,login,password,analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
+    val querySql = fr"""SELECT created_at,firstname,lastname,phone,email,passport,customer_id,company_code,login,password,analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
     querySql.query[Patient]
   }
 
