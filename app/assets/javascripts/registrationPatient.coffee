@@ -69,7 +69,7 @@ $ ->
         lastName: vm.patient.lastName()
         passportSn: vm.patient.passportSeries().toUpperCase() + vm.patient.passportNumber()
         email: vm.patient.email()
-        phone: vm.patient.phone()
+        phone: vm.patient.phone().replace(/[(|)|-]/g, "").trim()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->

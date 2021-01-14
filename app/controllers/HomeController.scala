@@ -87,11 +87,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val lastName = (request.body \ "lastName").as[String]
       val passportSN = (request.body \ "passportSn").as[String]
       val phone = (request.body \ "phone").as[String]
+      val prefixPhone = "998"
       val email = (request.body \ "email").as[String]
       //      val company_code = (request.body \ "company_code").as[String]
       val company_code = request.host
       logger.debug(s"companyCode: $company_code")
-      val patient = Patient(LocalDateTime.now, firstName, lastName, phone, email.some, passportSN, generateCustomerId,
+      val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, email.some, passportSN, generateCustomerId,
         company_code, generateLogin, generatePassword)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
