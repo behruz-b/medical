@@ -20,7 +20,7 @@ object PatientProtocol {
                      analysis_image_name: Option[String] = None) {
     def id: Option[Int] = None
   }
-  implicit val patientFormat = Json.format[Patient]
+  implicit val patientFormat: OFormat[Patient] = Json.format[Patient]
 
   case class CreatePatient(patient: Patient)
   case class AddAnalysisResult(customerId: String, analysisFileName: String)
@@ -28,6 +28,20 @@ object PatientProtocol {
   case class GetPatientByLogin(login: String, password: String)
   case object GetPatients
   case class SendSmsToCustomer(customerId: String)
+
+  /**
+   *
+   * ==Overview==
+   *
+   * Case class SmsStatus description.
+   *  {{{
+   *  code: Int,
+   *  delivered-date: Date, Format(Y-m-d H:i:s),
+   *  description: String,
+   *  message-count: Int,
+   *  ordinal: Int
+   *  }}}
+   */
 
   val SmsText: String => String = (customerId: String) =>
     s"Tahlil natijasini kuyidagi xavola orqali olishingiz mumkin:" +

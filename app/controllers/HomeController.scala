@@ -1,13 +1,13 @@
 package controllers
 import java.util.Date
 import java.time._
+
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.implicits._
 import cats.data.EitherT
 import com.typesafe.scalalogging.LazyLogging
-
 import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
@@ -17,9 +17,9 @@ import play.api.mvc._
 import protocols.PatientProtocol._
 import protocols.UserProtocol.CheckUserByLogin
 import views.html._
-
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
+
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -29,6 +29,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: index,
                                loginPage: admin.login,
                                configuration: Configuration,
+                               analysisResultTemplate: analysisResult,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef)
@@ -43,8 +44,33 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
     request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { _ =>
-      logger.debug(s"request: ${request.uri}")
       Ok(indexTemplate(language))
+    }
+  }
+
+  def analysisResult(customerId: String): Action[AnyContent] = Action.async {
+    (patientManager ? GetPatientByCustomerId(customerId.toUpperCase)).mapTo[Either[String, Patient]].map {
+      case Right(patient) =>
+        logger.debug(s"SUCCEESS")
+        if (patient.analysis_image_name.isDefined) {
+          val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
+          val directoryPath = new java.io.File("./public/temp")
+          directoryPath.mkdirs()
+          val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
+          val fos = new java.io.FileOutputStream(tempFile)
+          fos.write(fileBytes)
+          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))
+        } else {
+          logger.error("Error while getting analysis file name")
+          BadRequest("Error")
+        }
+      case Left(e) =>
+        logger.debug(s"ERROR")
+        BadRequest(e)
+    }.recover {
+      case e =>
+        logger.error("Error while getting patient", e)
+        BadRequest("Error")
     }
   }
 
@@ -94,6 +120,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { role_key =>
       if (role_key == DoctorLoginKey) {
         Ok(addAnalysisResultPageTemp(language))
+//      } else if (role_key == RegLoginKey) {
+//        Ok(addAnalysisResultPageTemp(language))
       } else {
         Unauthorized("You haven't got right role to see page")
       }
@@ -117,7 +145,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           case Some(customerId) =>
             // need to create folder "patients_results" out of the project
             val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
-            val analysisFileName = customerId + "_" + time_stamp + ".png"
+            val analysisFileName = customerId + "_" + time_stamp + ".jpg"
             picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
             (for {
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
@@ -188,6 +216,5 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   private def generateLogin = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
 
-  private def generatePassword = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
-
+  private def generatePassword = getRandomPassword(7)
 }

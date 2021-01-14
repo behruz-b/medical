@@ -1,0 +1,12 @@
+@this(webJarsUtil: org.webjars.play.WebJarsUtil)
+@(customerId: String, fileName: String)
+@main("Analysis Result", webJarsUtil) {
+    <div class="container" style="margin-top: 10%">
+        <img src="/assets/@fileName" width="320" height="200">
+        <p>Click on the button to download it:</p>
+        <a href="/assets/@fileName" download="elegant_analysis_@customerId">
+            <input type="button" value="Download">
+        </a>
+    </div>
+
+}

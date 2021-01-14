@@ -3,14 +3,12 @@ package actors
 import akka.actor.Actor
 import akka.pattern.pipe
 import akka.util.Timeout
-import cats.implicits.catsSyntaxOptionId
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
 import play.api.{Configuration, Environment}
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLogin, CreateUser, User}
 
-import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,6 +24,7 @@ class UserManager @Inject()(val configuration: Configuration,
 // For testing purpose test DB
 //  override def preStart: Unit = {
 //    self ! CreateUser(User(LocalDateTime.now(), "reg", "doc", "998994461230", "test@test.test".some, "reg", "all", "reg", "reg123"))
+//    self ! CreateUser(User(LocalDateTime.now(), "reg", "doc", "998994461230", "test@test.test".some, "doc", "all", "doctor", "doc123"))
 //  }
 
   override def receive: Receive = {

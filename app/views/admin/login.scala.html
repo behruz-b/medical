@@ -16,8 +16,13 @@
             <label for="login" class="label"><span data-bind="text: vm.translate('login')"></span></label>
           </div>
           <div class="form-group col-sm-12 col-12">
-            <input class="form-control input-box" type="password" id="password" name="adminPass" required>
-            <label for="password" class="label"><span data-bind="text: vm.translate('password')"></span></label>
+            <div class="input-group" id="show_hide_password">
+              <input class="form-control input-box" type="password" id="password" name="adminPass" required>
+              <label for="password" class="label"><span data-bind="text: vm.translate('password')"></span></label>
+              <div class="input-group-addon">
+                <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
+              </div>
+            </div>
           </div>
           <div class="col-12">
             <div class="text-center">

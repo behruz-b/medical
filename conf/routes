@@ -12,6 +12,8 @@ POST    /doc                                        @controllers.HomeController.
 
 POST    /patient                                    @controllers.HomeController.createUser
 GET     /patients                                   @controllers.HomeController.getPatients
+GET     /analysis-result/:customerId                @controllers.HomeController.analysisResult(customerId)
+
 
 POST    /stub-sms                                   @controllers.HomeController.stubSmsRequest
 
