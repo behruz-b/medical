@@ -19,3 +19,6 @@ CREATE TABLE "Patients"
 
 ALTER TABLE "Patients"
     ADD COLUMN receive_method VARCHAR NULL;
+
+ALTER TABLE "Patients"
+    ADD COLUMN delivery_status VARCHAR NULL;
