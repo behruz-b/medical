@@ -5,10 +5,11 @@ import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
-import play.api.libs.json.Json
+import io.circe.Json
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
 import protocols.PatientProtocol._
+import util.StringUtil
 
 import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
@@ -20,21 +21,19 @@ class PatientManager @Inject()(val configuration: Configuration,
                               (implicit val ec: ExecutionContext)
   extends Actor with LazyLogging {
 
-  private val SmsProviderConfig = configuration.get[Configuration]("sms-provider")
-  private val Url: String = SmsProviderConfig.get[String]("url")
-  private val Login: String = SmsProviderConfig.get[String]("login")
-  private val Password: String = SmsProviderConfig.get[String]("password")
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
   private val DoobieModule = DoobieUtil.doobieModule(configuration)
   private val smsConfig = configuration.get[Configuration]("sms_config")
   private val SmsApi = smsConfig.get[String]("api")
+  private val apiStatus = smsConfig.get[String]("api_status")
   private val SmsLogin = smsConfig.get[String]("login")
   private val SmsPassword = smsConfig.get[String]("password")
 
-  // For testing purpose test DB
-  //  override def preStart: Unit = {
-  //    self ! AddAnalysisResult("U-668", "Sample Image Name of Analysis")
-  //  }
+// For testing purpose test DB
+  override def preStart: Unit = {
+//    self ! AddAnalysisResult("U-668", "Sample Image Name of Analysis")
+//    self ! CheckSmsDeliveryStatus("430349076")
+  }
 
   override def receive: Receive = {
     case CreatePatient(patient) =>
@@ -54,6 +53,9 @@ class PatientManager @Inject()(val configuration: Configuration,
 
     case SendSmsToCustomer(customerId) =>
       sendSMS(customerId).pipeTo(sender())
+
+    case CheckSmsDeliveryStatus(requestId) =>
+      checkSmsDeliveryStatus(requestId).pipeTo(sender())
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
@@ -130,18 +132,13 @@ class PatientManager @Inject()(val configuration: Configuration,
 
 
   private def sendSMS(customerId: String): Future[Either[String, String]] = {
-    logger.debug(s"SMS API: $SmsApi, SMS Login: $SmsLogin, SMS Password: $SmsPassword")
+
     (for  {
       patient <- getPatientByCustomerId(customerId)
     } yield {
       patient match {
         case Right(p) =>
-          if (p.map(_.phone).nonEmpty) {
-            actualSendingSMS(p.get.phone, customerId)
-          } else {
-            logger.error(s"Phone is undefined for customer: $p")
-            Future.successful(Left("Customer phone is undefined"))
-          }
+            actualSendingSMS(p.phone, customerId)
         case Left(e) =>
           logger.error(s"Error happened", e)
           Future.successful(Left("Error occurred while sending SMS to Customer"))
@@ -151,23 +148,60 @@ class PatientManager @Inject()(val configuration: Configuration,
   }
 
   private def actualSendingSMS(phone: String, customerId: String): Future[Either[String, String]] ={
+    logger.debug(s"SMS API: ${StringUtil.maskMiddlePart(SmsApi,10,2)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin,1,1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword,2,2)}")
     val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"${SmsText(customerId)}"}]"""
     val result = ws.url(SmsApi)
       .withRequestTimeout(15.seconds)
       .withHttpHeaders("Content-Type" -> "application/x-www-form-urlencoded")
       .post(data)
     result.map { r =>
-      logger.debug(s"SMS API Result: $r")
+      val body = r.json(0)
+      logger.debug(s"SMS API Result: $body")
       r.status match {
         case 200 =>
-          val id = (r.json \ "request_id").asOpt[String]
-          logger.debug(s"RequestId: $id")
-          Right("Successfully sent")
+          val id = (body \ "request_id").asOpt[Int]
+          if (id.isDefined) {
+            logger.debug(s"RequestId: $id")
+            context.system.scheduler.scheduleOnce(3.seconds, self, CheckSmsDeliveryStatus(id.get.toString))
+            Right("Successfully sent")
+          } else {
+            val errorText = (body \ "text").asOpt[String]
+            logger.error(s"Error occurred while sending SMS, error: ${errorText.getOrElse("Error Text undefined")}")
+            Left("Error occurred while sending SMS")
+          }
         case _ =>
-          val errorText = (r.json \\ "text").head.asOpt[String]
-          logger.debug(s"Error Text: $errorText")
+          val errorText = (body \ "text").head.asOpt[String]
+          logger.error(s"Error Text: $errorText")
           Left("Error happened")
       }
+    }.recover {
+      case e =>
+        logger.error("Error occurred while sending SMS to sms provider", e)
+        Left("Error while sending SMS")
+    }
+  }
+
+  private def checkSmsDeliveryStatus(requestId: String) = {
+    logger.debug(s"Checking SMS Delivery status...")
+    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"request_id":"$requestId"}]"""
+    val result = ws.url(apiStatus)
+      .withRequestTimeout(15.seconds)
+      .withHttpHeaders("Content-Type" -> "application/x-www-form-urlencoded")
+      .post(data)
+    result.map { deliveryStatus =>
+      val body = deliveryStatus.json
+      logger.debug(s"SMS deliveryStatus: $body")
+      deliveryStatus.status match {
+        case 200 =>
+          val deliveryNotification = ((body \ "messages")(0) \ "status").as[String]
+          logger.debug(s"Delivery Notification: $deliveryNotification")
+        case _ =>
+          val errorText = (body \ "text").head.asOpt[String]
+          logger.debug(s"Error Text: $errorText")
+      }
+    }.recover {
+      case e =>
+        logger.error("Error occurred while sending SMS to sms provider", e)
     }
   }
 }

@@ -3,6 +3,7 @@ object Dependencies {
 
   object Versions {
     val cats = "2.1.1"
+    val CirceVersion = "0.13.0"
     val fs2 = "2.4.0"
     val akka = "2.6.10"
     val doobie = "0.9.4"
@@ -29,6 +30,7 @@ object Dependencies {
 
   object Libraries {
     val cats = "org.typelevel" %% "cats-core" % Versions.cats
+    val circe = "io.circe" %% "circe-core" % "0.13.0"
     val fs2Core = "co.fs2" %% "fs2-core" % Versions.fs2
     val fs2IO = "co.fs2" %% "fs2-io" % Versions.fs2
     val fs2Reactive = "co.fs2" %% "fs2-reactive-streams" % Versions.fs2
@@ -41,6 +43,14 @@ object Dependencies {
     val playMailerLibs = Seq(
       "com.typesafe.play" %% "play-mailer" % Versions.playMailer,
       "com.typesafe.play" %% "play-mailer-guice" % Versions.playMailer
+    )
+    val circeLibs = Seq(
+      "io.circe" %% "circe-generic" % Versions.CirceVersion,
+      "io.circe" %% "circe-literal" % Versions.CirceVersion,
+      "io.circe" %% "circe-generic-extras" % Versions.CirceVersion,
+      "io.circe" %% "circe-parser" % Versions.CirceVersion,
+      "io.circe" %% "circe-java8" % Versions.CirceVersion,
+      "io.circe" %% "circe-config" % Versions.CirceVersion
     )
     val logLibs = Seq(
       "org.slf4j" % "log4j-over-slf4j" % Versions.logOver,
@@ -83,6 +93,7 @@ object Dependencies {
   }
   val rootDependencies: Seq[ModuleID] = Seq(
     Libraries.cats,
+    Libraries.circe,
     Libraries.fs2Core,
     Libraries.fs2IO,
     Libraries.fs2Reactive,

@@ -54,7 +54,7 @@ object MessageSQL extends CommonSQL  {
   }
 
   def getPatientByLogin(login: String): doobie.Query0[Patient] = {
-    val querySql = fr"""select created_at,firstname,lastname,phone,email,passport,customer_id,login,password,analysis_image_name from "Patients" WHERE login = $login"""
+    val querySql = fr"""select created_at,firstname,lastname,phone,email,passport,customer_id, company_code,login,password,analysis_image_name from "Patients" WHERE login = $login"""
       querySql.query[Patient]
   }
 

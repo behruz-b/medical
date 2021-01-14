@@ -28,6 +28,7 @@ object PatientProtocol {
   case class GetPatientByLogin(login: String, password: String)
   case object GetPatients
   case class SendSmsToCustomer(customerId: String)
+  case class CheckSmsDeliveryStatus(requestId: String)
 
   /**
    *
@@ -44,6 +45,5 @@ object PatientProtocol {
    */
 
   val SmsText: String => String = (customerId: String) =>
-    s"Tahlil natijasini kuyidagi xavola orqali olishingiz mumkin:" +
-      s"http://localhost:9000/analysis-result/$customerId"
+    s"Smart Medical\\nTahlil natijasini kuyidagi xavola orqali olishingiz mumkin:\\nhttp://localhost:9000/analysis-result/$customerId"
 }
