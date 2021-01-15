@@ -32,7 +32,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                analysisResultTemplate: analysisResult,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                @Named("patient-manager") val patientManager: ActorRef,
-                               @Named("user-manager") val userManager: ActorRef)
+                               @Named("user-manager") val userManager: ActorRef,
+                               @Named("stats-manager") val statsManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging with CommonMethods {
 
