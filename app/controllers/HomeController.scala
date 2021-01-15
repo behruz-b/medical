@@ -123,8 +123,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { role_key =>
       if (role_key == DoctorLoginKey) {
         Ok(addAnalysisResultPageTemp(language))
-//      } else if (role_key == RegLoginKey) {
-//        Ok(addAnalysisResultPageTemp(language))
       } else {
         Unauthorized("You haven't got right role to see page")
       }
@@ -161,6 +159,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
             } yield {
+              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
+              statsManager ! AddStatsAction(statsAction)
               Redirect("/doc").flashing("success" -> "File is uploaded")
             }).recover {
               case error =>

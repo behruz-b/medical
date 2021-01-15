@@ -4,13 +4,14 @@ import cats.effect.Bracket
 import doobie._
 import doobie.domain.PatientRepositoryAlgebra
 import doobie.implicits._
-import protocols.PatientProtocol.Patient
+import protocols.PatientProtocol.{Patient, StatsAction}
 import protocols.UserProtocol.User
 
 trait CommonSQL {
 
   def create(patient: Patient): ConnectionIO[Int]
   def createUser(user: User): ConnectionIO[Int]
+  def addStatsAction(statsAction: StatsAction): ConnectionIO[Int]
   def addAnalysisResult(customerId: String, analysisFileName: String): Update0
   def getByCustomerId(customerId: String): Query0[Patient]
   def getPatientByLogin(login: String): Query0[Patient]
@@ -30,6 +31,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def createUser(user: User): F[Int] = {
     commonSql.createUser(user).transact(xa)
   }
+  override def addStatsAction(statsAction: StatsAction): F[Int] = {
+    commonSql.addStatsAction(statsAction).transact(xa)
+  }
   override def addAnalysisResult(customerId: String, analysisFileName: String): F[Int] = {
     commonSql.addAnalysisResult(customerId, analysisFileName).run.transact(xa)
   }
@@ -39,11 +43,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def getPatientByLogin(login: String): fs2.Stream[F,Patient] = {
     commonSql.getPatientByLogin(login).stream.transact(xa)
   }
-
   override def getUserByLogin(login: String): fs2.Stream[F,User] = {
     commonSql.getUserByLogin(login).stream.transact(xa)
   }
-
   override def getPatients: F[List[Patient]] = {
     commonSql.getPatients.transact(xa)
   }

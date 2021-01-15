@@ -4,11 +4,10 @@ import cats.effect.Bracket
 import doobie._
 import doobie.domain.PatientRepositoryAlgebra
 import doobie.implicits._
-import protocols.PatientProtocol.Patient
+import protocols.PatientProtocol.{Patient, StatsAction}
 import doobie.implicits.javasql._
 import doobie.util.Read
 import protocols.UserProtocol.User
-
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
@@ -36,6 +35,14 @@ object MessageSQL extends CommonSQL  {
     sql"""insert into "Patients" (created_at, firstname, lastname, phone, email, passport, customer_id, company_code, login, password)
           values $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
+
+  def addStatsAction(statsAction: StatsAction): doobie.ConnectionIO[Int] = {
+    val values = fr"(${javaLdTime2JavaSqlTimestamp(statsAction.created_at)},${statsAction.company_code}, ${statsAction.action}, ${statsAction.ip_address}, ${statsAction.user_agent})"
+
+    sql"""INSERT INTO "Stats" (created_at, company_code, action, ip_address, user_agent)
+          VALUES $values""".update.withUniqueGeneratedKeys[Int]("id")
+  }
+
   def createUser(user: User): doobie.ConnectionIO[Int] = {
     val values = fr"(${javaLdTime2JavaSqlTimestamp(user.created_at)},${user.firstname}, ${user.lastname}, ${user.phone}, ${user.email}, ${user.role}, ${user.company_code}, ${user.login}, ${user.password})"
 
