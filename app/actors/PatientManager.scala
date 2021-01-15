@@ -195,6 +195,7 @@ class PatientManager @Inject()(val configuration: Configuration,
         case 200 =>
           val deliveryNotification = ((body \ "messages")(0) \ "status").as[String]
           logger.debug(s"Delivery Notification: $deliveryNotification")
+
         case _ =>
           val errorText = (body \ "text").head.asOpt[String]
           logger.debug(s"Error Text: $errorText")
