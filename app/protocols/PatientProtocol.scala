@@ -22,6 +22,14 @@ object PatientProtocol {
   }
   implicit val patientFormat: OFormat[Patient] = Json.format[Patient]
 
+  case class AddStatsReg(created_at: LocalDateTime,
+                         company_code: String,
+                         action: String,
+                         ip_address: String,
+                         user_agent: String)
+
+  implicit val addStatsFormat: OFormat[AddStatsReg] = Json.format[AddStatsReg]
+  case class AddStatsRegistration(stats: AddStatsReg)
   case class CreatePatient(patient: Patient)
   case class AddAnalysisResult(customerId: String, analysisFileName: String)
   case class GetPatientByCustomerId(customerId: String)
