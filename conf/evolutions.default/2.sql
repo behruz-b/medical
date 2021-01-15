@@ -9,5 +9,11 @@ CREATE TABLE "Users" ("id" SERIAL PRIMARY KEY,
                      "login" VARCHAR NOT NULL,
                      "password" VARCHAR NOT NULL);
 
+INSERT INTO "Users" ("id","created_at","firstname","lastname", "phone", "email", "role", "company_code", "login", "password")
+ VALUES (5,'2021-01-12 15:32:22.196016','doc1','superuser','998994461230','test@test.test','doctor','all','doc1','doc123');
+
+INSERT INTO "Users" ("id","created_at","firstname","lastname", "phone", "email", "role", "company_code", "login", "password")
+ VALUES (6,'2021-01-12 15:32:22.196016','reg1','superuser','998994461230','test@test.test','reg','all','reg1','reg123');
+
 
 DROP TABLE "Users";

@@ -21,12 +21,6 @@ class UserManager @Inject()(val configuration: Configuration,
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
   private val DoobieModule = DoobieUtil.doobieModule(configuration)
 
-// For testing purpose test DB
-//  override def preStart: Unit = {
-//    self ! CreateUser(User(LocalDateTime.now(), "reg", "doc", "998994461230", "test@test.test".some, "reg", "all", "reg", "reg123"))
-//    self ! CreateUser(User(LocalDateTime.now(), "reg", "doc", "998994461230", "test@test.test".some, "doc", "all", "doctor", "doc123"))
-//  }
-
   override def receive: Receive = {
     case CheckUserByLogin(login, password) =>
       checkUserByLoginAndPassword(login, password).pipeTo(sender())
