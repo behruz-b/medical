@@ -21,7 +21,7 @@ class StatsManager @Inject()(val configuration: Configuration,
   extends Actor with LazyLogging {
 
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
-  private val DoobieModule = DoobieUtil.doobieModule(configuration)
+//  private val DoobieModule = DoobieUtil.doobieModule(configuration)
 
 
   override def receive: Receive = {

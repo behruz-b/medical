@@ -12,6 +12,10 @@
               language: '@lang'
             };
     </script>
+      <nav class="navbar" style="background-color: rgba(0, 64, 133, 0.5); height: 8vh;">
+          <a href="/"><img src="@routes.Assets.versioned("images/favicon.png")" alt="Logo"></a>
+          <a class="btn btn-outline-danger mr-2" style="position: absolute; right: 0;" href="/logout"><i class="fa fa-sign-out-alt"></i>Logout</a>
+      </nav>
     <div class="row box-align-center">
       <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
         <h2 class="text-white"><span data-bind="text: vm.translate('addAnalysisResult')"></span></h2>
