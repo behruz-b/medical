@@ -30,10 +30,10 @@ class PatientManager @Inject()(val configuration: Configuration,
   private val SmsPassword = smsConfig.get[String]("password")
 
 // For testing purpose test DB
-  override def preStart: Unit = {
+//  override def preStart: Unit = {
 //    self ! AddAnalysisResult("U-668", "Sample Image Name of Analysis")
 //    self ! CheckSmsDeliveryStatus("430349076")
-  }
+//  }
 
   override def receive: Receive = {
     case CreatePatient(patient) =>

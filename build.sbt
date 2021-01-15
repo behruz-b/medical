@@ -20,9 +20,9 @@ scalacOptions ++= CompilerOptions.cOptions
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.4"
 
-addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.2" cross CrossVersion.full)
 
 resolvers ++= Seq(
   "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",

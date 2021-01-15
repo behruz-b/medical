@@ -43,8 +43,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { _ =>
-      Ok(indexTemplate(language))
+    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) {
+      case RegLoginKey => Ok(indexTemplate(language))
+      case _ => Redirect(routes.HomeController.index()).withSession(request.session - LoginKey)
     }
   }
 
@@ -138,6 +139,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
+    logger.debug(s"Upload file is started...")
     val result = request.body
       .file("file")
       .map { picture =>
@@ -147,7 +149,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
             // need to create folder "patients_results" out of the project
             val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
             val analysisFileName = customerId + "_" + time_stamp + ".jpg"
-            picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
+            logger.debug(s"Path: $tempFilesPath}")
+            Try {
+              picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
+            }.recover {
+              case e =>
+                logger.error("Error while parsing tempFilePath", e)
+            }
             (for {
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
@@ -159,17 +167,24 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                 Redirect("/doc").flashing("error" -> "Something went wrong")
             }.value
           case None =>
-            Future.successful(Right(Redirect("/doc").flashing("error" -> "Customer ID not found")))
+            logger.error("Customer ID not found")
+            Future.successful(Left(Redirect("/doc").flashing("error" -> "Customer ID not found")))
         }
       }.getOrElse {
       logger.debug(s"No file to upload")
-      Future.successful(Right(Redirect(routes.HomeController.index()).flashing("error" -> "Missing file")))
+      Future.successful(Left(Redirect(routes.HomeController.index()).flashing("error" -> "Missing file")))
     }
     result.map {
-      case Right(r) => r
+      case Right(redirectWithSuccess) =>
+        logger.debug("File successfully uploaded")
+        redirectWithSuccess
       case Left(error) =>
         logger.error(s"Something bad happened", error)
         Redirect("/doc").flashing("error" -> "Something bad happened")
+    }.recover {
+      case e =>
+        logger.error(s"Unexpected error happened", e)
+        Redirect("/doc").flashing("error" -> "Unexpected error happened")
     }
   }
 
