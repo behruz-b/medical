@@ -94,11 +94,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val email = (request.body \ "email").as[String]
       //      val company_code = (request.body \ "company_code").as[String]
       val company_code = request.host
+      logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
+      logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
       logger.debug(s"companyCode: $company_code")
       val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, email.some, passportSN, generateCustomerId,
         company_code, generateLogin, generatePassword)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
+          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
+          statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
           logger.debug(s"ERROR")

@@ -4,7 +4,7 @@ import cats.effect.Bracket
 import doobie._
 import doobie.domain.PatientRepositoryAlgebra
 import doobie.implicits._
-import protocols.PatientProtocol.{Patient, StatsAction}
+import protocols.PatientProtocol._
 import protocols.UserProtocol.User
 
 trait CommonSQL {
