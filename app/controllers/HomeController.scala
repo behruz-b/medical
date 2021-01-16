@@ -26,10 +26,10 @@ import scala.util.{Failure, Success, Try}
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
-                               indexTemplate: index,
-                               loginPage: admin.login,
+                               indexTemplate: views.html.index,
+                               loginPage: views.html.admin.login,
                                configuration: Configuration,
-                               analysisResultTemplate: analysisResult,
+//                               analysisResultTemplate: views.html.analysisResult,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
@@ -56,13 +56,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       case Right(patient) =>
         logger.debug(s"SUCCEESS")
         if (patient.analysis_image_name.isDefined) {
-          val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
-          val directoryPath = new java.io.File(tempFolderPath)
-          directoryPath.mkdirs()
-          val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
-          val fos = new java.io.FileOutputStream(tempFile)
-          fos.write(fileBytes)
-          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))
+//          val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
+//
+//          val directoryPath = new java.io.File("public/images")
+//          directoryPath.mkdirs()
+//          val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
+//          val fos = new java.io.FileOutputStream(tempFile)
+//          fos.write(fileBytes)
+          Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
+//          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))
         } else {
           logger.error("Error while getting analysis file name")
           BadRequest("Error")
