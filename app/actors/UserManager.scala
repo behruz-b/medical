@@ -5,11 +5,10 @@ import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
+import javax.inject.Inject
 import play.api.{Configuration, Environment}
-import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLogin, CreateUser, User}
 
-import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 

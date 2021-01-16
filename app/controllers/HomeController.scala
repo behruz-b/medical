@@ -42,6 +42,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val DoctorLoginKey = "doctor_role"
   val RegLoginKey = "reg_role"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
+  val tempFolderPath: String = configuration.get[String]("temp_folder")
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
     request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) {
@@ -56,7 +57,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         logger.debug(s"SUCCEESS")
         if (patient.analysis_image_name.isDefined) {
           val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
-          val directoryPath = new java.io.File("./public/temp")
+          val directoryPath = new java.io.File(tempFolderPath)
           directoryPath.mkdirs()
           val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
           val fos = new java.io.FileOutputStream(tempFile)
@@ -152,7 +153,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
             Try {
               picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
             }.recover {
-              case e =>
+              case e: Throwable =>
                 logger.error("Error while parsing tempFilePath", e)
             }
             (for {
@@ -163,7 +164,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               statsManager ! AddStatsAction(statsAction)
               Redirect("/doc").flashing("success" -> "File is uploaded")
             }).recover {
-              case error =>
+              case error: Any =>
                 logger.error("Error while uploading image", error)
                 Redirect("/doc").flashing("error" -> "Something went wrong")
             }.value
