@@ -4,7 +4,7 @@ import cats.effect.Bracket
 import doobie._
 import doobie.domain.PatientRepositoryAlgebra
 import doobie.implicits._
-import protocols.PatientProtocol.{Patient, StatsAction}
+import protocols.PatientProtocol._
 import doobie.implicits.javasql._
 import doobie.util.Read
 import protocols.UserProtocol.User
@@ -23,6 +23,11 @@ object MessageSQL extends CommonSQL  {
     Read[(Timestamp, String, String, String, Option[String], String, String, String, String)].map {
       case (created_at, firstname, lastname, phone, email, role, company_code, login, password) =>
         User(created_at.toLocalDateTime, firstname, lastname, phone, email, role, company_code, login, password)
+    }
+  implicit val statsActionRead: Read[StatsAction] =
+    Read[(Timestamp, String, String, String, String)].map {
+      case (created_at, company_code, action, ip_address, user_agent) =>
+        StatsAction(created_at.toLocalDateTime, company_code, action, ip_address, user_agent)
     }
 
   private def javaLdTime2JavaSqlTimestamp(ldTime: LocalDateTime): Timestamp = {
@@ -73,6 +78,11 @@ object MessageSQL extends CommonSQL  {
   def getPatients: ConnectionIO[List[Patient]] = {
     val querySql = fr"""SELECT created_at,firstname,lastname,phone,email,passport,customer_id,login,password,analysis_image_name FROM "Patients" ORDER BY created_at """
     querySql.query[Patient].to[List]
+  }
+
+  def getStats: ConnectionIO[List[StatsAction]] = {
+    val querySql = fr"""SELECT created_at, company_code, action, ip_address, user_agent FROM "Stats" ORDER BY created_at """
+    querySql.query[StatsAction].to[List]
   }
 }
 

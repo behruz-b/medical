@@ -24,6 +24,9 @@ class StatsManager @Inject()(val configuration: Configuration,
   override def receive: Receive = {
     case AddStatsAction(statsAction) =>
       addStatsAction(statsAction).pipeTo(sender())
+
+    case GetStats =>
+      getStats.pipeTo(sender())
 }
 
   private def addStatsAction(statsAction: StatsAction): Future[Either[String, String]] = {
@@ -35,6 +38,14 @@ class StatsManager @Inject()(val configuration: Configuration,
       case error: Throwable =>
         logger.error("Error occurred while create patient.", error)
         Left("Error happened while creating patient")
+    }
+  }
+
+  private def getStats: Future[List[StatsAction]] = {
+    for {
+      stats <- DoobieModule.repo.getStats.unsafeToFuture()
+    } yield {
+      stats
     }
   }
 }

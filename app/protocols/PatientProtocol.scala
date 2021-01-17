@@ -36,6 +36,7 @@ object PatientProtocol {
   case class GetPatientByCustomerId(customerId: String)
   case class GetPatientByLogin(login: String, password: String)
   case object GetPatients
+  case object GetStats
   case class SendSmsToCustomer(customerId: String)
   case class CheckSmsDeliveryStatus(requestId: String)
 

@@ -31,6 +31,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                configuration: Configuration,
 //                               analysisResultTemplate: views.html.analysisResult,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
+//                               statsActionTemp: statsTable,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef)
@@ -140,6 +141,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     request.session.get(LoginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
         Ok(Json.toJson(patients))
+      }
+    }
+  }
+
+  def getStats: Action[AnyContent] = Action.async { implicit request =>
+    request.session.get(LoginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
+      (statsManager ? GetStats).mapTo[List[StatsAction]].map { stats =>
+        Ok(Json.toJson(stats))
       }
     }
   }

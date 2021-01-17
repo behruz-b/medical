@@ -6,6 +6,7 @@ $ ->
   apiUrl =
     registerUrl: '/patient'
     patientsUrl: '/patients'
+    statsUrl: '/stats'
 
   defaultPatient =
     firstName: ''
@@ -20,6 +21,7 @@ $ ->
     customerId: ''
     language: Glob.language
     patients: []
+    stats: []
 
   handleError = (error) ->
     if error.status is 500 or (error.status is 400 and error.responseText)
@@ -34,6 +36,12 @@ $ ->
     .fail handleError
     .done (response) ->
       vm.patients(response)
+
+  vm.getStats = ->
+    $.get(apiUrl.statsUrl)
+      .fail handleError
+      .done (response) ->
+        vm.stats(response)
 
   vm.onSubmit = ->
     toastr.clear()
@@ -159,16 +167,6 @@ $ ->
       "You are registered on ID:"
       "Вы зарегистрированы по ID:"
       "Sizning ID:"
-    ]
-    notFound: [
-      "Oops! Page not found!"
-      "Ой! Страница не найдена!"
-      "Afsus! Sahifa topilmadi!"
-    ]
-    notFoundDescription: [
-      "The page you were looking for doesn't exist. You may have mistyped the address or the page may have moved."
-      "Страница, которую вы искали, не существует. Возможно, вы ошиблись при вводе адреса или страница могла быть перемещена."
-      "Siz izlayotgan sahifa mavjud emas. Ehtimol, siz manzilni noto'g'ri yozgansiz yoki sahifa ko'chib ketgan bo'lishi mumkin."
     ]
 
   ko.applyBindings {vm}

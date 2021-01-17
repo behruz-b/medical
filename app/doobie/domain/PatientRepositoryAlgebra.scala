@@ -13,6 +13,7 @@ trait PatientRepositoryAlgebra[F[_]] {
   def getPatientByLogin(login: String):fs2.Stream[F,Patient]
   def getUserByLogin(login: String):fs2.Stream[F,User]
   def getPatients: F[List[Patient]]
+  def getStats: F[List[StatsAction]]
 
 }
 

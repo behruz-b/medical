@@ -17,6 +17,7 @@ trait CommonSQL {
   def getPatientByLogin(login: String): Query0[Patient]
   def getUserByLogin(login: String): Query0[User]
   def getPatients: ConnectionIO[List[Patient]]
+  def getStats: ConnectionIO[List[StatsAction]]
 
 }
 
@@ -48,6 +49,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   }
   override def getPatients: F[List[Patient]] = {
     commonSql.getPatients.transact(xa)
+  }
+  override def getStats: F[List[StatsAction]] = {
+    commonSql.getStats.transact(xa)
   }
 
 }
