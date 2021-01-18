@@ -6,7 +6,6 @@ $ ->
   apiUrl =
     registerUrl: '/patient'
     patientsUrl: '/patients'
-    statsUrl: '/stats'
 
   defaultPatient =
     firstName: ''
@@ -36,12 +35,6 @@ $ ->
     .fail handleError
     .done (response) ->
       vm.patients(response)
-
-  vm.getStats = ->
-    $.get(apiUrl.statsUrl)
-      .fail handleError
-      .done (response) ->
-        vm.stats(response)
 
   vm.onSubmit = ->
     toastr.clear()

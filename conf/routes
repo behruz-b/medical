@@ -14,7 +14,8 @@ POST    /patient                                    @controllers.HomeController.
 GET     /patients                                   @controllers.HomeController.getPatients
 GET     /analysis-result/:customerId                @controllers.HomeController.analysisResult(customerId)
 
-GET     /stats                                      @controllers.HomeController.getStats
+GET     /stats                                      @controllers.HomeController.getStatisticTemplate()
+GET     /getStats                                   @controllers.HomeController.getStats
 
 POST    /stub-sms                                   @controllers.HomeController.stubSmsRequest
 POST    /stub-sms/status                            @controllers.HomeController.stubSmsDeliveryStatus

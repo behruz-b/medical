@@ -17,6 +17,7 @@ import play.api.mvc._
 import protocols.PatientProtocol._
 import protocols.UserProtocol.CheckUserByLogin
 import views.html._
+import views.html.statistic._
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 
@@ -31,7 +32,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                configuration: Configuration,
 //                               analysisResultTemplate: views.html.analysisResult,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
-//                               statsActionTemp: statsTable,
+                               statsActionTemp: statisticTemplete,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef)
@@ -151,6 +152,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         Ok(Json.toJson(stats))
       }
     }
+  }
+
+  def getStatisticTemplate(): Action[AnyContent] = Action {
+    Ok(statsActionTemp())
   }
 
   def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
