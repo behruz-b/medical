@@ -38,7 +38,7 @@ object PatientProtocol {
   case object GetPatients
   case object GetStats
   case class SendSmsToCustomer(customerId: String)
-  case class CheckSmsDeliveryStatus(requestId: String)
+  case class CheckSmsDeliveryStatus(requestId: String, customerId: String)
 
   /**
    *

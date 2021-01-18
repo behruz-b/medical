@@ -41,6 +41,11 @@ object MessageSQL extends CommonSQL  {
           values $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 
+  def addDeliveryStatus(customerId: String, deliveryStatus: String): Update0 = {
+    sql"""UPDATE "Patients" SET delivery_status=$deliveryStatus
+          WHERE customer_id=$customerId""".update
+  }
+
   def addStatsAction(statsAction: StatsAction): doobie.ConnectionIO[Int] = {
     val values = fr"(${javaLdTime2JavaSqlTimestamp(statsAction.created_at)},${statsAction.company_code}, ${statsAction.action}, ${statsAction.ip_address}, ${statsAction.user_agent})"
 

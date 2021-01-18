@@ -54,8 +54,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     case SendSmsToCustomer(customerId) =>
       sendSMS(customerId).pipeTo(sender())
 
-    case CheckSmsDeliveryStatus(requestId) =>
-      checkSmsDeliveryStatus(requestId).pipeTo(sender())
+    case CheckSmsDeliveryStatus(requestId, customerId) =>
+      checkSmsDeliveryStatus(requestId, customerId).pipeTo(sender())
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
@@ -162,7 +162,7 @@ class PatientManager @Inject()(val configuration: Configuration,
           val id = (body \ "request_id").asOpt[Int]
           if (id.isDefined) {
             logger.debug(s"RequestId: $id")
-            context.system.scheduler.scheduleOnce(3.seconds, self, CheckSmsDeliveryStatus(id.get.toString))
+            context.system.scheduler.scheduleOnce(3.seconds, self, CheckSmsDeliveryStatus(id.get.toString, customerId))
             Right("Successfully sent")
           } else {
             val errorText = (body \ "text").asOpt[String]
@@ -181,7 +181,7 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def checkSmsDeliveryStatus(requestId: String) = {
+  private def checkSmsDeliveryStatus(requestId: String, customerId: String) = {
     logger.debug(s"Checking SMS Delivery status...")
     val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"request_id":"$requestId"}]"""
     val result = ws.url(apiStatus)
@@ -194,6 +194,9 @@ class PatientManager @Inject()(val configuration: Configuration,
       deliveryStatus.status match {
         case 200 =>
           val deliveryNotification = ((body \ "messages")(0) \ "status").as[String]
+          for {
+            _ <- DoobieModule.repo.addDeliveryStatus(customerId, deliveryNotification).unsafeToFuture()
+          }
           logger.debug(s"Delivery Notification: $deliveryNotification")
         case _ =>
           val errorText = (body \ "text").head.asOpt[String]
