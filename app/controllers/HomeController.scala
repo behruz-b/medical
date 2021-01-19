@@ -30,7 +30,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: views.html.index,
                                loginPage: views.html.admin.login,
                                configuration: Configuration,
-//                               analysisResultTemplate: views.html.analysisResult,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                statsActionTemp: statisticTemplete,
                                @Named("patient-manager") val patientManager: ActorRef,
@@ -105,7 +104,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         company_code, generateLogin, generatePassword)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
-          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
+          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit",
+            request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
@@ -163,6 +163,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val result = request.body
       .file("file")
       .map { picture =>
+        logger.debug(s"picture: ${picture.filename}")
         val body = request.body.asFormUrlEncoded
         body.get("id").flatMap(_.headOption) match {
           case Some(customerId) =>

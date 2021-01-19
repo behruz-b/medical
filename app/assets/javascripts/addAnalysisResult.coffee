@@ -56,6 +56,7 @@ $ ->
     done: (e, data) ->
       result = data.result
       ko.mapping.fromJS(defaultPatient, {}, vm.patient)
+      $('#show-image').attr 'src', ''
       toastr.success(result)
       vm.enableSubmitButton(yes)
 
@@ -64,18 +65,16 @@ $ ->
     vm.labels[fieldName][index]
 
   vm.onSubmit = ->
-    if (!vm.patient.id())
+    toastr.clear()
+    if !vm.patient.id()
       toastr.error("Iltimos id ni kiriting!")
       return no
-    else if (!vm.patient.file)
+    else if !vm.patient.file()
       toastr.error("Iltimos faylni kiriting!")
       return no
-    if formData
+    else if formData
       vm.enableSubmitButton(no)
       formData.submit()
-    else
-      $fileUploadForm.fileupload('send', {files: ''})
-      return no
 
   vm.labels =
     addAnalysisResult: [
