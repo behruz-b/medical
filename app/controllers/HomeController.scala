@@ -84,7 +84,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def logout: Action[AnyContent] = Action { implicit request =>
     request.session.get(LoginKey) match {
       case Some(_) => Redirect(routes.HomeController.index()).withSession(request.session - LoginKey)
-      case None => BadRequest("You are not authorized")
+      case None => Redirect(routes.HomeController.login())
     }
   }
 
@@ -94,13 +94,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val lastName = (request.body \ "lastName").as[String]
       val phone = (request.body \ "phone").as[String]
       val prefixPhone = "998"
-      //      val company_code = (request.body \ "company_code").as[String]
       val company_code = request.host
+      val dateOfBirth = LocalDateTime.now
+      val address = "address"
+      val analyseType = "address"
+      val docFullName = "docFullName".some
+      val docPhone = "docFullName".some
       logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
       logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
       logger.debug(s"companyCode: $company_code")
       val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, generateCustomerId,
-        company_code, generateLogin, generatePassword)
+        company_code, generateLogin, generatePassword, address, dateOfBirth, analyseType, docFullName, docPhone)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", login="user_login",

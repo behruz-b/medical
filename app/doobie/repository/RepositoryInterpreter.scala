@@ -15,9 +15,22 @@ object MessageSQL extends CommonSQL  {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
-    Read[(Timestamp, String, String, String, String, String, String, String, Option[String])].map {
-      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, lab_image) =>
-        Patient(created_at.toLocalDateTime, firstname, lastname, phone, customer_id, company_code, login, password, lab_image)
+    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String])].map {
+      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analyse_type, lab_image) =>
+        Patient(
+          created_at.toLocalDateTime,
+          firstname = firstname,
+          lastname = lastname,
+          phone = phone,
+          customer_id = customer_id,
+          company_code = company_code,
+          login = login,
+          password = password,
+          address = address,
+          dateOfBirth = date_of_birth.toLocalDateTime,
+          analyseType = analyse_type,
+          docFullName = lab_image
+        )
     }
   implicit val userRead: Read[User] =
     Read[(Timestamp, String, String, String, String, String, String,String)].map {
@@ -34,11 +47,26 @@ object MessageSQL extends CommonSQL  {
     Timestamp.valueOf(ldTime)
   }
 
-  def create(patient: Patient): doobie.ConnectionIO[Int] = {
-    val values = fr"(${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname}, ${patient.phone}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password})"
+  private def updateQueryWithUniqueId(fr: Fragment): doobie.ConnectionIO[Int] = {
+    fr.update.withUniqueGeneratedKeys[Int]("id")
+  }
 
-    sql"""insert into "Patients" (created_at, firstname, lastname, phone, customer_id, company_code, login, password)
-          values $values""".update.withUniqueGeneratedKeys[Int]("id")
+  def create(patient: Patient): doobie.ConnectionIO[Int] = {
+    val values = {
+      fr""" values (
+        ${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname},
+        ${patient.phone}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password},
+        ${patient.address}, ${javaLdTime2JavaSqlTimestamp(patient.dateOfBirth)}, ${patient.analyseType}
+      )"""
+    }
+
+    val fieldsName =
+      fr"""
+        insert into "Patients" (created_at, firstname, lastname, phone, customer_id, company_code, login, password,
+         address, date_of_birth, analyse_type)
+        """
+
+    updateQueryWithUniqueId(fieldsName ++ values)
   }
 
   def addDeliveryStatus(customerId: String, deliveryStatus: String): Update0 = {

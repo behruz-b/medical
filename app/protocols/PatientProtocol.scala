@@ -15,6 +15,11 @@ object PatientProtocol {
                      company_code: String,
                      login: String,
                      password: String,
+                     address: String,
+                     dateOfBirth: LocalDateTime,
+                     analyseType: String,
+                     docFullName: Option[String] = None,
+                     docPhone: Option[String] = None,
                      analysis_image_name: Option[String] = None) {
     def id: Option[Int] = None
   }

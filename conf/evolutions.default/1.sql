@@ -12,11 +12,12 @@ CREATE TABLE "Patients"
     "company_code"        VARCHAR   NOT NULL,
     "login"               VARCHAR   NOT NULL,
     "password"            VARCHAR   NOT NULL,
+    "address"             VARCHAR   NOT NULL,
+    "date_of_birth"       TIMESTAMP NOT NULL,
+    "analyse_type"        VARCHAR NOT NULL,
+    "receive_method"      VARCHAR   NULL,
+    "delivery_status"     VARCHAR   NULL,
     "analysis_image_name" VARCHAR   NULL
 );
 
-ALTER TABLE "Patients"
-    ADD COLUMN receive_method VARCHAR NULL;
-
-ALTER TABLE "Patients"
-    ADD COLUMN delivery_status VARCHAR NULL;
+DROP TABLE "Patients";
