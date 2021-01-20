@@ -32,6 +32,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                configuration: Configuration,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                statsActionTemp: statisticTemplete,
+                               getPatientsTemp: patients.patientsTable,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef)
@@ -144,6 +145,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         Ok(Json.toJson(patients))
       }
     }
+  }
+
+  def getPatientsTemplate(): Action[AnyContent] = Action {
+    Ok(getPatientsTemp())
   }
 
   def getStats: Action[AnyContent] = Action.async { implicit request =>
