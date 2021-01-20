@@ -149,7 +149,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getPatientsTemplate(): Action[AnyContent] = Action { implicit request =>
+  def getPatientsTemplate: Action[AnyContent] = Action { implicit request =>
     Ok(getPatientsTemp())
   }
 
@@ -161,8 +161,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getStatisticTemplate(): Action[AnyContent] = Action { implicit request =>
-    Ok(statsActionTemp())
+  def getStatisticTemplate: Action[AnyContent] = Action { implicit request =>
+    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login()))(_ =>
+      Ok(statsActionTemp()))
   }
 
   def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
