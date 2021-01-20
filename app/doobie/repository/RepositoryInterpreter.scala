@@ -25,9 +25,9 @@ object MessageSQL extends CommonSQL  {
         User(created_at.toLocalDateTime, firstname, lastname, phone, role, company_code, login, password)
     }
   implicit val statsActionRead: Read[StatsAction] =
-    Read[(Timestamp, String, String, String, String)].map {
-      case (created_at, company_code, action, ip_address, user_agent) =>
-        StatsAction(created_at.toLocalDateTime, company_code, action, ip_address, user_agent)
+    Read[(Timestamp, String, String, String, String, String)].map {
+      case (created_at, company_code, action, login, ip_address, user_agent) =>
+        StatsAction(created_at.toLocalDateTime, company_code, action, login, ip_address, user_agent)
     }
 
   private def javaLdTime2JavaSqlTimestamp(ldTime: LocalDateTime): Timestamp = {
@@ -47,9 +47,9 @@ object MessageSQL extends CommonSQL  {
   }
 
   def addStatsAction(statsAction: StatsAction): doobie.ConnectionIO[Int] = {
-    val values = fr"(${javaLdTime2JavaSqlTimestamp(statsAction.created_at)},${statsAction.company_code}, ${statsAction.action}, ${statsAction.ip_address}, ${statsAction.user_agent})"
+    val values = fr"(${javaLdTime2JavaSqlTimestamp(statsAction.created_at)},${statsAction.company_code}, ${statsAction.action}, ${statsAction.login}, ${statsAction.ip_address}, ${statsAction.user_agent})"
 
-    sql"""INSERT INTO "Stats" (created_at, company_code, action, ip_address, user_agent)
+    sql"""INSERT INTO "Stats" (created_at, company_code, action, login, ip_address, user_agent)
           VALUES $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 

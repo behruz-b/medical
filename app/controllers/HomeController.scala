@@ -103,7 +103,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         company_code, generateLogin, generatePassword)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
-          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit",
+          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", login="user_login",
             request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
@@ -184,7 +184,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
             } yield {
-              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
+              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", login="user_login", request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
               "File is uploaded"
             }).recover {

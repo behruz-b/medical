@@ -23,6 +23,7 @@ object PatientProtocol {
   case class StatsAction(created_at: LocalDateTime,
                          company_code: String,
                          action: String,
+                         login: String,
                          ip_address: String,
                          user_agent: String)
 
