@@ -119,6 +119,7 @@ class PatientManager @Inject()(val configuration: Configuration,
     for {
       patients <- DoobieModule.repo.getPatients.unsafeToFuture()
     } yield {
+      logger.debug(s"ppp: $patients")
       patients
     }
   }

@@ -14,7 +14,7 @@ POST    /patient                                    @controllers.HomeController.
 GET     /analysis-result/:customerId                @controllers.HomeController.analysisResult(customerId)
 
 GET     /patients                                   @controllers.HomeController.getPatientsTemplate()
-GET     /getPatients                                @controllers.HomeController.getPatients
+GET     /get-patients                               @controllers.HomeController.getPatients
 
 GET     /stats                                      @controllers.HomeController.getStatisticTemplate()
 GET     /getStats                                   @controllers.HomeController.getStats

@@ -144,6 +144,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def getPatients: Action[AnyContent] = Action.async { implicit request =>
     request.session.get(LoginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
+        logger.debug(s"patients: $patients")
         Ok(Json.toJson(patients))
       }
     }

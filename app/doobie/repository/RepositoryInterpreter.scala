@@ -15,8 +15,8 @@ object MessageSQL extends CommonSQL  {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
-    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String])].map {
-      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analyse_type, lab_image) =>
+    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String], Option[String], Option[String])].map {
+      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analyse_type, doc_full_name, doc_phone, lab_image) =>
         Patient(
           created_at.toLocalDateTime,
           firstname = firstname,
@@ -29,7 +29,26 @@ object MessageSQL extends CommonSQL  {
           address = address,
           dateOfBirth = date_of_birth.toLocalDateTime,
           analyseType = analyse_type,
-          docFullName = lab_image
+          docFullName = doc_full_name,
+          docPhone = doc_phone,
+          analysis_image_name = lab_image
+        )
+    }
+  implicit val writePatient: Write[Patient] =
+    Write[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String])].contramap { f =>
+        (
+          javaLdTime2JavaSqlTimestamp(f.created_at),
+          f.firstname,
+          f.lastname,
+          f.phone,
+          f.customer_id,
+          f.company_code,
+          f.login,
+          f.password,
+          f.address,
+          javaLdTime2JavaSqlTimestamp(f.dateOfBirth),
+          f.analyseType,
+          f.docFullName
         )
     }
   implicit val userRead: Read[User] =
@@ -109,7 +128,10 @@ object MessageSQL extends CommonSQL  {
   }
 
   def getPatients: ConnectionIO[List[Patient]] = {
-    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,login,password,analysis_image_name FROM "Patients" ORDER BY created_at """
+    val querySql =
+      sql"""
+        SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,doc_full_name,doc_phone,analysis_image_name FROM "Patients" ORDER BY created_at
+      """
     querySql.query[Patient].to[List]
   }
 
