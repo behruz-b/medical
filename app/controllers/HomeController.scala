@@ -95,7 +95,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val phone = (request.body \ "phone").as[String]
       val prefixPhone = "998"
       val company_code = request.host
-      val dateOfBirth = LocalDateTime.now
+      val dateOfBirth = (request.body \ "date").as[Date]
       val address = "address"
       val analyseType = "address"
       val docFullName = "docFullName".some

@@ -1,5 +1,5 @@
 package doobie.repository
-
+import java.util.Date
 import cats.effect.Bracket
 import doobie._
 import doobie.domain.PatientRepositoryAlgebra
@@ -15,7 +15,7 @@ object MessageSQL extends CommonSQL  {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
-    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String])].map {
+    Read[(Timestamp, String, String, String, String, String, String, String, String, Date, String, Option[String])].map {
       case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analyse_type, lab_image) =>
         Patient(
           created_at.toLocalDateTime,
@@ -27,7 +27,7 @@ object MessageSQL extends CommonSQL  {
           login = login,
           password = password,
           address = address,
-          dateOfBirth = date_of_birth.toLocalDateTime,
+          dateOfBirth = date_of_birth,
           analyseType = analyse_type,
           docFullName = lab_image
         )
@@ -56,7 +56,7 @@ object MessageSQL extends CommonSQL  {
       fr""" values (
         ${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname},
         ${patient.phone}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password},
-        ${patient.address}, ${javaLdTime2JavaSqlTimestamp(patient.dateOfBirth)}, ${patient.analyseType}
+        ${patient.address}, ${(patient.dateOfBirth)}, ${patient.analyseType}
       )"""
     }
 
