@@ -15,14 +15,14 @@ object MessageSQL extends CommonSQL  {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
-    Read[(Timestamp, String, String, String, Option[String], String, String, String, String, String, Option[String])].map {
-      case (created_at, firstname, lastname, phone, email, passport, customer_id, company_code, login, password, lab_image) =>
-        Patient(created_at.toLocalDateTime, firstname, lastname, phone, email, passport, customer_id, company_code, login, password, lab_image)
+    Read[(Timestamp, String, String, String, String, String, String, String, Option[String])].map {
+      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, lab_image) =>
+        Patient(created_at.toLocalDateTime, firstname, lastname, phone, customer_id, company_code, login, password, lab_image)
     }
   implicit val userRead: Read[User] =
-    Read[(Timestamp, String, String, String, Option[String], String, String, String, String)].map {
-      case (created_at, firstname, lastname, phone, email, role, company_code, login, password) =>
-        User(created_at.toLocalDateTime, firstname, lastname, phone, email, role, company_code, login, password)
+    Read[(Timestamp, String, String, String, String, String, String,String)].map {
+      case (created_at, firstname, lastname, phone, role, company_code, login, password) =>
+        User(created_at.toLocalDateTime, firstname, lastname, phone, role, company_code, login, password)
     }
   implicit val statsActionRead: Read[StatsAction] =
     Read[(Timestamp, String, String, String, String)].map {
@@ -35,9 +35,9 @@ object MessageSQL extends CommonSQL  {
   }
 
   def create(patient: Patient): doobie.ConnectionIO[Int] = {
-    val values = fr"(${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname}, ${patient.phone}, ${patient.email}, ${patient.passport}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password})"
+    val values = fr"(${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname}, ${patient.phone}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password})"
 
-    sql"""insert into "Patients" (created_at, firstname, lastname, phone, email, passport, customer_id, company_code, login, password)
+    sql"""insert into "Patients" (created_at, firstname, lastname, phone, customer_id, company_code, login, password)
           values $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 
@@ -54,9 +54,9 @@ object MessageSQL extends CommonSQL  {
   }
 
   def createUser(user: User): doobie.ConnectionIO[Int] = {
-    val values = fr"(${javaLdTime2JavaSqlTimestamp(user.created_at)},${user.firstname}, ${user.lastname}, ${user.phone}, ${user.email}, ${user.role}, ${user.company_code}, ${user.login}, ${user.password})"
+    val values = fr"(${javaLdTime2JavaSqlTimestamp(user.created_at)},${user.firstname}, ${user.lastname}, ${user.phone}, ${user.role}, ${user.company_code}, ${user.login}, ${user.password})"
 
-    sql"""insert into "Users" (created_at, firstname, lastname, phone, email, role, company_code, login, password)
+    sql"""insert into "Users" (created_at, firstname, lastname, phone, role, company_code, login, password)
           values $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 
@@ -66,22 +66,22 @@ object MessageSQL extends CommonSQL  {
   }
 
   def getByCustomerId(customerId: String): Query0[Patient] = {
-    val querySql = fr"""SELECT created_at,firstname,lastname,phone,email,passport,customer_id,company_code,login,password,analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
+    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
     querySql.query[Patient]
   }
 
   def getPatientByLogin(login: String): doobie.Query0[Patient] = {
-    val querySql = fr"""select created_at,firstname,lastname,phone,email,passport,customer_id, company_code,login,password,analysis_image_name from "Patients" WHERE login = $login"""
+    val querySql = fr"""select created_at,firstname,lastname,phone,customer_id, company_code,login,password,analysis_image_name from "Patients" WHERE login = $login"""
       querySql.query[Patient]
   }
 
   def getUserByLogin(login: String): doobie.Query0[User] = {
-    val querySql = fr"""select created_at,firstname,lastname,phone,email,role,company_code,login,password from "Users" WHERE login = $login"""
+    val querySql = fr"""select created_at,firstname,lastname,phone,role,company_code,login,password from "Users" WHERE login = $login"""
       querySql.query[User]
   }
 
   def getPatients: ConnectionIO[List[Patient]] = {
-    val querySql = fr"""SELECT created_at,firstname,lastname,phone,email,passport,customer_id,login,password,analysis_image_name FROM "Patients" ORDER BY created_at """
+    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,login,password,analysis_image_name FROM "Patients" ORDER BY created_at """
     querySql.query[Patient].to[List]
   }
 

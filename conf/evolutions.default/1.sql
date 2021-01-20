@@ -8,8 +8,6 @@ CREATE TABLE "Patients"
     "firstname"           VARCHAR   NOT NULL,
     "lastname"            VARCHAR   NOT NULL,
     "phone"               VARCHAR   NOT NULL,
-    "email"               VARCHAR   NULL,
-    "passport"            VARCHAR   NOT NULL,
     "customer_id"         VARCHAR   NOT NULL,
     "company_code"        VARCHAR   NOT NULL,
     "login"               VARCHAR   NOT NULL,

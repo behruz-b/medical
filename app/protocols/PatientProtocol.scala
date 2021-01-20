@@ -11,8 +11,6 @@ object PatientProtocol {
                      firstname: String,
                      lastname: String,
                      phone: String,
-                     email: Option[String] = None,
-                     passport: String,
                      customer_id: String,
                      company_code: String,
                      login: String,

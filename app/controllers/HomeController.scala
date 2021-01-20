@@ -92,16 +92,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Try {
       val firstName = (request.body \ "firstName").as[String]
       val lastName = (request.body \ "lastName").as[String]
-      val passportSN = (request.body \ "passportSn").as[String]
       val phone = (request.body \ "phone").as[String]
       val prefixPhone = "998"
-      val email = (request.body \ "email").as[String]
       //      val company_code = (request.body \ "company_code").as[String]
       val company_code = request.host
       logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
       logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
       logger.debug(s"companyCode: $company_code")
-      val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, email.some, passportSN, generateCustomerId,
+      val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, generateCustomerId,
         company_code, generateLogin, generatePassword)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
