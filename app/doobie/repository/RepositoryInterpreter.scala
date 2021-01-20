@@ -81,7 +81,7 @@ object MessageSQL extends CommonSQL  {
   }
 
   def getPatients: ConnectionIO[List[Patient]] = {
-    val querySql = fr"""SELECT created_at,firstname,lastname,phone,email,passport,customer_id,login,password,analysis_image_name FROM "Patients" ORDER BY created_at """
+    val querySql = fr"""SELECT created_at,firstname,lastname,phone,email,passport,customer_id,company_code,login,password,analysis_image_name FROM "Patients" ORDER BY created_at """
     querySql.query[Patient].to[List]
   }
 
