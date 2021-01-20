@@ -13,6 +13,9 @@ object Dependencies {
     val playMailer = "8.0.1"
     val playWebjars = "2.8.0-1"
     val jquery = "3.5.1"
+    val jQueryUI = "1.11.4"
+    val jQueryFileUpload = "9.10.1"
+    val jQueryBlockUI = "2.70"
     val bootstrap = "4.5.0"
     val koMapping = "2.4.1"
     val knockout = "3.3.0"
@@ -88,7 +91,10 @@ object Dependencies {
       "org.webjars" % "toastr" % Versions.toastr,
       "org.webjars" % "font-awesome" % Versions.fontAwesome,
       "org.webjars" % "momentjs" % Versions.momentJs,
-      "org.webjars.bower" % "jquery-mask-plugin" % Versions.jQueryMask
+      "org.webjars" % "jquery-ui-src" % Versions.jQueryUI,
+      "org.webjars" % "jquery-file-upload" % Versions.jQueryFileUpload,
+      "org.webjars.bower" % "jquery-mask-plugin" % Versions.jQueryMask,
+      "org.webjars" % "jquery-blockui" % Versions.jQueryBlockUI
     )
   }
   val rootDependencies: Seq[ModuleID] = Seq(

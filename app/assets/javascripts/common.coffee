@@ -117,7 +117,7 @@ root.my =
 
   blockUI: ->
     $.blockUI
-      message: '<img src="/assets/images/common/landing/ajax-loader.gif" />'
+      message: '<img src="/assets/images/ajax-loader.gif" width="30"/>'
       css:
         width:'0'
         left: '50%'

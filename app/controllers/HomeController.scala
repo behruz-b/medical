@@ -17,6 +17,7 @@ import play.api.mvc._
 import protocols.PatientProtocol._
 import protocols.UserProtocol.CheckUserByLogin
 import views.html._
+import views.html.statistic._
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 
@@ -29,9 +30,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: views.html.index,
                                loginPage: views.html.admin.login,
                                configuration: Configuration,
-//                               analysisResultTemplate: views.html.analysisResult,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
-//                               statsActionTemp: statsTable,
+                               statsActionTemp: statisticTemplete,
+                               getPatientsTemp: patients.patientsTable,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef)
@@ -104,7 +105,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         company_code, generateLogin, generatePassword)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
-          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
+          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit",
+            request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
@@ -145,6 +147,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def getPatientsTemplate(): Action[AnyContent] = Action {
+    Ok(getPatientsTemp())
+  }
+
   def getStats: Action[AnyContent] = Action.async { implicit request =>
     request.session.get(LoginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
       (statsManager ? GetStats).mapTo[List[StatsAction]].map { stats =>
@@ -153,11 +159,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def getStatisticTemplate(): Action[AnyContent] = Action {
+    Ok(statsActionTemp())
+  }
+
   def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     logger.debug(s"Upload file is started...")
     val result = request.body
       .file("file")
       .map { picture =>
+        logger.debug(s"picture: ${picture.filename}")
         val body = request.body.asFormUrlEncoded
         body.get("id").flatMap(_.headOption) match {
           case Some(customerId) =>
@@ -177,31 +188,31 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
             } yield {
               val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
-              Redirect("/doc").flashing("success" -> "File is uploaded")
+              "File is uploaded"
             }).recover {
               case error: Any =>
                 logger.error("Error while uploading image", error)
-                Redirect("/doc").flashing("error" -> "Something went wrong")
+                "Something went wrong"
             }.value
           case None =>
             logger.error("Customer ID not found")
-            Future.successful(Left(Redirect("/doc").flashing("error" -> "Customer ID not found")))
+            Future.successful(Left("Customer ID not found"))
         }
       }.getOrElse {
       logger.debug(s"No file to upload")
-      Future.successful(Left(Redirect(routes.HomeController.index()).flashing("error" -> "Missing file")))
+      Future.successful(Left("Missing file"))
     }
     result.map {
       case Right(redirectWithSuccess) =>
         logger.debug("File successfully uploaded")
-        redirectWithSuccess
+        Ok(redirectWithSuccess)
       case Left(error) =>
         logger.error(s"Something bad happened", error)
-        Redirect("/doc").flashing("error" -> "Something bad happened")
+       BadRequest(error)
     }.recover {
-      case e =>
+      case e: Throwable =>
         logger.error(s"Unexpected error happened", e)
-        Redirect("/doc").flashing("error" -> "Unexpected error happened")
+        BadRequest("Unexpected error happened")
     }
   }
 

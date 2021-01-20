@@ -11,10 +11,13 @@ GET     /doc                                        @controllers.HomeController.
 POST    /doc                                        @controllers.HomeController.upload
 
 POST    /patient                                    @controllers.HomeController.createUser
-GET     /patients                                   @controllers.HomeController.getPatients
 GET     /analysis-result/:customerId                @controllers.HomeController.analysisResult(customerId)
 
-GET     /stats                                      @controllers.HomeController.getStats
+GET     /patients                                   @controllers.HomeController.getPatientsTemplate()
+GET     /getPatients                                @controllers.HomeController.getPatients
+
+GET     /stats                                      @controllers.HomeController.getStatisticTemplate()
+GET     /getStats                                   @controllers.HomeController.getStats
 
 POST    /stub-sms                                   @controllers.HomeController.stubSmsRequest
 POST    /stub-sms/status                            @controllers.HomeController.stubSmsDeliveryStatus
