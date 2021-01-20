@@ -1,0 +1,32 @@
+@import controllers.routes
+@this(webJarsUtil: org.webjars.play.WebJarsUtil)
+@()
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ID CARD SCANNER</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    @webJarsUtil.locate("css/bootstrap.min.css").css()
+    @webJarsUtil.locate("css/all.css").css()
+    @webJarsUtil.locate("toastr.css").css()
+    <link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/test_reader.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    @webJarsUtil.locate("jquery.js").script()
+    @webJarsUtil.locate("js/bootstrap.min.js").script()
+    @webJarsUtil.locate("knockout.js").script()
+    @webJarsUtil.locate("knockout.mapping.js").script()
+    @webJarsUtil.locate("toastr.js").script()
+    <script src="@routes.Assets.versioned("javascripts/mrz-reader.js")"></script>
+    <script src="@routes.Assets.versioned("javascripts/test-reader.js")"></script>
+  </head>
+  <body>
+    <div class="row">
+      <div class="col-8 offset-2 text-center">
+        <label for="image" class="capture-label mt-3"></label>
+        <input type="file" name="file" accept="image/*" capture="camera" id="image" style="display: none">
+      </div>
+    </div>
+  </body>
+</html>
