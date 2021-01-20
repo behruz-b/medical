@@ -1,5 +1,16 @@
 @()
-<nav class="navbar" style="background-color: rgba(0, 64, 133, 0.5); height: 8vh; margin-bottom: 10%">
-  <a href="/"><img src="@routes.Assets.versioned("images/favicon.png")" alt="Smart-Medical.Uz"></a>
-  <a class="btn btn-outline-danger mr-2" style="position: absolute; right: 0;" href="/logout"><i class="fa fa-sign-out-alt"></i>Logout</a>
+
+<nav class="navbar navbar-expand-md bg-dark navbar-dark mb-4">
+  <a class="navbar-brand" href="/">
+    <img src="@routes.Assets.versioned("images/favicon.png")" alt="logo">
+  </a>
+
+  <a class="d-lg-flex d-md-flex d-sm-flex d-flex d-xl-flex justify-content-end justify-content-md-end justify-content-sm-end" href="/logout">
+    <button class="btn btn-success" type="button"><i class="fa fa-sign-out-alt"></i> Log out</button>
+  </a>
 </nav>
+
+@*<nav class="navbar fixed-top mb-3" style="background-color: rgba(0, 64, 133, 0.5); height: 8vh;">*@
+@*  <a href="/"><img src="@routes.Assets.versioned("images/favicon.png")" alt="Smart-Medical.Uz"></a>*@
+@*  <a class="btn btn-outline-danger mr-2" href="/logout"><i class="fa fa-sign-out-alt"></i>Logout</a>*@
+@*</nav>*@
