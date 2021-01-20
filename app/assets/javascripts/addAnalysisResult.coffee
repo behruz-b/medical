@@ -24,6 +24,7 @@ $ ->
     readURL this
 
   handleError = (error) ->
+    $.unblockUI()
     if error.status is 500 or (error.status is 400 and error.responseText)
       toastr.error(error.responseText)
     else
@@ -52,13 +53,14 @@ $ ->
       formData = data
     fail: (e, data) ->
       handleError(data.jqXHR)
-      vm.enableSubmitButton(yes)
+      vm.enableSubmitButton(no)
     done: (e, data) ->
       result = data.result
       ko.mapping.fromJS(defaultPatient, {}, vm.patient)
+      $.unblockUI()
       $('#show-image').attr 'src', ''
       toastr.success(result)
-      vm.enableSubmitButton(yes)
+      vm.enableSubmitButton(no)
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
@@ -66,6 +68,7 @@ $ ->
 
   vm.onSubmit = ->
     toastr.clear()
+    my.blockUI()
     if !vm.patient.id()
       toastr.error("Iltimos id ni kiriting!")
       return no
