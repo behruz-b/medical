@@ -232,7 +232,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           (userManager ? CheckUserByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
             case Right(role) =>
               role match {
-                case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
+                case "doctor" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
                 case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey)
                 case _ => Unauthorized("Your haven't got right Role")
               }
