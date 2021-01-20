@@ -18,14 +18,24 @@
     @webJarsUtil.locate("knockout.js").script()
     @webJarsUtil.locate("knockout.mapping.js").script()
     @webJarsUtil.locate("toastr.js").script()
-    <script src="@routes.Assets.versioned("javascripts/mrz-reader.js")"></script>
+    <script src="@routes.Assets.versioned("javascripts/mrz/mrz-reader.js")"></script>
+    <script src="@routes.Assets.versioned("javascripts/mrz-scanner.js")"></script>
     <script src="@routes.Assets.versioned("javascripts/test-reader.js")"></script>
   </head>
   <body>
     <div class="row">
-      <div class="col-8 offset-2 text-center">
-        <label for="image" class="capture-label mt-3"></label>
+      <div class="col-4 offset-4 text-center">
+        <label for="image" class="capture-label mt-3">Select File</label>
         <input type="file" name="file" accept="image/*" capture="camera" id="image" style="display: none">
+      </div>
+      <div class="offset-4 col-4 p-4">
+        <button class="btn btn-success w-100" data-bind="click: vm.readDoc">Read Data</button>
+      </div>
+      <div class="offset-4 col-4 p-4">
+        <pre id="dump"></pre>
+      </div>
+      <div class="offset-4 col-4 p-4">
+        <img id="show-image" class="capture-image" preload="none" autoplay="autoplay" src="#" width="100%" height="auto" alt=""/>
       </div>
     </div>
   </body>
