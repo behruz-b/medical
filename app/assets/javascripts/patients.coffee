@@ -4,7 +4,7 @@ $ ->
   Glob = window.Glob || {}
 
   apiUrl =
-    patientsUrl: '/patients'
+    patientsUrl: '/getPatients'
 
   vm = ko.mapping.fromJS
     language: Glob.language
