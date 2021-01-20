@@ -1,6 +1,14 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@()
+@()(implicit flash: Flash)
 @patients.main("Patients", webJarsUtil) {
+    <script>
+            @flash.get("error").map { response =>
+            toastr.error("@response")
+            }
+            @flash.get("succes").map { response =>
+            toastr.succes("@response")
+            }
+    </script>
     @navbar()
     <div class="container">
         <h2 class="text-white text-center">Patients Table</h2>
