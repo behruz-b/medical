@@ -1,5 +1,4 @@
 package doobie.repository
-import java.util.Date
 import cats.effect.Bracket
 import doobie._
 import doobie.domain.PatientRepositoryAlgebra
@@ -8,15 +7,16 @@ import protocols.PatientProtocol._
 import doobie.implicits.javasql._
 import doobie.util.Read
 import protocols.UserProtocol.User
+
 import java.sql.Timestamp
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
 
 object MessageSQL extends CommonSQL  {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
     Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String], Option[String], Option[String])].map {
-      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analyse_type, doc_full_name, doc_phone, lab_image) =>
+      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analysis_type, doc_full_name, doc_phone, lab_image) =>
         Patient(
           created_at.toLocalDateTime,
           firstname = firstname,
@@ -27,30 +27,30 @@ object MessageSQL extends CommonSQL  {
           login = login,
           password = password,
           address = address,
-          dateOfBirth = date_of_birth,
-          analyseType = analyse_type,
+          dateOfBirth = date_of_birth.toLocalDateTime.toLocalDate,
+          analyseType = analysis_type,
           docFullName = doc_full_name,
           docPhone = doc_phone,
           analysis_image_name = lab_image
         )
     }
-  implicit val writePatient: Write[Patient] =
-    Write[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String])].contramap { f =>
-        (
-          javaLdTime2JavaSqlTimestamp(f.created_at),
-          f.firstname,
-          f.lastname,
-          f.phone,
-          f.customer_id,
-          f.company_code,
-          f.login,
-          f.password,
-          f.address,
-          javaLdTime2JavaSqlTimestamp(f.dateOfBirth),
-          f.analyseType,
-          f.docFullName
-        )
-    }
+//  implicit val writePatient: Write[Patient] =
+//    Write[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String])].contramap { f =>
+//        (
+//          javaLdTime2JavaSqlTimestamp(f.created_at),
+//          f.firstname,
+//          f.lastname,
+//          f.phone,
+//          f.customer_id,
+//          f.company_code,
+//          f.login,
+//          f.password,
+//          f.address,
+//          javaLd2JavaSqlTimestamp(f.dateOfBirth),
+//          f.analyseType,
+//          f.docFullName
+//        )
+//    }
   implicit val userRead: Read[User] =
     Read[(Timestamp, String, String, String, String, String, String,String)].map {
       case (created_at, firstname, lastname, phone, role, company_code, login, password) =>
@@ -66,6 +66,10 @@ object MessageSQL extends CommonSQL  {
     Timestamp.valueOf(ldTime)
   }
 
+  private def javaLd2JavaSqlTimestamp(ldTime: LocalDate): Timestamp = {
+    Timestamp.valueOf(ldTime.atStartOfDay())
+  }
+
   private def updateQueryWithUniqueId(fr: Fragment): doobie.ConnectionIO[Int] = {
     fr.update.withUniqueGeneratedKeys[Int]("id")
   }
@@ -75,14 +79,14 @@ object MessageSQL extends CommonSQL  {
       fr""" values (
         ${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname},
         ${patient.phone}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password},
-        ${patient.address}, ${(patient.dateOfBirth)}, ${patient.analyseType}
+        ${patient.address}, ${javaLd2JavaSqlTimestamp(patient.dateOfBirth)}, ${patient.analyseType}
       )"""
     }
 
     val fieldsName =
       fr"""
         insert into "Patients" (created_at, firstname, lastname, phone, customer_id, company_code, login, password,
-         address, date_of_birth, analyse_type)
+         address, date_of_birth, analysis_type)
         """
 
     updateQueryWithUniqueId(fieldsName ++ values)
@@ -113,12 +117,12 @@ object MessageSQL extends CommonSQL  {
   }
 
   def getByCustomerId(customerId: String): Query0[Patient] = {
-    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
+    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,doc_full_name,doc_phone,analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
     querySql.query[Patient]
   }
 
   def getPatientByLogin(login: String): doobie.Query0[Patient] = {
-    val querySql = fr"""select created_at,firstname,lastname,phone,customer_id, company_code,login,password,analysis_image_name from "Patients" WHERE login = $login"""
+    val querySql = fr"""select created_at,firstname,lastname,phone,customer_id, company_code,login,password,address,date_of_birth,analysis_type,doc_full_name,doc_phone,analysis_image_name from "Patients" WHERE login = $login"""
       querySql.query[Patient]
   }
 
@@ -130,7 +134,7 @@ object MessageSQL extends CommonSQL  {
   def getPatients: ConnectionIO[List[Patient]] = {
     val querySql =
       sql"""
-        SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,doc_full_name,doc_phone,analysis_image_name FROM "Patients" ORDER BY created_at
+        SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,doc_full_name,doc_phone,analysis_image_name FROM "Patients" ORDER BY created_at
       """
     querySql.query[Patient].to[List]
   }

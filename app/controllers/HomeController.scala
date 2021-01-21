@@ -88,16 +88,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def createUser: Action[JsValue] = Action.async(parse.json) { implicit request =>
+  def createPatient: Action[JsValue] = Action.async(parse.json) { implicit request =>
     Try {
       val firstName = (request.body \ "firstName").as[String]
       val lastName = (request.body \ "lastName").as[String]
       val phone = (request.body \ "phone").as[String]
       val prefixPhone = "998"
       val company_code = request.host
-      val dateOfBirth = (request.body \ "date").as[Date]
+      val dateOfBirth = (request.body \ "date").as[LocalDate]
       val address = "address"
-      val analyseType = "address"
+      val analyseType = "analysisType"
       val docFullName = "docFullName".some
       val docPhone = "docFullName".some
       logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
@@ -167,7 +167,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       Ok(statsActionTemp()))
   }
 
-  def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
+  def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     logger.debug(s"Upload file is started...")
     val result = request.body
       .file("file")
@@ -236,7 +236,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           (userManager ? CheckUserByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
             case Right(role) =>
               role match {
-                case "doctor" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
+                case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
                 case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey)
                 case _ => Redirect("/login").flashing("error" -> "Your haven't got right Role")
               }

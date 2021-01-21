@@ -8,9 +8,9 @@ POST    /login                                      @controllers.HomeController.
 GET     /logout                                     @controllers.HomeController.logout
 
 GET     /doc                                        @controllers.HomeController.addAnalysisResult(language = "uz")
-POST    /doc                                        @controllers.HomeController.upload
+POST    /doc                                        @controllers.HomeController.uploadAnalysisResult
 
-POST    /patient                                    @controllers.HomeController.createUser
+POST    /patient                                    @controllers.HomeController.createPatient
 GET     /analysis-result/:customerId                @controllers.HomeController.analysisResult(customerId)
 
 GET     /patients                                   @controllers.HomeController.getPatientsTemplate()

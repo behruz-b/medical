@@ -77,7 +77,7 @@ class PatientManager @Inject()(val configuration: Configuration,
       Right(patient.get)
     }).recover {
       case error: Throwable =>
-        logger.error("Error occurred while get patient by customer id.", error)
+        logger.error("Error occurred while get patient by customer id", error)
         Left("Error happened while requesting patient")
     }
   }

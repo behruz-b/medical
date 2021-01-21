@@ -10,25 +10,30 @@
             }
     </script>
     @navbar()
-    <div class="container" data-bind="click: vm.getPatients()">
+    <input type="hidden" data-bind="click: vm.getPatients()">
+    <div class="container">
         <h2 class="text-white text-center">Patients Table</h2>
         <table class="table table-striped table-hover bg-secondary">
             <thead>
                 <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Phone Number</th>
-                    <th>Email</th>
-                    <th>Passport Number Series</th>
+                    <th>Ismi</th>
+                    <th>Familiyasi</th>
+                    <th>Telefon Raqami</th>
+                    <th>Manzili</th>
+                    <th>Tug'ilgan yili</th>
+                    <th>Analiz turi</th>
+                    <th>Analiz natijasi</th>
                 </tr>
             </thead>
-            <tbody data-bind="foreach: vm.patients">
+            <tbody data-bind="foreach: vm.patients()">
                 <tr>
-                    <td data-bind="text: $data.firstName"></td>
-                    <td data-bind="text: $data.lastName"></td>
-                    <td data-bind="text: $data.phoneNumber"></td>
-                    <td data-bind="text: $data.email"></td>
-                    <td data-bind="text: $data.passportNS"></td>
+                    <td data-bind="text: $data.firstname"></td>
+                    <td data-bind="text: $data.lastname"></td>
+                    <td data-bind="text: $data.phone"></td>
+                    <td data-bind="text: $data.address"></td>
+                    <td data-bind="text: $data.dataOfBirth"></td>
+                    <td data-bind="text: $data.analyseType"></td>
+                    <td data-bind="text: $data.analysis_image_name"></td>
                 </tr>
             </tbody>
         </table>
