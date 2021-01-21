@@ -9,10 +9,8 @@ $ ->
   defaultPatient =
     firstName: ''
     lastName: ''
-    passportSeries: ''
-    passportNumber: ''
-    email: ''
     phone: ''
+    date: ''
 
   vm = ko.mapping.fromJS
     patient: defaultPatient
@@ -27,6 +25,9 @@ $ ->
 
   $thankYou = $('#thankYou')
 
+  vm.convertIntToDate = (intDate) ->
+    moment(+intDate).format('DD/MM/YYYY')
+
   vm.onSubmit = ->
     toastr.clear()
     if !vm.patient.firstName()
@@ -35,43 +36,26 @@ $ ->
     else if !vm.patient.lastName()
       toastr.error("Iltimos familiyangizni kiriting!")
       return no
-    else if vm.patient.email() and !my.isValidEmail(vm.patient.email())
-      toastr.error("Iltimos emailni to'gri kiriting!")
-      return no
     else if !vm.patient.phone()
       toastr.error("Iltimos telefon raqamingizni kiriting!")
     else if vm.patient.phone() and !my.isValidPhone(vm.patient.phone().replace(/[(|)|-]/g, "").trim())
       toastr.error("Iltimos telefon raqamingizni to'gri kiriting!")
       return no
-    else if !vm.patient.passportSeries()
-      toastr.error("Iltimos passport seriasini kiriting!")
-      return no
-    else if vm.patient.passportSeries() and vm.patient.passportSeries().length != 2
-      toastr.error("Iltimos passport seriasini to'liq kiriting!")
-      return no
-    else if !vm.patient.passportNumber()
-      toastr.error("Iltimos passport raqamini kiriting!")
-      return no
-    else if vm.patient.passportNumber() and vm.patient.passportNumber().length != 7
-      toastr.error("Iltimos passport raqamini to`liq kiriting!")
+    else if !vm.patient.date()
+      toaste.error("Iltimos tug'ilgan kunni kiriting!")
       return no
     else
       patient =
         firstName: vm.patient.firstName()
         lastName: vm.patient.lastName()
-        passportSn: vm.patient.passportSeries().toUpperCase() + vm.patient.passportNumber()
-        email: vm.patient.email()
         phone: vm.patient.phone().replace(/[(|)|-]/g, "").trim()
+        date: vm.patient.date()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
         vm.customerId(response)
         ko.mapping.fromJS(defaultPatient, {}, vm.patient)
         $thankYou.modal('show')
-
-  $label = $('#passport_sn')
-  $pNumber = document.getElementById('p_number')
-  $pSeries = document.getElementById('p_series')
 
   checkSize = (el) ->
     if el.value.length > 0
@@ -80,17 +64,6 @@ $ ->
     else
       $label.removeClass 'move-top'
 
-  $pNumber.addEventListener 'focusin', (_) ->
-    $label.addClass 'move-top'
-
-  $pNumber.addEventListener 'focusout', (event) ->
-    checkSize event.target
-
-  $pSeries.addEventListener 'focusin', (_) ->
-    $label.addClass 'move-top'
-
-  $pSeries.addEventListener 'focusout', (event) ->
-    checkSize event.target
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
@@ -127,20 +100,16 @@ $ ->
       "Фамилия"
       "Familiya"
     ]
-    email: [
-      "Email"
-      "Эл. адрес"
-      "Email"
-    ]
     phoneNumber: [
       "Phone number"
       "Телефонный номер"
       "Telefon raqami"
     ]
-    passportSerialNumber: [
-      "Passport serial number"
-      "Серийный номер паспорта"
-      "Pasport seriya raqami"
+    date: [
+      "Date of birth"
+      "Дата рождения"
+      "Tug'ilgan kun"
+
     ]
     thankYou: [
       "Thank you!"

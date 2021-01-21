@@ -12,7 +12,6 @@ object UserProtocol {
     firstname: String,
     lastname: String,
     phone: String,
-    email: Option[String] = None,
     role: String,
     company_code: String,
     login: String,

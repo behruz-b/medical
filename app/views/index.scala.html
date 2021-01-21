@@ -20,10 +20,7 @@
             language: '@lang'
           };
   </script>
-  <nav class="navbar" style="background-color: rgba(0, 64, 133, 0.5); height: 8vh;">
-    <a href="/"><img src="@routes.Assets.versioned("images/favicon.png")" alt="Logo"></a>
-    <a class="btn btn-outline-danger mr-2" style="position: absolute; right: 0;" href="/logout"><i class="fa fa-sign-out-alt"></i>Logout</a>
-  </nav>
+  @navbar()
   <div class="row box-align-center">
     <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
       <h2 class="text-white"><span data-bind="text: vm.translate('registrationForm')"></span></h2>
@@ -37,25 +34,12 @@
           <label for="last_name" class="label"><span data-bind="text: vm.translate('lastName')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="email" id="email" name="email" data-bind="value: vm.patient.email" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="email" class="label"><span data-bind="text: vm.translate('email')"></span></label>
-        </div>
-        <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="text" id="phone" name="phone" data-bind="masked: vm.patient.phone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
           <label for="phone" class="label"><span data-bind="text: vm.translate('phoneNumber')"></span></label>
         </div>
-        <div class="form-group col-sm-12">
-          <div class="row">
-            <div class="col-sm-3 offset-sm-2 col-4 pr-0">
-              <input class="form-control input-box" style="text-transform: uppercase;" data-bind="masked: vm.patient.passportSeries, mask: 'SS'"
-              id="p_series" maxlength="2" name="p_series" onkeydown="autotab(this)" type="text">
-            </div>
-            <div class="col-sm-5 col-9">
-              <input class="form-control input-box" data-bind="masked: vm.patient.passportNumber ,mask: '9999999'"
-              id="p_number" name="p_number" onkeydown="autoBack(this)" type="text">
-            </div>
-            <label class="col-sm-6 offset-sm-3 col-12 label" id="passport_sn"><span data-bind="text: vm.translate('passportSerialNumber')"></span></label>
-          </div>
+        <div class="form-group col-sm-6 col-4">
+          <input class="form-control input-box" type="date" id="date" name="date" data-bind="value: vm.patient.date" value="" onchange="this.setAttribute('value', this.value);">
+          <label for="date" class="label"><span data-bind="text: vm.translate('date')"></span></label>
         </div>
         <div class="col-12">
           <div class="text-center">

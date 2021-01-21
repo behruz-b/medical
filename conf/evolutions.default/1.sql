@@ -8,17 +8,18 @@ CREATE TABLE "Patients"
     "firstname"           VARCHAR   NOT NULL,
     "lastname"            VARCHAR   NOT NULL,
     "phone"               VARCHAR   NOT NULL,
-    "email"               VARCHAR   NULL,
-    "passport"            VARCHAR   NOT NULL,
     "customer_id"         VARCHAR   NOT NULL,
     "company_code"        VARCHAR   NOT NULL,
     "login"               VARCHAR   NOT NULL,
     "password"            VARCHAR   NOT NULL,
+    "address"             VARCHAR   NOT NULL,
+    "date_of_birth"       TIMESTAMP NOT NULL,
+    "analysis_type"       VARCHAR NOT NULL,
+    "receive_method"      VARCHAR   NULL,
+    "doc_full_name"       VARCHAR   NULL,
+    "doc_phone"           VARCHAR   NULL,
+    "delivery_status"     VARCHAR   NULL,
     "analysis_image_name" VARCHAR   NULL
 );
 
-ALTER TABLE "Patients"
-    ADD COLUMN receive_method VARCHAR NULL;
-
-ALTER TABLE "Patients"
-    ADD COLUMN delivery_status VARCHAR NULL;
+DROP TABLE "Patients";

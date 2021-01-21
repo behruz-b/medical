@@ -1,7 +1,7 @@
 package protocols
 
-import java.time.LocalDateTime
-
+import java.time.{LocalDate, LocalDateTime}
+import java.util.Date
 import play.api.libs.json._
 
 
@@ -11,12 +11,15 @@ object PatientProtocol {
                      firstname: String,
                      lastname: String,
                      phone: String,
-                     email: Option[String] = None,
-                     passport: String,
                      customer_id: String,
                      company_code: String,
                      login: String,
                      password: String,
+                     address: String,
+                     dateOfBirth: LocalDate,
+                     analyseType: String,
+                     docFullName: Option[String] = None,
+                     docPhone: Option[String] = None,
                      analysis_image_name: Option[String] = None) {
     def id: Option[Int] = None
   }
@@ -25,6 +28,7 @@ object PatientProtocol {
   case class StatsAction(created_at: LocalDateTime,
                          company_code: String,
                          action: String,
+                         login: String,
                          ip_address: String,
                          user_agent: String)
 

@@ -4,21 +4,20 @@ GET     /reg                                        @controllers.HomeController.
 
 GET     /admin                                      @controllers.HomeController.index(language = "uz")
 
-
 GET     /login                                      @controllers.HomeController.login(lang: String ?= "uz")
 
 POST    /login                                      @controllers.HomeController.loginPost
 GET     /logout                                     @controllers.HomeController.logout
 
 GET     /doc                                        @controllers.HomeController.addAnalysisResult(language = "uz")
-POST    /doc                                        @controllers.HomeController.upload
+POST    /doc                                        @controllers.HomeController.uploadAnalysisResult
 
 POST    /doctor                                     @controllers.HomeController.createDoctor
-POST    /patient                                    @controllers.HomeController.createUser
+POST    /patient                                    @controllers.HomeController.createPatient
 GET     /analysis-result/:customerId                @controllers.HomeController.analysisResult(customerId)
 
 GET     /patients                                   @controllers.HomeController.getPatientsTemplate()
-GET     /getPatients                                @controllers.HomeController.getPatients
+GET     /get-patients                               @controllers.HomeController.getPatients
 
 GET     /stats                                      @controllers.HomeController.getStatisticTemplate()
 GET     /getStats                                   @controllers.HomeController.getStats
