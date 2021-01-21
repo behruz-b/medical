@@ -140,7 +140,7 @@ object MessageSQL extends CommonSQL  {
   }
 
   def getStats: ConnectionIO[List[StatsAction]] = {
-    val querySql = fr"""SELECT created_at, company_code, action, ip_address, user_agent FROM "Stats" ORDER BY created_at """
+    val querySql = fr"""SELECT created_at, company_code, action, ip_address, login, user_agent FROM "Stats" ORDER BY created_at """
     querySql.query[StatsAction].to[List]
   }
 }

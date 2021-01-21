@@ -14,7 +14,7 @@ POST    /doc                                        @controllers.HomeController.
 
 POST    /doctor                                     @controllers.HomeController.createDoctor
 POST    /patient                                    @controllers.HomeController.createPatient
-GET     /analysis-result/:customerId                @controllers.HomeController.analysisResult(customerId)
+GET     /r/:customerId                              @controllers.HomeController.analysisResult(customerId)
 
 GET     /patients                                   @controllers.HomeController.getPatientsTemplate()
 GET     /get-patients                               @controllers.HomeController.getPatients
