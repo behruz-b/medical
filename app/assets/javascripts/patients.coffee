@@ -17,7 +17,6 @@ $ ->
       toastr.error('Something went wrong! Please try again.')
 
   vm.getPatients = ->
-    console.log('get patiens----------')
     $.get(apiUrl.patientsUrl)
     .fail handleError
     .done (response) ->
