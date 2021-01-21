@@ -8,6 +8,7 @@
             }
           }
 
+
           function autoBack(el) {
             $('html').keydown(function (event) {
               if (el.value.length === 0 && event.keyCode === 8) {
@@ -38,7 +39,8 @@
           <label for="phone" class="label"><span data-bind="text: vm.translate('phoneNumber')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-4">
-          <input class="form-control input-box" type="date" id="date" name="date" data-bind="value: vm.patient.date" value="" onchange="this.setAttribute('value', this.value);">
+
+              <input class="form-control input-box" type="date" id="date" name="date" data-bind="value: vm.patient.date" value="" onchange="this.setAttribute('value', this.value);">
           <label for="date" class="label"><span data-bind="text: vm.translate('date')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">

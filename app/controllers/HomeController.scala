@@ -62,6 +62,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     (patientManager ? GetPatientByCustomerId(customerId.toUpperCase)).mapTo[Either[String, Patient]].map {
       case Right(patient) =>
         logger.debug(s"SUCCEESS")
+
         if (patient.analysis_image_name.isDefined) {
 //          val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
 //
@@ -72,6 +73,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 //          fos.write(fileBytes)
           Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
 //          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))
+
         } else {
           logger.error("Error while getting analysis file name")
           BadRequest("Error")
@@ -230,6 +232,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
             } yield {
               val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, request.headers.get("login").getOrElse("user_login"), request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
+              val statsSendSms = StatsAction(LocalDateTime.now, request.host, action = "doc_send_sms", request.headers.get("Remote-Address").get, login="user_login", request.headers.get("User-Agent").get)
+              statsManager ! AddStatsAction(statsSendSms)
               "File is uploaded"
             }).recover {
               case error: Any =>
