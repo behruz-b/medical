@@ -1,0 +1,66 @@
+@this(webJarsUtil: org.webjars.play.WebJarsUtil)
+@(lang: String = "uz")
+@admin.main("Admin Page", webJarsUtil) {
+    <script>
+            var Glob = {
+                language: '@lang'
+            };
+    </script>
+    <nav class="navbar" style="background-color: rgba(0, 64, 133, 0.5); height: 8vh;">
+        <a href="/"><img src="@routes.Assets.versioned("images/favicon.png")" alt="Logo"></a>
+        <a class="btn btn-outline-danger mr-2" style="position: absolute; right: 0;" href="/logout"><i class="fa fa-sign-out-alt"></i>Logout</a>
+    </nav>
+    <div class="row box-align-center">
+        <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
+            <h2 class="text-white"><span data-bind="text: vm.translate('registrationForm')"></span></h2>
+            <form name="doctor_form" class="row">
+                <div class="form-group col-sm-6 col-12">
+                    <input class="form-control input-box" type="text" id="first_name" data-bind="value: vm.doctor.firstName" name="first_name" value="" onchange="this.setAttribute('value', this.value);">
+                    <label for="first_name" class="label"><span data-bind="text: vm.translate('firstName')"></span></label>
+                </div>
+                <div class="form-group col-sm-6 col-12">
+                    <input class="form-control input-box" type="text" id="last_name" name="last_name" data-bind="value: vm.doctor.lastName" value="" onchange="this.setAttribute('value', this.value);">
+                    <label for="last_name" class="label"><span data-bind="text: vm.translate('lastName')"></span></label>
+                </div>
+                <div class="form-group col-sm-6 col-12">
+                    <input class="form-control input-box" type="email" id="email" name="email" data-bind="value: vm.doctor.email" value="" onchange="this.setAttribute('value', this.value);">
+                    <label for="email" class="label"><span data-bind="text: vm.translate('email')"></span></label>
+                </div>
+                <div class="form-group col-sm-6 col-12">
+                    <input class="form-control input-box" type="text" id="phone" name="phone" data-bind="masked: vm.doctor.phone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
+                    <label for="phone" class="label"><span data-bind="text: vm.translate('phoneNumber')"></span></label>
+                </div>
+                <div class="col-12">
+                    <div class="text-center">
+                        <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit"><span data-bind="text: vm.translate('register')"></span></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="thankYou" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div class="text-center">
+                        <i class="fa fa-check-circle text-success fa-10x m-2"></i>
+                        <h3><span data-bind="text: vm.translate('thankYou')"></span></h3>
+                        <h3><span data-bind="text: vm.translate('login')"></span>
+                            <span class="text-success" data-bind="text: vm.doctorLogin()"></span>
+                        </h3>
+                        <h3><span data-bind="text: vm.translate('password')"></span>
+                            <span class="text-success" data-bind="text: vm.doctorPassword()"></span>
+                        </h3>
+                        <a class="btn btn-primary mt-2" href="/"><span data-bind="text: vm.translate('closeModal')"></span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}

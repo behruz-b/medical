@@ -15,7 +15,7 @@ import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.PatientProtocol._
-import protocols.UserProtocol.CheckUserByLogin
+import protocols.UserProtocol.{CheckUserByLogin, CreateUser, User}
 import views.html._
 import views.html.statistic._
 import java.nio.file.Paths
@@ -28,6 +28,7 @@ import scala.util.{Failure, Success, Try}
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: views.html.index,
+                               adminTemplate: views.html.admin.adminPage,
                                loginPage: views.html.admin.login,
                                configuration: Configuration,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
@@ -43,12 +44,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val LoginKey = "login_session_key"
   val DoctorLoginKey = "doctor_role"
   val RegLoginKey = "reg_role"
+  val AdminLoginKey = "admin_role"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
   val tempFolderPath: String = configuration.get[String]("temp_folder")
+  val adminLogin: String = configuration.get[String]("admin.login")
+  val adminPassword: String = configuration.get[String]("admin.password")
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
     request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) {
       case RegLoginKey => Ok(indexTemplate(language))
+      case AdminLoginKey => Ok(adminTemplate(language))
       case _ => Redirect(routes.HomeController.index()).withSession(request.session - LoginKey)
     }
   }
@@ -85,6 +90,39 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     request.session.get(LoginKey) match {
       case Some(_) => Redirect(routes.HomeController.index()).withSession(request.session - LoginKey)
       case None => BadRequest("You are not authorized")
+    }
+  }
+
+  def createDoctor: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    Try {
+      val firstName = (request.body \ "firstName").as[String]
+      val lastName = (request.body \ "lastName").as[String]
+      val phone = (request.body \ "phone").as[String]
+      val prefixPhone = "998"
+      val email = (request.body \ "email").as[String]
+      //      val company_code = (request.body \ "company_code").as[String]
+      val company_code = request.host
+      val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, email.some, role="doc",
+        company_code, generateLogin, generatePassword)
+      (userManager ? CreateUser(user)).mapTo[Either[String, String]].map {
+        case Right(_) =>
+        //  val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit",
+        //   request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
+        //  statsManager ! AddStatsAction(stats)
+          Ok(Json.toJson(user))
+        case Left(e) =>
+          logger.debug(s"ERROR")
+          BadRequest(e)
+      }.recover {
+        case e: Any =>
+          logger.error("Error while creating doctor", e)
+          BadRequest("Error")
+      }
+    } match {
+      case Success(res) => res
+      case Failure(exception) =>
+        logger.error("Error occurred while create doctor. Error:", exception)
+        Future.successful(BadRequest("Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
     }
   }
 
@@ -222,6 +260,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         loginKey match {
           case DoctorLoginKey => Future.successful(Redirect("/doc"))
           case RegLoginKey => Future.successful(Redirect("/reg"))
+          case AdminLoginKey => Future.successful(Redirect("/admin"))
           case _ => Future.successful(Unauthorized("Your haven't got right Role"))
         }
       case None =>
@@ -229,19 +268,24 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         val login = body.get("adminName").flatMap(_.headOption)
         val password = body.get("adminPass").flatMap(_.headOption)
         if (login.exists(_.nonEmpty) || password.exists(_.nonEmpty)) {
-          (userManager ? CheckUserByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
-            case Right(role) =>
-              role match {
-                case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
-                case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey)
-                case _ => Unauthorized("Your haven't got right Role")
-              }
-            case Left(error) =>
-              BadRequest(error)
-          }.recover {
-            case error: Throwable =>
-              logger.error(s"Error occurred while check user: $error")
-              BadRequest("Authorization failed")
+          if (login.get == adminLogin && password.get == adminPassword) {
+            Future.successful(Redirect("/admin").addingToSession(LoginKey -> AdminLoginKey))
+          } else {
+            (userManager ? CheckUserByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
+              case Right(role) =>
+                logger.debug(role)
+                role match {
+                  case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
+                  case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey)
+                  case _ => Unauthorized("Your haven't got right Role")
+                }
+              case Left(error) =>
+                BadRequest(error)
+            }.recover {
+              case error: Throwable =>
+                logger.error(s"Error occurred while check user: $error")
+                BadRequest("Authorization failed")
+            }
           }
         } else {
           Future.successful(BadRequest("Login or Password undefined"))

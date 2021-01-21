@@ -3,8 +3,26 @@ $ ->
 
   Glob = window.Glob || {}
 
+  defaultDoctor =
+    firstName: ''
+    lastName: ''
+    email: ''
+    phone: ''
+
   vm = ko.mapping.fromJS
+    doctor: defaultDoctor
+    customerId: ''
     language: Glob.language
+    doctorLogin: ''
+    doctorPassword: ''
+
+
+  handleError = (error) ->
+    if error.status is 500 or (error.status is 400 and error.responseText)
+      toastr.error(error.responseText)
+    else
+      toastr.error('Something went wrong! Please try again.')
+
 
   $(document).ready ->
   $('#show_hide_password a').on 'click', (event) ->
@@ -38,6 +56,76 @@ $ ->
       "Пароль"
       "Parol"
     ]
+    registrationForm: [
+      "Registration Form"
+      "Форма регистрации"
+      "Ro'yxatdan o'tish shakli"
+    ]
+    register: [
+      "Register"
+      "Регистрация"
+      "Ro'yxatdan o'tish"
+    ]
+    firstName: [
+      "First name"
+      "Имя"
+      "Ism"
+    ]
+    lastName: [
+      "Last name"
+      "Фамилия"
+      "Familiya"
+    ]
+    email: [
+      "Email"
+      "Эл. адрес"
+      "Email"
+    ]
+    phoneNumber: [
+      "Phone number"
+      "Телефонный номер"
+      "Telefon raqami"
+    ]
+    thankYou: [
+      "Thank you!"
+      "Спасибо!"
+      "Rahmat! Siz ro'yxatdan o'tdingiz!"
+    ]
+    closeModal: [
+      "Close"
+      "Закрыть"
+      "Yopish"
+    ]
+  $thankYou = $('#thankYou')
 
+  vm.onSubmit = ->
+    toastr.clear()
+    if !vm.doctor.firstName()
+      toastr.error("Iltimos ismingizni kiriting!")
+      return no
+    else if !vm.doctor.lastName()
+      toastr.error("Iltimos familiyangizni kiriting!")
+      return no
+    else if vm.doctor.email() and !my.isValidEmail(vm.doctor.email())
+      toastr.error("Iltimos emailni to'gri kiriting!")
+      return no
+    else if !vm.doctor.phone()
+      toastr.error("Iltimos telefon raqamingizni kiriting!")
+    else if vm.doctor.phone() and !my.isValidPhone(vm.doctor.phone().replace(/[(|)|-]/g, "").trim())
+      toastr.error("Iltimos telefon raqamingizni to'gri kiriting!")
+      return no
+    else
+      doctor =
+        firstName: vm.doctor.firstName()
+        lastName: vm.doctor.lastName()
+        email: vm.doctor.email()
+        phone: vm.doctor.phone().replace(/[(|)|-]/g, "").trim()
+      $.post("/doctor", JSON.stringify(doctor))
+      .fail handleError
+      .done (user) ->
+        vm.doctorLogin(user.login)
+        vm.doctorPassword(user.password)
+        ko.mapping.fromJS(defaultDoctor, {}, vm.doctor)
+        $thankYou.modal('show')
 
   ko.applyBindings {vm}
