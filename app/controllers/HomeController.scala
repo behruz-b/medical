@@ -136,7 +136,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val company_code = request.host
       val dateOfBirth = (request.body \ "date").as[LocalDate]
       val address = (request.body \ "address").as[String]
-      val analyseType = "analysisType"
+      val analyseType = (request.body \ "analysisType").as[String]
       val docFullName = (request.body \ "docFullName").asOpt[String]
       val docPhone = (request.body \ "docPhone").asOpt[String]
       val docPhoneWithPrefix = docPhone.map(p => prefixPhone + p)

@@ -14,6 +14,7 @@ $ ->
     address: ''
     docFullName: ''
     docPhone: ''
+    analysisType: ''
 
   vm = ko.mapping.fromJS
     patient: defaultPatient
@@ -50,6 +51,15 @@ $ ->
     else if !vm.patient.address()
       toastr.error("Iltimos, manzilni kiriting!")
       return no
+    else if !vm.patient.docFullName()
+      toastr.error("Iltimos doctor ismini to'g'ri kiriting!")
+      return no
+    else if !vm.patient.docPhone()
+      toastr.error("Iltimos doctor raqamini to'g'ri kiriting!")
+      return no
+    else if !vm.patient.analysisType()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
     else
       patient =
         firstName: vm.patient.firstName()
@@ -59,6 +69,7 @@ $ ->
         address: vm.patient.address()
         docFullName: vm.patient.docFullName()
         docPhone: vm.patient.docPhone().replace(/[(|)|-]/g, "").trim()
+        analysisType: vm.patient.analysisType()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
@@ -135,6 +146,11 @@ $ ->
       "Адрес"
       "Manzil"
 
+    ]
+    analysisType: [
+      "Analysis type"
+      "Тип анализа"
+      "Tahlil turi"
     ]
     thankYou: [
       "Thank you!"
