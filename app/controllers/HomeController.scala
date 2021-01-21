@@ -111,17 +111,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           Ok(Json.toJson(user))
         case Left(e) =>
           logger.debug(s"ERROR")
-          BadRequest(e)
+          Redirect("/admin").flashing("error" -> e)
       }.recover {
         case e: Any =>
           logger.error("Error while creating doctor", e)
-          BadRequest("Error")
+          Redirect("/admin").flashing("error" -> "Error")
       }
     } match {
       case Success(res) => res
       case Failure(exception) =>
         logger.error("Error occurred while create doctor. Error:", exception)
-        Future.successful(BadRequest("Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
+        Future.successful(Redirect("/admin").flashing("error" -> "Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
     }
   }
 
@@ -150,17 +150,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
           logger.debug(s"ERROR")
-          BadRequest(e)
+          Redirect("/reg").flashing("error" -> e)
       }.recover {
         case e: Any =>
           logger.error("Error while creating patient", e)
-          BadRequest("Error")
+          Redirect("/reg").flashing("error" -> "Error")
       }
     } match {
       case Success(res) => res
       case Failure(exception) =>
         logger.error("Error occurred while create patient. Error:", exception)
-        Future.successful(BadRequest("Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
+        Future.successful(Redirect("/reg").flashing("error" -> "Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
     }
   }
 
