@@ -99,10 +99,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val lastName = (request.body \ "lastName").as[String]
       val phone = (request.body \ "phone").as[String]
       val prefixPhone = "998"
-      val email = (request.body \ "email").as[String]
       //      val company_code = (request.body \ "company_code").as[String]
       val company_code = request.host
-      val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, email.some, role="doc",
+      val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, role="doc",
         company_code, generateLogin, generatePassword)
       (userManager ? CreateUser(user)).mapTo[Either[String, String]].map {
         case Right(_) =>
