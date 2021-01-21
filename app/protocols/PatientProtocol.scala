@@ -28,8 +28,8 @@ object PatientProtocol {
   case class StatsAction(created_at: LocalDateTime,
                          company_code: String,
                          action: String,
-                         login: String,
                          ip_address: String,
+                         login: String,
                          user_agent: String)
 
   implicit val StatsActionFormat: OFormat[StatsAction] = Json.format[StatsAction]
