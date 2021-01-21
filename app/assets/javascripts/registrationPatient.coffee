@@ -12,6 +12,8 @@ $ ->
     phone: ''
     date: ''
     address: ''
+    docFullName: ''
+    docPhone: ''
 
   vm = ko.mapping.fromJS
     patient: defaultPatient
@@ -55,6 +57,8 @@ $ ->
         phone: vm.patient.phone().replace(/[(|)|-]/g, "").trim()
         date: vm.patient.date()
         address: vm.patient.address()
+        docFullName: vm.patient.docFullName()
+        docPhone: vm.patient.docPhone().replace(/[(|)|-]/g, "").trim()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
@@ -109,6 +113,16 @@ $ ->
       "Phone number"
       "Телефонный номер"
       "Telefon raqami"
+    ]
+    docFullName: [
+      "Doctor's full name"
+      "ФИО врача"
+      "Shifokorning to'liq ismi"
+    ]
+    docPhone: [
+      "Doctor's phone number"
+      "Телефон врача"
+      "Shifokorning telefon raqami"
     ]
     date: [
       "Date of birth"

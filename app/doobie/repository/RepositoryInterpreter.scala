@@ -79,14 +79,15 @@ object MessageSQL extends CommonSQL  {
       fr""" values (
         ${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname},
         ${patient.phone}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password},
-        ${patient.address}, ${javaLd2JavaSqlTimestamp(patient.dateOfBirth)}, ${patient.analyseType}
+        ${patient.address}, ${javaLd2JavaSqlTimestamp(patient.dateOfBirth)}, ${patient.analyseType},
+        ${patient.docFullName}, ${patient.docPhone}
       )"""
     }
 
     val fieldsName =
       fr"""
         insert into "Patients" (created_at, firstname, lastname, phone, customer_id, company_code, login, password,
-         address, date_of_birth, analysis_type)
+         address, date_of_birth, analysis_type, doc_full_name, doc_phone)
         """
 
     updateQueryWithUniqueId(fieldsName ++ values)
