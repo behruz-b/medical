@@ -95,7 +95,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val phone = (request.body \ "phone").as[String]
       val prefixPhone = "998"
       val company_code = request.host
-      val dateOfBirth = LocalDateTime.now
+      val dateOfBirth = (request.body \ "date").as[Date]
       val address = "address"
       val analyseType = "address"
       val docFullName = "docFullName".some
@@ -127,7 +127,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def login(language: String): Action[AnyContent] = Action {
+  def login(language: String): Action[AnyContent] = Action { implicit request =>
     Ok(loginPage(language))
   }
 
@@ -136,13 +136,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       if (role_key == DoctorLoginKey) {
         Ok(addAnalysisResultPageTemp(language))
       } else {
-        Unauthorized("You haven't got right role to see page")
+        Redirect("/doc").flashing("error" -> "You haven't got right role to see page")
       }
     }
   }
 
   def getPatients: Action[AnyContent] = Action.async { implicit request =>
-    request.session.get(LoginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
+    request.session.get(LoginKey).fold(Future.successful(Redirect("/patients").flashing("error" -> "You are not authorized"))) { _ =>
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
         logger.debug(s"patients: $patients")
         Ok(Json.toJson(patients))
@@ -150,7 +150,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getPatientsTemplate(): Action[AnyContent] = Action {
+  def getPatientsTemplate: Action[AnyContent] = Action { implicit request =>
     Ok(getPatientsTemp())
   }
 
@@ -162,8 +162,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getStatisticTemplate(): Action[AnyContent] = Action {
-    Ok(statsActionTemp())
+  def getStatisticTemplate: Action[AnyContent] = Action { implicit request =>
+    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login()))(_ =>
+      Ok(statsActionTemp()))
   }
 
   def upload: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
@@ -211,11 +212,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         Ok(redirectWithSuccess)
       case Left(error) =>
         logger.error(s"Something bad happened", error)
-       BadRequest(error)
+       Redirect("/doc").flashing("error" -> error)
     }.recover {
       case e: Throwable =>
         logger.error(s"Unexpected error happened", e)
-        BadRequest("Unexpected error happened")
+        Redirect("/doc").flashing("error" -> "Unexpected error happened")
     }
   }
 
@@ -225,7 +226,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         loginKey match {
           case DoctorLoginKey => Future.successful(Redirect("/doc"))
           case RegLoginKey => Future.successful(Redirect("/reg"))
-          case _ => Future.successful(Unauthorized("Your haven't got right Role"))
+          case _ => Future.successful(Redirect("/login").flashing("error" -> "Your haven't got right Role"))
         }
       case None =>
         val body = request.body.asFormUrlEncoded
@@ -237,17 +238,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               role match {
                 case "doctor" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
                 case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey)
-                case _ => Unauthorized("Your haven't got right Role")
+                case _ => Redirect("/login").flashing("error" -> "Your haven't got right Role")
               }
             case Left(error) =>
-              BadRequest(error)
+              Redirect("/login").flashing("error" -> error)
           }.recover {
             case error: Throwable =>
               logger.error(s"Error occurred while check user: $error")
-              BadRequest("Authorization failed")
+              Redirect("/login").flashing("error" -> "Authorization failed")
           }
         } else {
-          Future.successful(BadRequest("Login or Password undefined"))
+          Future.successful(Redirect("/login").flashing("error" -> "Login or Password undefined"))
         }
     }
   }

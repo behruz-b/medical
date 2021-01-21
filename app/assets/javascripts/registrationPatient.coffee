@@ -10,6 +10,7 @@ $ ->
     firstName: ''
     lastName: ''
     phone: ''
+    date: ''
 
   vm = ko.mapping.fromJS
     patient: defaultPatient
@@ -24,6 +25,9 @@ $ ->
 
   $thankYou = $('#thankYou')
 
+  vm.convertIntToDate = (intDate) ->
+    moment(+intDate).format('DD/MM/YYYY')
+
   vm.onSubmit = ->
     toastr.clear()
     if !vm.patient.firstName()
@@ -37,11 +41,15 @@ $ ->
     else if vm.patient.phone() and !my.isValidPhone(vm.patient.phone().replace(/[(|)|-]/g, "").trim())
       toastr.error("Iltimos telefon raqamingizni to'gri kiriting!")
       return no
+    else if !vm.patient.date()
+      toaste.error("Iltimos tug'ilgan kunni kiriting!")
+      return no
     else
       patient =
         firstName: vm.patient.firstName()
         lastName: vm.patient.lastName()
         phone: vm.patient.phone().replace(/[(|)|-]/g, "").trim()
+        date: vm.patient.date()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
@@ -96,6 +104,12 @@ $ ->
       "Phone number"
       "Телефонный номер"
       "Telefon raqami"
+    ]
+    date: [
+      "Date of birth"
+      "Дата рождения"
+      "Tug'ilgan kun"
+
     ]
     thankYou: [
       "Thank you!"

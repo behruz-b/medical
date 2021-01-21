@@ -1,7 +1,7 @@
 package protocols
 
 import java.time.LocalDateTime
-
+import java.util.Date
 import play.api.libs.json._
 
 
@@ -16,7 +16,7 @@ object PatientProtocol {
                      login: String,
                      password: String,
                      address: String,
-                     dateOfBirth: LocalDateTime,
+                     dateOfBirth: Date,
                      analyseType: String,
                      docFullName: Option[String] = None,
                      docPhone: Option[String] = None,

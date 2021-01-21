@@ -37,6 +37,10 @@
           <input class="form-control input-box" type="text" id="phone" name="phone" data-bind="masked: vm.patient.phone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
           <label for="phone" class="label"><span data-bind="text: vm.translate('phoneNumber')"></span></label>
         </div>
+        <div class="form-group col-sm-6 col-4">
+          <input class="form-control input-box" type="date" id="date" name="date" data-bind="value: vm.patient.date" value="" onchange="this.setAttribute('value', this.value);">
+          <label for="date" class="label"><span data-bind="text: vm.translate('date')"></span></label>
+        </div>
         <div class="col-12">
           <div class="text-center">
             <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit"><span data-bind="text: vm.translate('register')"></span></button>
