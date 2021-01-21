@@ -11,6 +11,7 @@ $ ->
     lastName: ''
     phone: ''
     date: ''
+    address: ''
 
   vm = ko.mapping.fromJS
     patient: defaultPatient
@@ -42,7 +43,10 @@ $ ->
       toastr.error("Iltimos telefon raqamingizni to'gri kiriting!")
       return no
     else if !vm.patient.date()
-      toaste.error("Iltimos tug'ilgan kunni kiriting!")
+      toastr.error("Iltimos tug'ilgan kunni kiriting!")
+      return no
+    else if !vm.patient.address()
+      toastr.error("Iltimos, manzilni kiriting!")
       return no
     else
       patient =
@@ -50,6 +54,7 @@ $ ->
         lastName: vm.patient.lastName()
         phone: vm.patient.phone().replace(/[(|)|-]/g, "").trim()
         date: vm.patient.date()
+        address: vm.patient.address()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
@@ -109,6 +114,12 @@ $ ->
       "Date of birth"
       "Дата рождения"
       "Tug'ilgan kun"
+
+    ]
+    address: [
+      "Address"
+      "Адрес"
+      "Manzil"
 
     ]
     thankYou: [

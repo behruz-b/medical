@@ -133,7 +133,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val prefixPhone = "998"
       val company_code = request.host
       val dateOfBirth = (request.body \ "date").as[LocalDate]
-      val address = "address"
+      val address = (request.body \ "address").as[String]
       val analyseType = "analysisType"
       val docFullName = "docFullName".some
       val docPhone = "docFullName".some
@@ -206,6 +206,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     logger.debug(s"Upload file is started...")
+    logger.debug(s"ssssssssssssssss: ${request.session.data}")
     val result = request.body
       .file("file")
       .map { picture =>
@@ -227,7 +228,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
             } yield {
-              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, login="user_login", request.headers.get("User-Agent").get)
+              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, request.headers.get("login").getOrElse("user_login"), request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
               "File is uploaded"
             }).recover {
