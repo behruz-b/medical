@@ -4,7 +4,6 @@ import play.api.libs.json._
 
 import java.time.LocalDateTime
 
-
 object UserProtocol {
 
   case class User(
@@ -19,7 +18,7 @@ object UserProtocol {
   ) {
     def id: Option[Int] = None
   }
-  implicit val userFormat = Json.format[User]
+  implicit val userFormat: OFormat[User] = Json.format[User]
 
   case class CheckUserByLogin(login: String, password: String)
   case class CreateUser(user: User)
