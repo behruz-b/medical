@@ -6,8 +6,8 @@
             @flash.get("error").map { response =>
             toastr.error("@response")
             }
-            @flash.get("succes").map { response =>
-            toastr.succes("@response")
+            @flash.get("success").map { response =>
+            toastr.success("@response")
             }
     </script>
     <style>
@@ -16,11 +16,6 @@
         }
     </style>
     @navbar()
-    <div class="container">
-    <nav class="navbar" style="background-color: rgba(0, 64, 133, 0.5); height: 8vh;">
-        <a href="/"><img src="@routes.Assets.versioned("images/favicon.png")" alt="Logo"></a>
-        <a class="btn btn-outline-danger mr-2" style="position: absolute; right: 0;" href="/logout"><i class="fa fa-sign-out-alt"></i>Logout</a>
-    </nav>
     <div class="container" style="margin-top: 10%">
         <h2 class="text-white">Stats Table</h2>
         <div class="row">

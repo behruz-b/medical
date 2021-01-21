@@ -5,8 +5,8 @@
           @flash.get("error").map { response =>
           toastr.error("@response")
           }
-          @flash.get("succes").map { response =>
-          toastr.succes("@response")
+          @flash.get("success").map { response =>
+          toastr.success("@response")
           }
           var Glob = {
             language: '@lang'
