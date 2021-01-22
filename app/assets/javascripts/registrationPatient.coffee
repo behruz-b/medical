@@ -138,8 +138,7 @@ $ ->
     date: [
       "Date of birth"
       "Дата рождения"
-      "Tug'ilgan kun"
-
+      "Tug'ilgan yili"
     ]
     address: [
       "Address"
