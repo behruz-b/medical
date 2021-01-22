@@ -141,7 +141,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val phone = (request.body \ "phone").as[String]
       val prefixPhone = "998"
       val company_code = request.host
-      val dateOfBirth = (request.body \ "date").as[LocalDate]
+      val dateOfBirth = (request.body \ "date").as[String]
       val address = (request.body \ "address").as[String]
       val analyseType = (request.body \ "analysisType").as[String]
       val docFullName = (request.body \ "docFullName").asOpt[String]
@@ -151,7 +151,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
       logger.debug(s"companyCode: $company_code")
       val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, generateCustomerId,
-        company_code, generateLogin, generatePassword, address, dateOfBirth, analyseType, docFullName, docPhoneWithPrefix)
+        company_code, generateLogin, generatePassword, address, parseDate(dateOfBirth), analyseType, docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
@@ -243,11 +243,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               val statsSendSms = StatsAction(LocalDateTime.now, request.host, action = "doc_send_sms", request.headers.get("Remote-Address").get, login="user_login", request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsSendSms)
               "File is uploaded"
-            }).recover {
-              case error: Any =>
-                logger.error("Error while uploading image", error)
-                "Something went wrong"
-            }.value
+            }).value.recover { e =>
+              logger.error(s"Unexpected error happened", e)
+              Left("Something went wrong")
+            }
           case None =>
             logger.error("Customer ID not found")
             Future.successful(Left("Customer ID not found"))

@@ -1,7 +1,9 @@
 package controllers
 
 import java.security.SecureRandom
-
+import java.time.{LocalDate, LocalDateTime}
+import java.time.format.DateTimeFormatter
+import java.util.{Date, Locale}
 import scala.util.Random
 
 trait CommonMethods {
@@ -39,6 +41,11 @@ trait CommonMethods {
 
       LazyList continually nextAlphaNum
     }
+  }
+
+  def parseDate(dateStr: String): LocalDate = {
+    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    LocalDate.parse(dateStr, formatter)
   }
 
 
