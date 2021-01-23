@@ -47,15 +47,15 @@
           <label for="address" class="label"><span data-bind="text: vm.translate('address')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
+          <select class="select form-control" id="analysisType" data-bind="options: vm.getAnalysisTypeList, optionsText: $data, optionsValue: $data, value: vm.patient.analysisType, optionsCaption: 'Analysis type'" autocomplete="off"></select>
+        </div>
+        <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="text" id="docFullName" data-bind="value: vm.patient.docFullName" name="docFullName" value="" onchange="this.setAttribute('value', this.value);">
           <label for="docFullName" class="label"><span data-bind="text: vm.translate('docFullName')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="text" id="docPhone" name="phone" data-bind="masked: vm.patient.docPhone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
           <label for="docPhone" class="label"><span data-bind="text: vm.translate('docPhone')"></span></label>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <select class="select form-control" id="analysisType" data-bind="options: vm.getAnalysisTypeList, optionsText: $data, optionsValue: $data, value: vm.patient.analysisType, optionsCaption: 'Analysis type'" autocomplete="off"></select>
         </div>
         <div class="col-12">
           <div class="text-center">
