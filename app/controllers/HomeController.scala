@@ -111,8 +111,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val prefixPhone = "998"
       //      val company_code = (request.body \ "company_code").as[String]
       val company_code = request.host
+      val login = (firstName.head.toString + lastName).toLowerCase() + getRandomDigit(3)
       val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, role="doc",
-        company_code, generateLogin, generatePassword)
+        company_code, login, generatePassword)
       (userManager ? CreateUser(user)).mapTo[Either[String, String]].map {
         case Right(_) =>
         //  val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit",
@@ -149,6 +150,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val docPhone = (request.body \ "docPhone").asOpt[String]
       val docPhoneWithPrefix = docPhone.map(p => prefixPhone + p)
       val login = (firstName.head.toString + lastName).toLowerCase() + getRandomDigit(3)
+      val customerId = generateCustomerId
       logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
       logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
       logger.debug(s"companyCode: $company_code")
@@ -327,8 +329,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
-
-  private def generateLogin = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
 
   private def generatePassword = getRandomPassword(7)
 }
