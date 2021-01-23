@@ -45,6 +45,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val DoctorLoginKey = "doctor_role"
   val RegLoginKey = "reg_role"
   val AdminLoginKey = "admin_role"
+  val SessionLogin = "login_session"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
@@ -155,7 +156,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
-            login = "user_login", request.headers.get("User-Agent").get)
+	          request.session.get(SessionLogin).get, request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
@@ -216,7 +217,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     logger.debug(s"Upload file is started...")
-    logger.debug(s"ssssssssssssssss: ${request.session.data}")
     val result = request.body
       .file("file")
       .map { picture =>
@@ -238,9 +238,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
             } yield {
-              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, login = "user_login", request.headers.get("User-Agent").get)
+              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, request.session.get(SessionLogin).get, request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
-              val statsSendSms = StatsAction(LocalDateTime.now, request.host, action = "doc_send_sms", request.headers.get("Remote-Address").get, login="user_login", request.headers.get("User-Agent").get)
+              val statsSendSms = StatsAction(LocalDateTime.now, request.host, action = "doc_send_sms", request.headers.get("Remote-Address").get, request.session.get(SessionLogin).get, request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsSendSms)
               "File is uploaded"
             }).value.recover { e =>
@@ -290,8 +290,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               case Right(role) =>
                 logger.debug(role)
                 role match {
-                  case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey)
-                  case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey)
+                  case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey, SessionLogin -> login.get)
+                  case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey, SessionLogin -> login.get)
                   case _ => Redirect("/login").flashing("error" ->"Your haven't got right Role")
                 }
               case Left(error) =>
