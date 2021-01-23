@@ -68,7 +68,6 @@ $ ->
 
   vm.onSubmit = ->
     toastr.clear()
-    my.blockUI()
     if !vm.patient.id()
       toastr.error("Iltimos id ni kiriting!")
       return no
@@ -76,6 +75,7 @@ $ ->
       toastr.error("Iltimos faylni kiriting!")
       return no
     else if formData
+      my.blockUI()
       vm.enableSubmitButton(no)
       formData.submit()
 
