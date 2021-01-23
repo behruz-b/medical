@@ -148,11 +148,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val docFullName = (request.body \ "docFullName").asOpt[String]
       val docPhone = (request.body \ "docPhone").asOpt[String]
       val docPhoneWithPrefix = docPhone.map(p => prefixPhone + p)
+      val login = (firstName.head.toString + lastName).toLowerCase() + getRandomDigit(3)
       logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
       logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
       logger.debug(s"companyCode: $company_code")
       val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, generateCustomerId,
-        company_code, generateLogin, generatePassword, address, parseDate(dateOfBirth), analyseType, docFullName, docPhoneWithPrefix)
+        company_code, login, generatePassword, address, parseDate(dateOfBirth), analyseType, docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
