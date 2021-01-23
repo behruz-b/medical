@@ -67,7 +67,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 //  }
 
   def analysisResult(customerId: String): Action[AnyContent] = Action.async { implicit request =>
-    (patientManager ? GetPatientByCustomerId(customerId.toUpperCase)).mapTo[Either[String, Patient]].map {
+    (patientManager ? GetPatientByCustomerId(customerId)).mapTo[Either[String, Patient]].map {
       case Right(patient) =>
         logger.debug(s"SUCCEESS")
         if (patient.analysis_image_name.isDefined) {
@@ -78,7 +78,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 //          val fos = new java.io.FileOutputStream(tempFile)
 //          fos.write(fileBytes)
           val stats = StatsAction(LocalDateTime.now, request.host, action = "result_sms_click", request.headers.get("Remote-Address").get,
-            request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
+          login = patient.login, request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
 //          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))
