@@ -5,6 +5,7 @@ $ ->
 
   apiUrl =
     registerUrl: '/patient'
+    getAnalysisType: '/getAnalysisType'
 
   defaultPatient =
     firstName: ''
@@ -19,6 +20,7 @@ $ ->
   vm = ko.mapping.fromJS
     patient: defaultPatient
     customerId: ''
+    getAnalysisTypeList: []
     language: Glob.language
 
   handleError = (error) ->
@@ -31,6 +33,13 @@ $ ->
 
   vm.convertIntToDate = (intDate) ->
     moment(+intDate).format('DD/MM/YYYY')
+
+  getAnalysisType = ->
+    $.get(apiUrl.getAnalysisType)
+    .fail handleError
+    .done (response) ->
+      vm.getAnalysisTypeList(response)
+  getAnalysisType()
 
   vm.onSubmit = ->
     toastr.clear()
@@ -83,7 +92,6 @@ $ ->
       $label.addClass 'move-top'
     else
       $label.removeClass 'move-top'
-
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3

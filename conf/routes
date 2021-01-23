@@ -18,6 +18,7 @@ GET     /r/:customerId                              @controllers.HomeController.
 
 GET     /patients                                   @controllers.HomeController.getPatientsTemplate()
 GET     /get-patients                               @controllers.HomeController.getPatients
+GET     /getAnalysisType                            @controllers.HomeController.getAnalysisType()
 
 GET     /stats                                      @controllers.HomeController.getStatisticTemplate()
 GET     /getStats                                   @controllers.HomeController.getStats

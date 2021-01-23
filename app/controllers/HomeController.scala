@@ -156,7 +156,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
-	          request.session.get(SessionLogin).get, request.headers.get("User-Agent").get)
+	          request.session.get(SessionLogin).getOrElse(""), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
@@ -213,6 +213,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def getStatisticTemplate: Action[AnyContent] = Action { implicit request =>
     request.session.get(LoginKey).fold(Redirect(routes.HomeController.login()))(_ =>
       Ok(statsActionTemp()))
+  }
+
+  def getAnalysisType: Action[AnyContent] = Action { _ =>
+    Ok(Json.toJson(analysisType))
   }
 
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>

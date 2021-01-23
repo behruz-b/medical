@@ -55,11 +55,7 @@
           <label for="docPhone" class="label"><span data-bind="text: vm.translate('docPhone')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
-          <select class="select form-control form-select" id="analysisType" data-bind="value: vm.patient.analysisType">
-            <option disabled selected>Xizmat turi</option>
-            <option value="MRT">MRT</option>
-            <option value="Terapevt">Terapeft</option>
-          </select>
+          <select class="select form-control" id="analysisType" data-bind="options: vm.getAnalysisTypeList, optionsText: $data, optionsValue: $data, value: vm.patient.analysisType, optionsCaption: 'Analysis type'" autocomplete="off"></select>
         </div>
         <div class="col-12">
           <div class="text-center">
