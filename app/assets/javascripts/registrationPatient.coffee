@@ -11,6 +11,10 @@ $ ->
     lastName: ''
     phone: ''
     date: ''
+    address: ''
+    docFullName: ''
+    docPhone: ''
+    analysisType: ''
 
   vm = ko.mapping.fromJS
     patient: defaultPatient
@@ -42,7 +46,19 @@ $ ->
       toastr.error("Iltimos telefon raqamingizni to'gri kiriting!")
       return no
     else if !vm.patient.date()
-      toaste.error("Iltimos tug'ilgan kunni kiriting!")
+      toastr.error("Iltimos tug'ilgan kunni kiriting!")
+      return no
+    else if !vm.patient.address()
+      toastr.error("Iltimos, manzilni kiriting!")
+      return no
+    else if !vm.patient.docFullName()
+      toastr.error("Iltimos doctor ismini to'g'ri kiriting!")
+      return no
+    else if !vm.patient.docPhone()
+      toastr.error("Iltimos doctor raqamini to'g'ri kiriting!")
+      return no
+    else if !vm.patient.analysisType()
+      toastr.error("Iltimos tahlil turini kiriting!")
       return no
     else
       patient =
@@ -50,6 +66,10 @@ $ ->
         lastName: vm.patient.lastName()
         phone: vm.patient.phone().replace(/[(|)|-]/g, "").trim()
         date: vm.patient.date()
+        address: vm.patient.address()
+        docFullName: vm.patient.docFullName()
+        docPhone: vm.patient.docPhone().replace(/[(|)|-]/g, "").trim()
+        analysisType: vm.patient.analysisType()
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->
@@ -105,11 +125,31 @@ $ ->
       "Телефонный номер"
       "Telefon raqami"
     ]
+    docFullName: [
+      "Doctor's full name"
+      "ФИО врача"
+      "Shifokorning to'liq ismi"
+    ]
+    docPhone: [
+      "Doctor's phone number"
+      "Телефон врача"
+      "Shifokorning telefon raqami"
+    ]
     date: [
       "Date of birth"
       "Дата рождения"
-      "Tug'ilgan kun"
+      "Tug'ilgan yili"
+    ]
+    address: [
+      "Address"
+      "Адрес"
+      "Manzil"
 
+    ]
+    analysisType: [
+      "Analysis type"
+      "Тип анализа"
+      "Tahlil turi"
     ]
     thankYou: [
       "Thank you!"

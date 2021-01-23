@@ -58,10 +58,18 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+//  def adminTemp(language: String): Action[AnyContent] = Action { implicit request =>
+//    request.session.get(LoginKey) match {
+//      case Some(_) => Ok(adminTemplate(language))
+//      case None => Redirect(routes.HomeController.login())
+//    }
+//  }
+
   def analysisResult(customerId: String): Action[AnyContent] = Action.async {
     (patientManager ? GetPatientByCustomerId(customerId.toUpperCase)).mapTo[Either[String, Patient]].map {
       case Right(patient) =>
         logger.debug(s"SUCCEESS")
+
         if (patient.analysis_image_name.isDefined) {
 //          val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
 //
@@ -72,6 +80,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 //          fos.write(fileBytes)
           Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
 //          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))
+
         } else {
           logger.error("Error while getting analysis file name")
           BadRequest("Error")
@@ -132,20 +141,21 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val phone = (request.body \ "phone").as[String]
       val prefixPhone = "998"
       val company_code = request.host
-      val dateOfBirth = (request.body \ "date").as[LocalDate]
-      val address = "address"
-      val analyseType = "analysisType"
-      val docFullName = "docFullName".some
-      val docPhone = "docFullName".some
+      val dateOfBirth = (request.body \ "date").as[String]
+      val address = (request.body \ "address").as[String]
+      val analyseType = (request.body \ "analysisType").as[String]
+      val docFullName = (request.body \ "docFullName").asOpt[String]
+      val docPhone = (request.body \ "docPhone").asOpt[String]
+      val docPhoneWithPrefix = docPhone.map(p => prefixPhone + p)
       logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
       logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
       logger.debug(s"companyCode: $company_code")
       val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, generateCustomerId,
-        company_code, generateLogin, generatePassword, address, dateOfBirth, analyseType, docFullName, docPhone)
+        company_code, generateLogin, generatePassword, address, parseDate(dateOfBirth), analyseType, docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
-          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", login="user_login",
-            request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
+          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
+            login = "user_login", request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
@@ -206,6 +216,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     logger.debug(s"Upload file is started...")
+    logger.debug(s"ssssssssssssssss: ${request.session.data}")
     val result = request.body
       .file("file")
       .map { picture =>
@@ -227,14 +238,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
             } yield {
-              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", login="user_login", request.headers.get("Remote-Address").get, request.headers.get("User-Agent").get)
+              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, login = "user_login", request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
+              val statsSendSms = StatsAction(LocalDateTime.now, request.host, action = "doc_send_sms", request.headers.get("Remote-Address").get, login="user_login", request.headers.get("User-Agent").get)
+              statsManager ! AddStatsAction(statsSendSms)
               "File is uploaded"
-            }).recover {
-              case error: Any =>
-                logger.error("Error while uploading image", error)
-                "Something went wrong"
-            }.value
+            }).value.recover { e =>
+              logger.error(s"Unexpected error happened", e)
+              Left("Something went wrong")
+            }
           case None =>
             logger.error("Customer ID not found")
             Future.successful(Left("Customer ID not found"))
