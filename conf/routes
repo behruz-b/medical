@@ -12,7 +12,7 @@ GET     /logout                                     @controllers.HomeController.
 GET     /doc                                        @controllers.HomeController.addAnalysisResult(language = "uz")
 POST    /doc                                        @controllers.HomeController.uploadAnalysisResult
 
-POST    /doctor                                     @controllers.HomeController.createDoctor
+POST    /add-doctor                                 @controllers.HomeController.createDoctor
 POST    /patient                                    @controllers.HomeController.createPatient
 GET     /r/:customerId                              @controllers.HomeController.analysisResult(customerId)
 
