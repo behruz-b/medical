@@ -150,7 +150,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val docPhone = (request.body \ "docPhone").asOpt[String]
       val docPhoneWithPrefix = docPhone.map(p => prefixPhone + p)
       val login = (firstName.head.toString + lastName).toLowerCase() + getRandomDigit(3)
-      val customerId = generateCustomerId
       logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
       logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
       logger.debug(s"companyCode: $company_code")
