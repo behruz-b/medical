@@ -218,6 +218,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok(Json.toJson(analysisType))
   }
 
+  def getRoleTypes: Action[AnyContent] = Action { _ =>
+    Ok(Json.toJson(roleTypes))
+  }
+
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
     logger.debug(s"Upload file is started...")
     val result = request.body

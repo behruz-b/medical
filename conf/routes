@@ -3,6 +3,7 @@ GET     /                                           @controllers.HomeController.
 GET     /reg                                        @controllers.HomeController.index(language = "uz")
 
 GET     /admin                                      @controllers.HomeController.index(language = "uz")
+GET     /getRoleTypes                               @controllers.HomeController.getRoleTypes
 
 GET     /login                                      @controllers.HomeController.login(lang: String ?= "uz")
 
