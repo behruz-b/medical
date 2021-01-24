@@ -60,12 +60,6 @@ $ ->
     else if !vm.patient.address()
       toastr.error("Iltimos, manzilni kiriting!")
       return no
-    else if !vm.patient.docFullName()
-      toastr.error("Iltimos doctor ismini to'g'ri kiriting!")
-      return no
-    else if !vm.patient.docPhone()
-      toastr.error("Iltimos doctor raqamini to'g'ri kiriting!")
-      return no
     else if !vm.patient.analysisType()
       toastr.error("Iltimos tahlil turini kiriting!")
       return no
