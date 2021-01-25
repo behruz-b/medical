@@ -25,7 +25,11 @@
                 </div>
                 <div class="form-group col-sm-6 col-12">
                     <input class="form-control input-box" type="text" id="phone" name="phone" data-bind="masked: vm.doctor.phone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
-                    <label for="pho ne" class="label"><span data-bind="text: vm.translate('phoneNumber')"></span></label>
+                    <label for="phone" class="label"><span data-bind="text: vm.translate('phoneNumber')"></span></label>
+                </div>
+                <div class="form-group col-sm-6 col-12">
+                    <input class="form-control input-box" type="text" id="login" name="login" data-bind="value: vm.doctor.login" value="" onchange="this.setAttribute('value', this.value);">
+                    <label for="login" class="label"><span data-bind="text: vm.translate('login')"></span></label>
                 </div>
                 <div class="form-group col-sm-6 col-12">
                     <select class="select form-control bg-white" id="role" data-bind="options: vm.getRoleTypeList,

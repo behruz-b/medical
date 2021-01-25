@@ -12,6 +12,7 @@ $ ->
     lastName: ''
     email: ''
     phone: ''
+    login: ''
     role: ''
     companyCode: ''
 
@@ -129,6 +130,9 @@ $ ->
     else if vm.doctor.phone() and !my.isValidPhone(vm.doctor.phone().replace(/[(|)|-]/g, "").trim())
       toastr.error("Iltimos telefon raqamni to'gri kiriting!")
       return no
+    else if !vm.doctor.login()
+      toastr.error("Iltimos loginni kiriting!")
+      return no
     else if !vm.doctor.role()
       toastr.error("Iltimos tizimdagi vazifasini tanlang!")
       return no
@@ -138,6 +142,7 @@ $ ->
         lastName: vm.doctor.lastName()
         email: vm.doctor.email()
         phone: vm.doctor.phone().replace(/[(|)|-]/g, "").trim()
+        login: vm.doctor.login()
         role: vm.doctor.role()
       $.post(apiUrl.addDoctor, JSON.stringify(doctor))
       .fail handleError

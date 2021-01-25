@@ -15,7 +15,7 @@ import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.PatientProtocol._
-import protocols.UserProtocol.{CheckUserByLogin, CreateUser, User}
+import protocols.UserProtocol.{CheckUserByLogin, User, checkUserByLoginAndCreate}
 import views.html._
 import views.html.statistic._
 import java.nio.file.Paths
@@ -112,17 +112,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val role = (request.body \ "role").as[String]
       val prefixPhone = "998"
       val company_code = request.host
-      val login = (firstName.head.toString + lastName).toLowerCase() + getRandomDigit(3)
+      val login = (request.body \ "login").as[String]
       val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, role,
         company_code, login, generatePassword)
-      (userManager ? CreateUser(user)).mapTo[Either[String, String]].map {
+      (userManager ? checkUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
         case Right(_) =>
           Ok(Json.toJson(user))
-        case Left(e) =>
-          logger.debug(s"ERROR")
-          Redirect("/admin").flashing("error" -> e)
+        case Left(error) =>
+          logger.error(s"ERROR: $error")
+          BadRequest(error)
       }.recover {
-        case e: Any =>
+        case e: Throwable =>
           logger.error("Error while creating doctor", e)
           Redirect("/admin").flashing("error" -> "Error")
       }
