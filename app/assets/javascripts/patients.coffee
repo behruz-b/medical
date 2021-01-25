@@ -16,6 +16,12 @@ $ ->
     else
       toastr.error('Something went wrong! Please try again.')
 
+  vm.convertStringToDate = (stringDate) ->
+    moment(stringDate).format('DD/MM/YYYY HH:MM')
+
+  vm.convertMonthToDayDate = (date) ->
+    moment(date).format('DD/MM/YYYY')
+
   vm.getPatients = ->
     $.get(apiUrl.patientsUrl)
     .fail handleError

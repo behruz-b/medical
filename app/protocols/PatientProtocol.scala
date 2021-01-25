@@ -44,6 +44,25 @@ object PatientProtocol {
   case class SendSmsToCustomer(customerId: String)
   case class CheckSmsDeliveryStatus(requestId: String, customerId: String)
 
+  val analysisType = List(
+    "Bosh miya",
+    "Bosh miya, Ko'z, Quloq, Burun bo'shliqlari, Ginofiz, Qon tomirlari",
+    "Bo'yin umurtqalari, Orqa miya",
+    "Bo'yin umurtqalari, Orqa miya, Qon tomirlari",
+    "Ko'krak umurtqalari, Orqa miya",
+    "Bel umurtqalari, Orqa miya",
+    "Qorin bo'shligi, Jigar, Taloq, O't puffagi qo'llari, Oshqozon osti bezi, Buyraklar",
+    "Buyrak usti bezlari, Tizza",
+    "Qo'l oyoq bo'g'imlari",
+    "Chanoq son bo'g'imlari, Tizza",
+    "Ayollar kichik chanoq a'zolari",
+    "Erkaklar kichik chanoq a'zolari",
+    "Bo'yin yumshoq to'qimalari",
+    "Tana a'zolarini umumiy MRT tekshiruvi",
+    "MRT kontrasi 'Magnilik'"
+  )
+  val roleTypes = List("doc", "reg", "statsAdmin")
+
   /**
    *
    * ==Overview==
@@ -59,5 +78,7 @@ object PatientProtocol {
    */
 
   val SmsText: String => String = (customerId: String) =>
-    s"Elegant Farm\\nAnaliz natijasini olish uchun xavolani bosing:\\nhttp://elegant-farm.uz/r/$customerId"
+    s"Sizga katta rahmat bizning 'Elegant Farm' Diagnostika Markaziga tashrif buyurganingiz uchun, sizning" +
+      s" sog'liqingiz biz uchun juda muhim.\\nTibbiy xulosangizni quyidagi havola orqali olishingiz mumkin:" +
+      s"\\nhttp://elegant-farm.uz/r/$customerId"
 }

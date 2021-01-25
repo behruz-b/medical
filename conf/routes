@@ -3,6 +3,7 @@ GET     /                                           @controllers.HomeController.
 GET     /reg                                        @controllers.HomeController.index(language = "uz")
 
 GET     /admin                                      @controllers.HomeController.admin(language = "uz")
+GET     /getRoleTypes                               @controllers.HomeController.getRoleTypes
 
 GET     /login                                      @controllers.HomeController.login(lang: String ?= "uz")
 
@@ -12,12 +13,13 @@ GET     /logout                                     @controllers.HomeController.
 GET     /doc                                        @controllers.HomeController.addAnalysisResult(language = "uz")
 POST    /doc                                        @controllers.HomeController.uploadAnalysisResult
 
-POST    /doctor                                     @controllers.HomeController.createDoctor
+POST    /add-doctor                                 @controllers.HomeController.createDoctor
 POST    /patient                                    @controllers.HomeController.createPatient
 GET     /r/:customerId                              @controllers.HomeController.analysisResult(customerId)
 
 GET     /patients                                   @controllers.HomeController.getPatientsTemplate()
 GET     /get-patients                               @controllers.HomeController.getPatients
+GET     /getAnalysisType                            @controllers.HomeController.getAnalysisType()
 
 GET     /stats                                      @controllers.HomeController.getStatisticTemplate()
 GET     /getStats                                   @controllers.HomeController.getStats

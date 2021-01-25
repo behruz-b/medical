@@ -5,6 +5,7 @@ $ ->
 
   apiUrl =
     registerUrl: '/patient'
+    getAnalysisType: '/getAnalysisType'
 
   defaultPatient =
     firstName: ''
@@ -19,6 +20,7 @@ $ ->
   vm = ko.mapping.fromJS
     patient: defaultPatient
     customerId: ''
+    getAnalysisTypeList: []
     language: Glob.language
 
   handleError = (error) ->
@@ -31,6 +33,13 @@ $ ->
 
   vm.convertIntToDate = (intDate) ->
     moment(+intDate).format('DD/MM/YYYY')
+
+  getAnalysisType = ->
+    $.get(apiUrl.getAnalysisType)
+    .fail handleError
+    .done (response) ->
+      vm.getAnalysisTypeList(response)
+  getAnalysisType()
 
   vm.onSubmit = ->
     toastr.clear()
@@ -48,14 +57,11 @@ $ ->
     else if !vm.patient.date()
       toastr.error("Iltimos tug'ilgan kunni kiriting!")
       return no
+    else if vm.patient.date() and vm.patient.date().length < 8
+      toastr.error("Iltimos tug'ilgan kunni to`g`ri kiriting!")
+      return no
     else if !vm.patient.address()
       toastr.error("Iltimos, manzilni kiriting!")
-      return no
-    else if !vm.patient.docFullName()
-      toastr.error("Iltimos doctor ismini to'g'ri kiriting!")
-      return no
-    else if !vm.patient.docPhone()
-      toastr.error("Iltimos doctor raqamini to'g'ri kiriting!")
       return no
     else if !vm.patient.analysisType()
       toastr.error("Iltimos tahlil turini kiriting!")
@@ -83,7 +89,6 @@ $ ->
       $label.addClass 'move-top'
     else
       $label.removeClass 'move-top'
-
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3

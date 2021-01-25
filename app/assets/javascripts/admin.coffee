@@ -3,11 +3,18 @@ $ ->
 
   Glob = window.Glob || {}
 
+  apiUrl =
+    addDoctor: '/add-doctor'
+    getRole: 'getRoleTypes'
+
   defaultDoctor =
     firstName: ''
     lastName: ''
     email: ''
     phone: ''
+    login: ''
+    role: ''
+    companyCode: ''
 
   vm = ko.mapping.fromJS
     doctor: defaultDoctor
@@ -15,6 +22,7 @@ $ ->
     language: Glob.language
     doctorLogin: ''
     doctorPassword: ''
+    getRoleTypeList: []
 
 
   handleError = (error) ->
@@ -39,6 +47,13 @@ $ ->
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
     vm.labels[fieldName][index]
+
+  getRoleType = ->
+    $.get(apiUrl.getRole)
+    .fail handleError
+    .done (response) ->
+      vm.getRoleTypeList(response)
+  getRoleType()
 
   vm.labels =
     adminPanel: [
@@ -101,18 +116,25 @@ $ ->
   vm.onSubmit = ->
     toastr.clear()
     if !vm.doctor.firstName()
-      toastr.error("Iltimos ismingizni kiriting!")
+      toastr.error("Iltimos ismni kiriting!")
       return no
     else if !vm.doctor.lastName()
-      toastr.error("Iltimos familiyangizni kiriting!")
+      toastr.error("Iltimos familiyani kiriting!")
       return no
     else if vm.doctor.email() and !my.isValidEmail(vm.doctor.email())
       toastr.error("Iltimos emailni to'gri kiriting!")
       return no
     else if !vm.doctor.phone()
-      toastr.error("Iltimos telefon raqamingizni kiriting!")
+      toastr.error("Iltimos telefon raqamni kiriting!")
+      return no
     else if vm.doctor.phone() and !my.isValidPhone(vm.doctor.phone().replace(/[(|)|-]/g, "").trim())
-      toastr.error("Iltimos telefon raqamingizni to'gri kiriting!")
+      toastr.error("Iltimos telefon raqamni to'gri kiriting!")
+      return no
+    else if !vm.doctor.login()
+      toastr.error("Iltimos loginni kiriting!")
+      return no
+    else if !vm.doctor.role()
+      toastr.error("Iltimos tizimdagi vazifasini tanlang!")
       return no
     else
       doctor =
@@ -120,7 +142,9 @@ $ ->
         lastName: vm.doctor.lastName()
         email: vm.doctor.email()
         phone: vm.doctor.phone().replace(/[(|)|-]/g, "").trim()
-      $.post("/doctor", JSON.stringify(doctor))
+        login: vm.doctor.login()
+        role: vm.doctor.role()
+      $.post(apiUrl.addDoctor, JSON.stringify(doctor))
       .fail handleError
       .done (user) ->
         vm.doctorLogin(user.login)
