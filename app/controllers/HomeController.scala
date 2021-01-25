@@ -306,6 +306,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                 role match {
                   case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey, SessionLogin -> login.getOrElse(SessionLogin))
                   case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey, SessionLogin -> login.getOrElse(SessionLogin))
+                  case "statsAdmin" => Redirect("/stats").addingToSession(LoginKey -> StatsAdmin, SessionLogin -> login.getOrElse(SessionLogin))
                   case _ => Redirect("/login").flashing("error" ->"Your haven't got right Role")
                 }
               case Left(error) =>
