@@ -23,4 +23,5 @@ object UserProtocol {
 
   case class CheckUserByLogin(login: String, password: String)
   case class CreateUser(user: User)
+  case class checkUserByLoginAndCreate(user: User)
 }

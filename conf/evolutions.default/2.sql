@@ -6,7 +6,8 @@ CREATE TABLE "Users" ("id" SERIAL PRIMARY KEY,
                      "role" VARCHAR NOT NULL,
                      "company_code" VARCHAR NOT NULL,
                      "login" VARCHAR NOT NULL,
-                     "password" VARCHAR NOT NULL);
+                     "password" VARCHAR NOT NULL,
+                     UNIQUE(login));
 
 INSERT INTO "Users" ("id","created_at","firstname","lastname", "phone", "role", "company_code", "login", "password")
  VALUES (5,'2021-01-12 15:32:22.196016','doc1','superuser','998994461230','doc','all','shifokor1','doc123');
