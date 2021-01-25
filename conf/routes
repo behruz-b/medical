@@ -2,11 +2,11 @@
 GET     /                                           @controllers.HomeController.index(language = "uz")
 GET     /reg                                        @controllers.HomeController.index(language = "uz")
 
-GET     /admin                                      @controllers.HomeController.index(language = "uz")
+GET     /admin                                      @controllers.HomeController.admin(language = "uz")
 
 GET     /login                                      @controllers.HomeController.login(lang: String ?= "uz")
 
-POST    /login                                      @controllers.HomeController.loginPost
+POST    /login                                      @controllers.HomeController.loginPost2
 GET     /logout                                     @controllers.HomeController.logout
 
 GET     /doc                                        @controllers.HomeController.addAnalysisResult(language = "uz")

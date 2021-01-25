@@ -1,27 +1,27 @@
 package controllers
-import java.util.Date
-import java.time._
-
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import cats.implicits._
 import cats.data.EitherT
-import com.typesafe.scalalogging.LazyLogging
-import javax.inject._
+import cats.implicits._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.PatientProtocol._
+import protocols.Authentication._
 import protocols.UserProtocol.{CheckUserByLogin, CreateUser, User}
 import views.html._
 import views.html.statistic._
+
+import java.net.URL
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-
-import scala.concurrent.duration.DurationInt
+import java.time._
+import java.util.Date
+import javax.inject._
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
@@ -38,32 +38,39 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
-  extends BaseController with LazyLogging with CommonMethods {
+  extends BaseController with CommonMethods with Auth {
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
   val LoginKey = "login_session_key"
-  val DoctorLoginKey = "doctor_role"
-  val RegLoginKey = "reg_role"
-  val AdminLoginKey = "admin_role"
+  val DoctorLoginKey = "doctor.role"
+  val RegLoginKey = "register.role"
+  val AdminLoginKey = "admin.role"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
   val adminPassword: String = configuration.get[String]("admin.password")
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) {
-      case RegLoginKey => Ok(indexTemplate(language))
-      case AdminLoginKey => Ok(adminTemplate(language))
-      case _ => Redirect(routes.HomeController.index()).withSession(request.session - LoginKey)
+    val result = authByRole(RegLoginKey) {
+      Ok(indexTemplate(language))
+    }
+    if (result.header.status == UNAUTHORIZED) {
+      Ok(loginPage(language))
+    } else {
+      result
     }
   }
 
-//  def adminTemp(language: String): Action[AnyContent] = Action { implicit request =>
-//    request.session.get(LoginKey) match {
-//      case Some(_) => Ok(adminTemplate(language))
-//      case None => Redirect(routes.HomeController.login())
-//    }
-//  }
+  def admin(language: String): Action[AnyContent] = Action { implicit request =>
+    val result = authByRole(AdminLoginKey) {
+      Ok(adminTemplate(language))
+    }
+    if (result.header.status == UNAUTHORIZED) {
+      Ok(loginPage(language))
+    } else {
+      result
+    }
+  }
 
   def analysisResult(customerId: String): Action[AnyContent] = Action.async {
     (patientManager ? GetPatientByCustomerId(customerId.toUpperCase)).mapTo[Either[String, Patient]].map {
@@ -179,12 +186,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { role_key =>
-      if (role_key == DoctorLoginKey) {
-        Ok(addAnalysisResultPageTemp(language))
-      } else {
-        Redirect("/doc").flashing("error" -> "You haven't got right role to see page")
-      }
+    val result = authByRole(RegLoginKey) {
+      Ok(addAnalysisResultPageTemp(language))
+    }
+    if (result.header.status == UNAUTHORIZED) {
+      Ok(loginPage(language))
+    } else {
+      result
     }
   }
 
@@ -308,6 +316,67 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def authInit(sessionAttrName: String,
+               sessionAttrVal: String,
+               sessionDuration: Option[FiniteDuration] = None): Seq[(String, String)] =
+  {
+    val expiresAtSessionAttr = expiresAtSessionAttrName(sessionAttrName)
+    sessionDuration.foldLeft(Map(sessionAttrName -> sessionAttrVal)) { (acc, sessionDur) =>
+      val nextExpiration = System.currentTimeMillis() + sessionDur.toMillis
+      acc + (expiresAtSessionAttr -> nextExpiration.toString)
+    }.toSeq
+  }
+
+  private def checkLogin(login: String, password: String, uri: String, loginParams: Login)
+                        (implicit request: RequestHeader): Future[Result] = {
+    (userManager ? CheckUserByLogin(login, password)).mapTo[Either[String, String]].map {
+      case Right(role) =>
+        Redirect(loginParams.redirectUrl)
+          .addingToSession(authInit(loginParams.sessionKey, role, loginParams.sessionDuration): _*)
+      case Left(error) =>
+        logger.error("error", error)
+        Redirect(uri).flashing("error" -> error)
+    }
+  }
+
+  private def checkLoginPassword(login: String, password: String, uri: String)
+                                (implicit request: RequestHeader): Future[Result] = {
+    loginPatters.get(uri) match {
+      case Some(value) =>
+        checkLogin(login, password, uri, value)
+      case None =>
+        logger.info(s"unknown uri: $uri")
+        Future.successful(Redirect(uri).flashing("error" -> "Something went wrong. Please try again."))
+    }
+  }
+
+  private def checkLoginPost(login: String, password: String, referUrl: String)
+                            (implicit request: Request[AnyContent]): Future[Result] = {
+    checkLoginPassword(login, password, basePathExtractor).recover {
+      case error =>
+        logger.error("error", error)
+        Redirect(referUrl).flashing("error" -> "Something went wrong. Please try again.")
+    }
+  }
+
+  def loginPost2: Action[AnyContent] = Action.async { implicit request =>
+    val referUrl = request.headers.get(REFERER).get
+    loginPlayFormWithClientCode.bindFromRequest().fold(
+      errorForm => {
+        logger.info(s"errorForm: $errorForm")
+//        if (request.body.asFormUrlEncoded.flatMap(_.get("clientCode")).isEmpty) {
+//          logger.info(s"clientCode is empty while loginPost, referUrl:$referUrl")
+//          Future.successful(Forbidden)
+//        } else {
+          Future.successful(Redirect(referUrl).flashing("error" -> "Please enter login and password"))
+//        }
+      }, {
+        case LoginFormWithClientCode(login, password) =>
+          checkLoginPost(login, password, referUrl)
+      }
+    )
+  }
+
   def stubSmsRequest: Action[AnyContent] = Action { implicit request =>
     val body = request.body.asFormUrlEncoded
     logger.debug(s"Stub SMS Request: $body")
@@ -326,4 +395,5 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   private def generateLogin = randomStr(1).toUpperCase + "-" + getRandomDigit(3)
 
   private def generatePassword = getRandomPassword(7)
+
 }

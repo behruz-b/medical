@@ -16,14 +16,14 @@
     <div class="offset-lg-2 col-lg-4 offset-sm-2 col-sm-8 p-4">
       <div class="content-login">
         <h2 class="text-center"><span data-bind="text: vm.translate('adminPanel')"></span></h2>
-        <form action="/login" method="post" class="row" enctype="multipart/form-data">
+        <form action="@routes.HomeController.loginPost2()" method="post" class="row" enctype="multipart/form-data">
           <div class="form-group col-sm-12 col-12">
-            <input class="form-control input-box" autofocus="" autocomplete="false" type="text" id="login" name="adminName" required>
+            <input class="form-control input-box" autofocus="" autocomplete="false" type="text" id="login" name="login" required>
             <label for="login" class="label"><span data-bind="text: vm.translate('login')"></span></label>
           </div>
           <div class="form-group col-sm-12 col-12">
             <div class="input-group" id="show_hide_password">
-              <input class="form-control input-box" type="password" id="password" name="adminPass" required>
+              <input class="form-control input-box" type="password" id="password" name="password" required>
               <label for="password" class="label"><span data-bind="text: vm.translate('password')"></span></label>
               <div class="input-group-addon">
                 <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
