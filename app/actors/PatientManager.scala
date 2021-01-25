@@ -163,7 +163,7 @@ class PatientManager @Inject()(val configuration: Configuration,
           val id = (body \ "request_id").asOpt[Int]
           if (id.isDefined) {
             logger.debug(s"RequestId: $id")
-            context.system.scheduler.scheduleOnce(3.seconds, self, CheckSmsDeliveryStatus(id.get.toString, customerId))
+            context.system.scheduler.scheduleOnce(5.seconds, self, CheckSmsDeliveryStatus(id.get.toString, customerId))
             Right("Successfully sent")
           } else {
             val errorText = (body \ "text").asOpt[String]
