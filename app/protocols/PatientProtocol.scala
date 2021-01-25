@@ -78,5 +78,7 @@ object PatientProtocol {
    */
 
   val SmsText: String => String = (customerId: String) =>
-    s"Elegant Farm\\nAnaliz natijasini olish uchun xavolani bosing:\\nhttp://elegant-farm.uz/r/$customerId"
+    s"Sizga katta rahmat bizning \"Elegant Farm\" Diagnostika Markaziga tashrif buyurganingiz uchun, sizning" +
+      s" sog'liqingiz biz uchun juda muhim, Tibbiy xulosangizni quyidagi havola orqali olishingiz mumkin:" +
+      s"\\nhttp://elegant-farm.uz/r/$customerId"
 }
