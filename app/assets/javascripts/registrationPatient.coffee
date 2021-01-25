@@ -57,6 +57,9 @@ $ ->
     else if !vm.patient.date()
       toastr.error("Iltimos tug'ilgan kunni kiriting!")
       return no
+    else if vm.patient.date() and vm.patient.date().length < 8
+      toastr.error("Iltimos tug'ilgan kunni to`g`ri kiriting!")
+      return no
     else if !vm.patient.address()
       toastr.error("Iltimos, manzilni kiriting!")
       return no

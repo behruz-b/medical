@@ -142,6 +142,20 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val prefixPhone = "998"
       val company_code = request.host
       val dateOfBirth = (request.body \ "date").as[String]
+      val dateCheck = if (dateOfBirth.length == 8){
+        val yearOfBirth = dateOfBirth.split("/").reverse.head
+        val fillYear = if(0 <= yearOfBirth.toInt && yearOfBirth.toInt <= 21) {
+          "20" + yearOfBirth
+        } else {
+          "19" + yearOfBirth
+        }
+        val fillDate = fillYear + "/" + dateOfBirth.split("/").reverse.tail.mkString("/")
+        val dateOfBirthday = fillDate.split("/").reverse.mkString("/")
+        dateOfBirthday
+      } else {
+        val dateOfBirthday = (request.body \ "date").as[String]
+        dateOfBirthday
+      }
       val address = (request.body \ "address").as[String]
       val analyseType = (request.body \ "analysisType").as[String]
       val docFullName = (request.body \ "docFullName").asOpt[String]
@@ -152,7 +166,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 //      logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
 //      logger.debug(s"companyCode: $company_code")
       val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, generateCustomerId,
-        company_code, login, generatePassword, address, parseDate(dateOfBirth), analyseType, docFullName, docPhoneWithPrefix)
+        company_code, login, generatePassword, address, parseDate(dateCheck), analyseType, docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
