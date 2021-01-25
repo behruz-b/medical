@@ -23,6 +23,7 @@
                 <table class="table table-bordered table-striped table-hover table-active bg-white">
                     <thead class="thead-dark">
                         <tr>
+                            <th>Ro'yhatdan o'tgan vaqti</th>
                             <th>Ismi</th>
                             <th>Familiyasi</th>
                             <th>Telefon Raqami</th>
@@ -34,11 +35,12 @@
                     </thead>
                     <tbody data-bind="foreach: vm.patients()">
                         <tr>
+                            <td data-bind="text: $root.vm.convertStringToDate($data.created_at)"></td>
                             <td data-bind="text: $data.firstname"></td>
                             <td data-bind="text: $data.lastname"></td>
                             <td data-bind="text: $data.phone"></td>
                             <td data-bind="text: $data.address"></td>
-                            <td data-bind="text: $data.dateOfBirth"></td>
+                            <td data-bind="text: $root.vm.convertMonthToDayDate($data.dateOfBirth)"></td>
                             <td data-bind="text: $data.analyseType"></td>
                             <td>
                                 <a href="#analysisImage" data-toggle="modal">
@@ -60,7 +62,7 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body text-center">
-                        <img src="/" alt="#">
+                        <img src="../patients_folder/vm.patients.analysis_image_name" alt="#">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Yopish</button>
