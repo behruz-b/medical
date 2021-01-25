@@ -46,6 +46,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val RegLoginKey = "reg_role"
   val AdminLoginKey = "admin_role"
   val SessionLogin = "login_session"
+  val StatsAdmin = "stats_admin"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
@@ -210,8 +211,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getStatisticTemplate: Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login()))(_ =>
-      Ok(statsActionTemp()))
+    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { role =>
+      if (role == StatsAdmin) {
+        Ok(statsActionTemp())
+      } else {
+        Redirect("/login").flashing("error" -> "You haven't got right role to see page")
+      }
+    }
   }
 
   def getAnalysisType: Action[AnyContent] = Action { _ =>
@@ -283,6 +289,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           case DoctorLoginKey => Future.successful(Redirect("/doc"))
           case RegLoginKey => Future.successful(Redirect("/reg"))
           case AdminLoginKey => Future.successful(Redirect("/admin"))
+          case StatsAdmin => Future.successful(Redirect("/stats"))
           case _ => Future.successful(Redirect("/login").flashing("error" -> "Your haven't got right Role"))
         }
       case None =>
