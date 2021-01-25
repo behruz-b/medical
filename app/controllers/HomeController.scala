@@ -6,6 +6,7 @@ import cats.data.EitherT
 import cats.implicits._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
+import play.api.http.HeaderNames.REFERER
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -105,10 +106,24 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def logout: Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey) match {
-      case Some(_) => Redirect(routes.HomeController.index()).withSession(request.session - LoginKey)
-      case None => Redirect(routes.HomeController.login())
+    val urlPath = if (request.headers.get(REFERER).isDefined) {
+      basePathExtractor
+    } else {
+      request.uri
     }
+    if (request.session.isEmpty) {
+      BadRequest("You are not authorized")
+    } else {
+      val loginParams = loginPatterns(urlPath.replaceFirst("logout", ""))
+      val redirectUrl = loginParams.redirectUrl
+      Redirect(redirectUrl).withSession(request.session - loginParams.sessionKey)
+    }
+  }
+
+  def basePathExtractor(implicit request: RequestHeader): String = {
+    val referUrl = request.headers.get(REFERER).get
+    val url = new URL(referUrl)
+    url.getPath
   }
 
   def createDoctor: Action[JsValue] = Action.async(parse.json) { implicit request =>
@@ -370,7 +385,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   private def checkLoginPassword(login: String, password: String, uri: String)
                                 (implicit request: RequestHeader): Future[Result] = {
-    loginPatters.get(uri) match {
+    loginPatterns.get(uri) match {
       case Some(value) =>
         checkLogin(login, password, uri, value)
       case None =>

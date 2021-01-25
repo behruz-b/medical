@@ -5,9 +5,8 @@ import com.typesafe.scalalogging.LazyLogging
 import play.api.mvc.Results.Unauthorized
 import play.api.mvc._
 import protocols.Authentication
-import protocols.Authentication.loginPatters
+import protocols.Authentication.loginPatterns
 
-import java.net.URL
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.runtime.universe._
@@ -17,23 +16,26 @@ trait Auth extends LazyLogging {
 
   def expiresAtSessionAttrName: String => String = _ + ".exp"
 
-  def basePathExtractor(implicit request: RequestHeader): String = {
-    val referUrl = request.headers.get("referer").get
-    val url = new URL(referUrl)
-    url.getPath
-  }
-
-  private def loginParam: String => Option[Authentication.Login] = loginPatters.get
+  private def loginParam: String => Option[Authentication.Login] = loginPatterns.get
 
   object ErrorText {
     val SessionExpired = "Session expired. Please log in."
     val Unauthorized = "Unauthorized. Please log in."
   }
 
+  private def baseUriExtractor(implicit request: RequestHeader): String = {
+    val path = request.path
+    List("reg", "admin", "analyze")
+      .map(keyword => (path.indexOf(keyword), keyword.length))
+      .find(_._1 != -1) match {
+      case Some(t) => path.substring(0, t._1 + t._2)
+      case None => path
+    }
+  }
+
   private def roleSessionKey(implicit request: RequestHeader): String = {
-    logger.debug(basePathExtractor)
-    loginPatters.get(basePathExtractor).fold {
-      logger.error(s"Error occurred while get login param: $basePathExtractor")
+    loginParam(baseUriExtractor).fold {
+      logger.error(s"Error occurred while get login param: $baseUriExtractor")
       ""
     }(_.sessionKey)
   }
@@ -43,13 +45,11 @@ trait Auth extends LazyLogging {
     case t if t <:< typeOf[Future[Result]] => Future.successful(Unauthorized(ErrorText.Unauthorized)).asInstanceOf[T]
   }
 
-  def authByRole[T: TypeTag](role: String)
-                (result: => T)
-                (implicit request: RequestHeader): T = {
+  def authByRole[T: TypeTag](role: String)(result: => T)(implicit request: RequestHeader): T = {
     request.session.get(roleSessionKey) match {
       case Some(userRole) =>
         if (userRole == role) {
-          checkAuth(roleSessionKey, loginParam(request.host).flatMap(_.sessionDuration))(result)
+          checkAuth(roleSessionKey, loginParam(baseUriExtractor).flatMap(_.sessionDuration))(result)
         } else {
           unauthorized
         }
@@ -59,8 +59,8 @@ trait Auth extends LazyLogging {
   }
 
   def checkAuth[T: TypeTag](sessionAttr: String, sessionDuration: Option[FiniteDuration] = None)
-                                   (body: => T)
-                                   (implicit request: RequestHeader): T = {
+                           (body: => T)
+                           (implicit request: RequestHeader): T = {
     val expiresAtAttr = expiresAtSessionAttrName(sessionAttr)
     val session = request.session
 

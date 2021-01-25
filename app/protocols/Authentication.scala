@@ -24,17 +24,19 @@ object Authentication {
 //      "clientCode" -> nonEmptyText
     )(LoginFormWithClientCode.apply)(LoginFormWithClientCode.unapply)
   }
-  case class Login(redirectUrl: Call,
+
+  case class Login(rootPath: String,
+                   redirectUrl: Call,
                    companyCode: String,
                    sessionKey: String,
                    sessionDuration: Option[FiniteDuration] = 60.minutes.some)
 
-  val loginPatters: Map[String, Login] = Company.flatMap { domain =>
+  val loginPatterns: Map[String, Login] = Company.flatMap { domain =>
     Vector(
-      Login(routes.HomeController.index(), domain, createSessionKey(domain)),
-      Login(routes.HomeController.admin(), domain, createSessionKey(domain)),
-      Login(routes.HomeController.addAnalysisResult(), domain, createSessionKey(domain))
+      Login("/reg", routes.HomeController.index(), domain, createSessionKey(domain)),
+      Login("/admin", routes.HomeController.admin(), domain, createSessionKey(domain)),
+      Login("/analyze", routes.HomeController.addAnalysisResult(), domain, createSessionKey(domain))
     )
-  }.map( l => l.redirectUrl.url -> l).toMap
+  }.map( l => l.rootPath -> l).toMap
 
 }
