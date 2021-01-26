@@ -11,6 +11,36 @@
                 $("#wrapper").toggleClass("toggled");
             });
     </script>
-    @navbar()
-    @sidebar()
+    <div class="d-flex">
+        <div class="navbar p-2 bg-dark flex-fill">
+            <a class="navbar-brand" href="/">
+                <img src="@routes.Assets.versioned("images/favicon.png")" alt="logo">
+                   <span class="text-white"> Smart Medical</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                Button
+            </button>
+        </div>
+        <div class="p-2 bg-dark flex-fill">
+            <a class="text-decoration-none d-lg-flex d-md-flex d-sm-flex d-flex d-xl-flex justify-content-end justify-content-md-end justify-content-sm-end" href="/logout">
+                <button class="btn btn-success" type="button"><i class="fa fa-sign-out-alt"></i> Chiqish</button>
+            </a>
+        </div>
+    </div>
+    <div class="collapse" id="collapseExample">
+        <div class="d-flex" id="wrapper">
+            <div class="bg-light border-right" id="sidebar-wrapper">
+                <div class="sidebar-heading">Admin menu</div>
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action bg-light">Doktor qo`shish</a>
+                    <a href="#" class="list-group-item list-group-item-action bg-light">Bemorlar ro`yhati</a>
+                    <a href="#" class="list-group-item list-group-item-action bg-light">Statistika</a>
+                </div>
+            </div>
+            <div class="div-push"></div>
+        </div>
+    </div>
 }

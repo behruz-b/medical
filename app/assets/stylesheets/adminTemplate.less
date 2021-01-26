@@ -4,13 +4,21 @@ body {
   overflow-x: hidden;
 }
 
+#demo.width {
+  height: auto;
+  -webkit-transition: width 0.35s ease;
+  -moz-transition: width 0.35s ease;
+  -o-transition: width 0.35s ease;
+  transition: width 0.35s ease;
+}
+
 #sidebar-wrapper {
   min-height: 100vh;
   margin-left: -15rem;
-  -webkit-transition: margin .25s ease-out;
-  -moz-transition: margin .25s ease-out;
-  -o-transition: margin .25s ease-out;
-  transition: margin .25s ease-out;
+  -webkit-transition: width .25s ease;
+  -moz-transition: width .25s ease;
+  -o-transition: width .25s ease;
+  transition: width .25s ease;
 }
 
 #sidebar-wrapper .sidebar-heading {
