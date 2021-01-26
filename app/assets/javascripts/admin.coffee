@@ -53,7 +53,6 @@ $ ->
     .fail handleError
     .done (response) ->
       vm.getRoleTypeList(response)
-  getRoleType()
 
   vm.labels =
     adminPanel: [

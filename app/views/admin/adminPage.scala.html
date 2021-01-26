@@ -8,6 +8,7 @@
     </script>
     @navbar()
     <div class="row box-align-center">
+        <input type="hidden" data-bind="click: vm.getRoleType()">
         <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
             <h2 class="text-white"><span data-bind="text: vm.translate('registrationForm')"></span></h2>
             <form name="doctor_form" class="row">

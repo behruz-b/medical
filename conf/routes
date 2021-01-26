@@ -1,7 +1,7 @@
 # An example controller showing a sample home page
 #GET     /                                           @controllers.HomeController.index(language = "uz")
-POST    /login                                                  @controllers.HomeController.loginPost2
-GET     /logout                                                 @controllers.HomeController.logout
+POST    /login                                                  @controllers.AuthorizationController.loginPost
+GET     /logout                                                 @controllers.AuthorizationController.logout
 
 GET     /reg/                                                   @controllers.HomeController.index(language = "uz")
 GET     /admin/                                                 @controllers.HomeController.admin(language = "uz")
