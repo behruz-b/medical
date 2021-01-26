@@ -46,6 +46,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val AdminLoginKey = "admin.role"
   val SessionLogin = "login_session"
   val StatsRole = "stats.role"
+  val PatientsAdmin = "patients_admin"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")

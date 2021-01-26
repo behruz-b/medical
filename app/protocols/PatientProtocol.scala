@@ -61,7 +61,7 @@ object PatientProtocol {
     "Tana a'zolarini umumiy MRT tekshiruvi",
     "MRT kontrasi 'Magnilik'"
   )
-  val roleTypes = List("doc", "reg", "statsAdmin")
+  val roleTypes = List("doc", "reg", "statistics", "patients")
 
   /**
    *
