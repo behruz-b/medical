@@ -87,7 +87,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 //          val fos = new java.io.FileOutputStream(tempFile)
 //          fos.write(fileBytes)
           val stats = StatsAction(LocalDateTime.now, request.host, action = "result_sms_click", request.headers.get("Remote-Address").get,
-          login = patient.login, request.headers.get("User-Agent").get)
+          login = patient.customer_id, request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
 //          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))

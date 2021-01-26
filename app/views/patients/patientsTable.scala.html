@@ -43,9 +43,8 @@
                             <td data-bind="text: $root.vm.convertMonthToDayDate($data.dateOfBirth)"></td>
                             <td data-bind="text: $data.analyseType"></td>
                             <td>
-                                <a href="#analysisImage" data-toggle="modal">
-                                    <span data-bind="text: $data.analysis_image_name"></span>
-                                </a>
+                                <img width="50" height="50" data-bind="attr: {src: '/img/' + $data.analysis_image_name},
+                                 click: $root.vm.showFullImage($data.analysis_image_name)">
                             </td>
                         </tr>
                     </tbody>
@@ -62,7 +61,7 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body text-center">
-                        <img src="../patients_folder/vm.patients.analysis_image_name" alt="#">
+                        <img class="w-100" data-bind="attr: {src: '/img/' + vm.fileName()}" alt="#">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Yopish</button>
