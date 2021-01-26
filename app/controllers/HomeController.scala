@@ -53,31 +53,30 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val adminPassword: String = configuration.get[String]("admin.password")
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
-    val result = authByRole(RegLoginKey) {
+    authByDashboard(RegLoginKey, language) {
       Ok(indexTemplate(language))
     }
-    if (result.header.status == UNAUTHORIZED) {
-      Ok(loginPage(language)).flashing("error" -> "You haven't got right role to see page")
+  }
+
+  def authByDashboard(role: String, lang: String = "uz")(result: => Result)
+                     (implicit request: RequestHeader): Result = {
+    val res = authByRole(role)(result)
+    if (res.header.status == UNAUTHORIZED) {
+      Ok(loginPage(lang)).flashing("error" -> "You haven't got right role to see page")
     } else {
       result
     }
   }
 
   def admin(language: String): Action[AnyContent] = Action { implicit request =>
-    val result = authByRole(AdminLoginKey) {
+    authByDashboard(AdminLoginKey, language) {
       Ok(adminTemplate(language))
-    }
-    if (result.header.status == UNAUTHORIZED) {
-      Ok(loginPage(language)).flashing("error" -> "You haven't got right role to see page")
-    } else {
-      result
     }
   }
 
   def analysisResult(customerId: String): Action[AnyContent] = Action.async { implicit request =>
     (patientManager ? GetPatientByCustomerId(customerId)).mapTo[Either[String, Patient]].map {
       case Right(patient) =>
-        logger.debug(s"SUCCEESS")
         if (patient.analysis_image_name.isDefined) {
           val stats = StatsAction(LocalDateTime.now, request.host, action = "result_sms_click", request.headers.get("Remote-Address").get,
             login = patient.customer_id, request.headers.get("User-Agent").get)
@@ -88,7 +87,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           BadRequest("Error")
         }
       case Left(e) =>
-        logger.debug(s"ERROR")
         BadRequest(e)
     }.recover {
       case e =>
@@ -98,32 +96,33 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def createDoctor: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    Try {
-      val firstName = (request.body \ "firstName").as[String]
-      val lastName = (request.body \ "lastName").as[String]
-      val phone = (request.body \ "phone").as[String]
-      val role = (request.body \ "role").as[String]
-      val prefixPhone = "998"
-      val company_code = request.host
-      val login = (request.body \ "login").as[String]
-      val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, role,
-        company_code, login, generatePassword)
-      (userManager ? checkUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
-        case Right(_) =>
-          Ok(Json.toJson(user))
-        case Left(error) =>
-          logger.error(s"ERROR: $error")
-          BadRequest(error)
-      }.recover {
-        case e: Throwable =>
-          logger.error("Error while creating doctor", e)
-          Redirect("/admin").flashing("error" -> "Error")
+    authByRole(DoctorLoginKey) {
+      Try {
+        val firstName = (request.body \ "firstName").as[String]
+        val lastName = (request.body \ "lastName").as[String]
+        val phone = (request.body \ "phone").as[String]
+        val role = (request.body \ "role").as[String]
+        val prefixPhone = "998"
+        val company_code = request.host
+        val login = (request.body \ "login").as[String]
+        val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, role,
+          company_code, login, generatePassword)
+        (userManager ? checkUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
+          case Right(_) =>
+            Ok(Json.toJson(user))
+          case Left(error) =>
+            BadRequest(error)
+        }.recover {
+          case e: Throwable =>
+            logger.error("Error while creating doctor", e)
+            Redirect("/admin").flashing("error" -> "Error")
+        }
+      } match {
+        case Success(res) => res
+        case Failure(exception) =>
+          logger.error("Error occurred while create doctor. Error:", exception)
+          Future.successful(Redirect("/admin").flashing("error" -> "Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
       }
-    } match {
-      case Success(res) => res
-      case Failure(exception) =>
-        logger.error("Error occurred while create doctor. Error:", exception)
-        Future.successful(Redirect("/admin").flashing("error" -> "Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
     }
   }
 
@@ -155,9 +154,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val docPhone = (request.body \ "docPhone").asOpt[String]
       val docPhoneWithPrefix = docPhone.map(p => prefixPhone + p)
       val login = (firstName.head.toString + lastName).toLowerCase() + getRandomDigit(3)
-      //      logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
-      //      logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
-      //      logger.debug(s"companyCode: $company_code")
       val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, generateCustomerId,
         company_code, login, generatePassword, address, parseDate(dateCheck), analyseType, docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
@@ -182,18 +178,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def login(language: String): Action[AnyContent] = Action { implicit request =>
-    Ok(loginPage(language))
-  }
-
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
-    val result = authByRole(DoctorLoginKey) {
+    authByDashboard(DoctorLoginKey, language) {
       Ok(addAnalysisResultPageTemp(language))
-    }
-    if (result.header.status == UNAUTHORIZED) {
-      Ok(loginPage(language)).flashing("error" -> "You haven't got right role to see page")
-    } else {
-      result
     }
   }
 
@@ -207,13 +194,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatientsTemplate: Action[AnyContent] = Action { implicit request =>
-    val result = authByRole(DoctorLoginKey) {
+    authByDashboard(DoctorLoginKey) {
       Ok(getPatientsTemp())
-    }
-    if (result.header.status == UNAUTHORIZED) {
-      Ok(loginPage("uz")).flashing("error" -> "You haven't got right role to see page")
-    } else {
-      result
     }
   }
 
@@ -226,13 +208,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getStatisticTemplate: Action[AnyContent] = Action { implicit request =>
-    val result = authByRole(StatsRole) {
+    authByDashboard(StatsRole) {
       Ok(statsActionTemp())
-    }
-    if (result.header.status == UNAUTHORIZED) {
-      Ok(loginPage("uz")).flashing("error" -> "You haven't got right role to see page")
-    } else {
-      result
     }
   }
 
@@ -246,22 +223,18 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     authByRole(AdminLoginKey) {
       Ok(Json.toJson(roleTypes))
     }
-
   }
 
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
-    logger.debug(s"Upload file is started...")
     val result = request.body
       .file("file")
       .map { picture =>
-        logger.debug(s"picture: ${picture.filename}")
         val body = request.body.asFormUrlEncoded
         body.get("id").flatMap(_.headOption) match {
           case Some(customerId) =>
             // need to create folder "patients_results" out of the project
             val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
             val analysisFileName = customerId + "_" + time_stamp + ".jpg"
-            logger.debug(s"Path: $tempFilesPath}")
             Try {
               picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
             }.recover {
@@ -272,10 +245,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
             } yield {
-              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
+              val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
-              val statsSendSms = StatsAction(LocalDateTime.now, request.host, action = "doc_send_sms", request.headers.get("Remote-Address").get, request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
-              statsManager ! AddStatsAction(statsSendSms)
+              statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
               "File is uploaded"
             }).value.recover { e =>
               logger.error(s"Unexpected error happened", e)
