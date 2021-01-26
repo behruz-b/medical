@@ -157,8 +157,8 @@
     </parameters>
   </check>
   <check level="warning" class="org.scalastyle.scalariform.UnderscoreImportChecker" enabled="false"/>
-  <check level="warning" class="org.scalastyle.scalariform.LowercasePatternMatchChecker" enabled="true"/>
-  <check level="warning" class="org.scalastyle.scalariform.MultipleStringLiteralsChecker" enabled="true">
+  <check level="warning" class="org.scalastyle.scalariform.LowercasePatternMatchChecker" enabled="false"/>
+  <check level="warning" class="org.scalastyle.scalariform.MultipleStringLiteralsChecker" enabled="false">
     <parameters>
       <parameter name="allowed">
         <![CDATA[ 2 ]]>

@@ -4,7 +4,7 @@ $ ->
   Glob = window.Glob || {}
 
   apiUrl =
-    statsUrl: '/getStats'
+    statsUrl: '/stats/get-stats'
 
   vm = ko.mapping.fromJS
     language: Glob.language
@@ -15,6 +15,9 @@ $ ->
       toastr.error(error.responseText)
     else
       toastr.error('Something went wrong! Please try again.')
+
+  vm.convertStringToDate = (stringDate) ->
+    moment(stringDate).format('DD/MM/YYYY HH:MM')
 
   getStats = ->
     $.get(apiUrl.statsUrl)

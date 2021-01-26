@@ -5,7 +5,7 @@ import doobie._
 import doobie.domain.PatientRepositoryAlgebra
 import doobie.implicits._
 import protocols.PatientProtocol._
-import protocols.UserProtocol.User
+import protocols.UserProtocol.{Roles, User}
 
 trait CommonSQL {
 
@@ -19,6 +19,7 @@ trait CommonSQL {
   def getUserByLogin(login: String): Query0[User]
   def getPatients: ConnectionIO[List[Patient]]
   def getStats: ConnectionIO[List[StatsAction]]
+  def getRoles: ConnectionIO[List[Roles]]
 
 }
 
@@ -56,6 +57,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   }
   override def getStats: F[List[StatsAction]] = {
     commonSql.getStats.transact(xa)
+  }
+  override def getRoles: F[List[Roles]] = {
+    commonSql.getRoles.transact(xa)
   }
 
 }

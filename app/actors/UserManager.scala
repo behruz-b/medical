@@ -5,9 +5,10 @@ import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
+
 import javax.inject.Inject
 import play.api.{Configuration, Environment}
-import protocols.UserProtocol.{CheckUserByLogin, CreateUser, checkUserByLoginAndCreate, User}
+import protocols.UserProtocol.{CheckUserByLogin, CreateUser, GetRoles, Roles, User, checkUserByLoginAndCreate}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,6 +30,9 @@ class UserManager @Inject()(val configuration: Configuration,
 
     case checkUserByLoginAndCreate(user) =>
       checkUserByLoginAndCreate(user).pipeTo(sender())
+
+    case GetRoles =>
+      getRoles.pipeTo(sender())
   }
 
 //  private def createUser(user: User): Future[Either[String, String]] = {
@@ -73,6 +77,14 @@ class UserManager @Inject()(val configuration: Configuration,
         } else {
           Left("Error occurred while create user")
         }
+    }
+  }
+
+  private def getRoles: Future[List[Roles]] = {
+    for {
+      roles <- DoobieModule.repo.getRoles.unsafeToFuture()
+    } yield {
+      roles
     }
   }
 

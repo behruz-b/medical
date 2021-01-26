@@ -1,26 +1,25 @@
 package controllers
-import java.util.Date
-import java.time._
 
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import cats.implicits._
 import cats.data.EitherT
-import com.typesafe.scalalogging.LazyLogging
-import javax.inject._
+import cats.implicits._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.PatientProtocol._
-import protocols.UserProtocol.{CheckUserByLogin, User, checkUserByLoginAndCreate}
+import protocols.UserProtocol.{GetRoles, Roles, User, checkUserByLoginAndCreate}
 import views.html._
 import views.html.statistic._
+
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-
+import java.time._
+import java.util.Date
+import javax.inject._
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -38,57 +37,56 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
-  extends BaseController with LazyLogging with CommonMethods {
+  extends BaseController with CommonMethods with Auth {
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
   val LoginKey = "login_session_key"
-  val DoctorLoginKey = "doctor_role"
-  val RegLoginKey = "reg_role"
-  val AdminLoginKey = "admin_role"
+  val DoctorLoginKey = "doctor.role"
+  val RegLoginKey = "register.role"
+  val AdminLoginKey = "admin.role"
   val SessionLogin = "login_session"
-  val StatsAdmin = "stats_admin"
+  val StatsRole = "stats.role"
+  val PatientsAdmin = "patients_admin"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
   val adminPassword: String = configuration.get[String]("admin.password")
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) {
-      case RegLoginKey => Ok(indexTemplate(language))
-      case AdminLoginKey => Ok(adminTemplate(language))
-      case _ => Redirect(routes.HomeController.index()).withSession(request.session - LoginKey)
+    authByDashboard(RegLoginKey, language) {
+      Ok(indexTemplate(language))
     }
   }
 
-//  def adminTemp(language: String): Action[AnyContent] = Action { implicit request =>
-//    request.session.get(LoginKey) match {
-//      case Some(_) => Ok(adminTemplate(language))
-//      case None => Redirect(routes.HomeController.login())
-//    }
-//  }
+  def authByDashboard(role: String, lang: String = "uz")(result: => Result)
+                     (implicit request: RequestHeader): Result = {
+    val res = authByRole(role)(result)
+    if (res.header.status == UNAUTHORIZED) {
+      Ok(loginPage(lang))
+    } else {
+      result
+    }
+  }
+
+  def admin(language: String): Action[AnyContent] = Action { implicit request =>
+    authByDashboard(AdminLoginKey, language) {
+      Ok(adminTemplate(language))
+    }
+  }
 
   def analysisResult(customerId: String): Action[AnyContent] = Action.async { implicit request =>
     (patientManager ? GetPatientByCustomerId(customerId)).mapTo[Either[String, Patient]].map {
       case Right(patient) =>
-        logger.debug(s"SUCCEESS")
         if (patient.analysis_image_name.isDefined) {
-//          val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
-//          val directoryPath = new java.io.File("public/images")
-//          directoryPath.mkdirs()
-//          val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
-//          val fos = new java.io.FileOutputStream(tempFile)
-//          fos.write(fileBytes)
           val stats = StatsAction(LocalDateTime.now, request.host, action = "result_sms_click", request.headers.get("Remote-Address").get,
-          login = patient.customer_id, request.headers.get("User-Agent").get)
+            login = patient.customer_id, request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
-//          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))
         } else {
           logger.error("Error while getting analysis file name")
           BadRequest("Error")
         }
       case Left(e) =>
-        logger.debug(s"ERROR")
         BadRequest(e)
     }.recover {
       case e =>
@@ -97,40 +95,35 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def logout: Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey) match {
-      case Some(_) => Redirect(routes.HomeController.index()).withSession(request.session - LoginKey)
-      case None => Redirect(routes.HomeController.login())
-    }
-  }
-
   def createDoctor: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    Try {
-      val firstName = (request.body \ "firstName").as[String]
-      val lastName = (request.body \ "lastName").as[String]
-      val phone = (request.body \ "phone").as[String]
-      val role = (request.body \ "role").as[String]
-      val prefixPhone = "998"
-      val company_code = request.host
-      val login = (request.body \ "login").as[String]
-      val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, role,
-        company_code, login, generatePassword)
-      (userManager ? checkUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
-        case Right(_) =>
-          Ok(Json.toJson(user))
-        case Left(error) =>
-          logger.error(s"ERROR: $error")
-          BadRequest(error)
-      }.recover {
-        case e: Throwable =>
-          logger.error("Error while creating doctor", e)
-          Redirect("/admin").flashing("error" -> "Error")
+    authByRole(AdminLoginKey) {
+      Try {
+        val firstName = (request.body \ "firstName").as[String]
+        val lastName = (request.body \ "lastName").as[String]
+        val phone = (request.body \ "phone").as[String]
+        val role = (request.body \ "role").as[String]
+        val prefixPhone = "998"
+        val company_code = request.host
+        val login = (request.body \ "login").as[String]
+        val roleKey = if(role == "Admin") "admin.role" else if (role == "Doctor") "doctor.role" else "register.role"
+        val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, roleKey,
+          company_code, login, generatePassword)
+        (userManager ? checkUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
+          case Right(_) =>
+            Ok(Json.toJson(user))
+          case Left(error) =>
+            BadRequest(error)
+        }.recover {
+          case e: Throwable =>
+            logger.error("Error while creating doctor", e)
+            Redirect("/admin").flashing("error" -> "Error")
+        }
+      } match {
+        case Success(res) => res
+        case Failure(exception) =>
+          logger.error("Error occurred while create doctor. Error:", exception)
+          Future.successful(Redirect("/admin").flashing("error" -> "Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
       }
-    } match {
-      case Success(res) => res
-      case Failure(exception) =>
-        logger.error("Error occurred while create doctor. Error:", exception)
-        Future.successful(Redirect("/admin").flashing("error" -> "Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
     }
   }
 
@@ -142,9 +135,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val prefixPhone = "998"
       val company_code = request.host
       val dateOfBirth = (request.body \ "date").as[String]
-      val dateCheck = if (dateOfBirth.length == 8){
+      val dateCheck = if (dateOfBirth.length == 8) {
         val yearOfBirth = dateOfBirth.split("/").reverse.head
-        val fillYear = if(0 <= yearOfBirth.toInt && yearOfBirth.toInt <= 21) {
+        val fillYear = if (0 <= yearOfBirth.toInt && yearOfBirth.toInt <= 21) {
           "20" + yearOfBirth
         } else {
           "19" + yearOfBirth
@@ -162,15 +155,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val docPhone = (request.body \ "docPhone").asOpt[String]
       val docPhoneWithPrefix = docPhone.map(p => prefixPhone + p)
       val login = (firstName.head.toString + lastName).toLowerCase() + getRandomDigit(3)
-//      logger.debug(s"User agent: ${request.headers.get("User-Agent")}")
-//      logger.debug(s"IP-Address: ${request.headers.get("Remote-Address")}")
-//      logger.debug(s"companyCode: $company_code")
       val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, generateCustomerId,
         company_code, login, generatePassword, address, parseDate(dateCheck), analyseType, docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
-	          request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
+            request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
@@ -189,22 +179,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def login(language: String): Action[AnyContent] = Action { implicit request =>
-    Ok(loginPage(language))
-  }
-
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { role_key =>
-      if (role_key == DoctorLoginKey) {
-        Ok(addAnalysisResultPageTemp(language))
-      } else {
-        Redirect("/doc").flashing("error" -> "You haven't got right role to see page")
-      }
+    authByDashboard(DoctorLoginKey, language) {
+      Ok(addAnalysisResultPageTemp(language))
     }
   }
 
   def getPatients: Action[AnyContent] = Action.async { implicit request =>
-    request.session.get(LoginKey).fold(Future.successful(Redirect("/patients").flashing("error" -> "You are not authorized"))) { _ =>
+    authByRole(DoctorLoginKey) {
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
         logger.debug(s"patients: $patients")
         Ok(Json.toJson(patients))
@@ -213,11 +195,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatientsTemplate: Action[AnyContent] = Action { implicit request =>
-    Ok(getPatientsTemp())
+    authByDashboard(DoctorLoginKey) {
+      Ok(getPatientsTemp())
+    }
   }
 
   def getStats: Action[AnyContent] = Action.async { implicit request =>
-    request.session.get(LoginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
+    authByRole(StatsRole) {
       (statsManager ? GetStats).mapTo[List[StatsAction]].map { stats =>
         Ok(Json.toJson(stats))
       }
@@ -225,36 +209,36 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getStatisticTemplate: Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { role =>
-      if (role == StatsAdmin) {
-        Ok(statsActionTemp())
-      } else {
-        Redirect("/login").flashing("error" -> "You haven't got right role to see page")
+    authByDashboard(StatsRole) {
+      Ok(statsActionTemp())
+    }
+  }
+
+  def getAnalysisType: Action[AnyContent] = Action { implicit request =>
+    authByRole(RegLoginKey) {
+      Ok(Json.toJson(analysisType))
+    }
+  }
+
+  def getRoleTypes: Action[AnyContent] = Action.async { implicit request =>
+    authByRole(AdminLoginKey) {
+      (userManager ? GetRoles).mapTo[List[Roles]].map { results =>
+        val roles = results.map(_.name)
+        Ok(Json.toJson(roles))
       }
     }
   }
 
-  def getAnalysisType: Action[AnyContent] = Action { _ =>
-    Ok(Json.toJson(analysisType))
-  }
-
-  def getRoleTypes: Action[AnyContent] = Action { _ =>
-    Ok(Json.toJson(roleTypes))
-  }
-
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
-    logger.debug(s"Upload file is started...")
     val result = request.body
       .file("file")
       .map { picture =>
-        logger.debug(s"picture: ${picture.filename}")
         val body = request.body.asFormUrlEncoded
         body.get("id").flatMap(_.headOption) match {
           case Some(customerId) =>
             // need to create folder "patients_results" out of the project
             val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
             val analysisFileName = customerId + "_" + time_stamp + ".jpg"
-            logger.debug(s"Path: $tempFilesPath}")
             Try {
               picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
             }.recover {
@@ -265,10 +249,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
             } yield {
-              val statsAction = StatsAction(LocalDateTime.now, request.host, action = "doc_upload", request.headers.get("Remote-Address").get, request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
+              val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
-              val statsSendSms = StatsAction(LocalDateTime.now, request.host, action = "doc_send_sms", request.headers.get("Remote-Address").get, request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
-              statsManager ! AddStatsAction(statsSendSms)
+              statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
               "File is uploaded"
             }).value.recover { e =>
               logger.error(s"Unexpected error happened", e)
@@ -288,7 +271,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         Ok(redirectWithSuccess)
       case Left(error) =>
         logger.error(s"Something bad happened", error)
-       Redirect("/doc").flashing("error" -> error)
+        Redirect("/doc").flashing("error" -> error)
     }.recover {
       case e: Throwable =>
         logger.error(s"Unexpected error happened", e)
@@ -296,52 +279,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
-    request.session.get(LoginKey) match {
-      case Some(loginKey) =>
-        loginKey match {
-          case DoctorLoginKey => Future.successful(Redirect("/doc"))
-          case RegLoginKey => Future.successful(Redirect("/reg"))
-          case AdminLoginKey => Future.successful(Redirect("/admin"))
-          case StatsAdmin => Future.successful(Redirect("/stats"))
-          case _ => Future.successful(Redirect("/login").flashing("error" -> "Your haven't got right Role"))
-        }
-      case None =>
-        val body = request.body.asFormUrlEncoded
-        val login = body.get("adminName").flatMap(_.headOption)
-        val password = body.get("adminPass").flatMap(_.headOption)
-        if (login.exists(_.nonEmpty) || password.exists(_.nonEmpty)) {
-          if (login.get == adminLogin && password.get == adminPassword) {
-            Future.successful(Redirect("/admin").addingToSession(LoginKey -> AdminLoginKey, SessionLogin -> login.getOrElse(SessionLogin)))
-          } else {
-            (userManager ? CheckUserByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
-              case Right(role) =>
-                logger.debug(role)
-                role match {
-                  case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey, SessionLogin -> login.getOrElse(SessionLogin))
-                  case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey, SessionLogin -> login.getOrElse(SessionLogin))
-                  case "statsAdmin" => Redirect("/stats").addingToSession(LoginKey -> StatsAdmin, SessionLogin -> login.getOrElse(SessionLogin))
-                  case _ => Redirect("/login").flashing("error" ->"Your haven't got right Role")
-                }
-              case Left(error) =>
-                Redirect("/login").flashing("error" ->error)
-            }.recover {
-              case error: Throwable =>
-                logger.error(s"Error occurred while check user: $error")
-                Redirect("/login").flashing("error" ->"Authorization failed")
-            }
-          }
-        } else {
-          Future.successful(Redirect("/login").flashing("error" -> "Login or Password undefined"))
-        }
-    }
-  }
-
   def stubSmsRequest: Action[AnyContent] = Action { implicit request =>
     val body = request.body.asFormUrlEncoded
     logger.debug(s"Stub SMS Request: $body")
     Ok("""[{"recipient":"998994461230","text":"Tahlil natijasini kuyidagi xavola orqali olishingiz mumkin:http://localhost:9000/analysis-result/H-864","date_received":"2021-01-14T07:56:29.276Z","client_id":"5ffd479e88ab87825645b4e7","request_id":430349076,"message_id":370341299,"ip":"195.158.8.42","_id":"5ffff92d8c857d034a22c5b9"}]""")
-//    Ok("""[{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101}]""")
+    //    Ok("""[{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101},{"error":1,"text":"Incorrect Login or Password","error_no":101}]""")
   }
 
   def stubSmsDeliveryStatus: Action[AnyContent] = Action { implicit request =>
@@ -353,4 +295,5 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
 
   private def generatePassword = getRandomPassword(7)
+
 }

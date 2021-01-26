@@ -4,8 +4,8 @@ $ ->
   Glob = window.Glob || {}
 
   apiUrl =
-    registerUrl: '/patient'
-    getAnalysisType: '/getAnalysisType'
+    registerUrl: '/patient/add-patient'
+    getAnalysisType: '/patient/get-analysis-type'
 
   defaultPatient =
     firstName: ''

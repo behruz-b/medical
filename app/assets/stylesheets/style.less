@@ -44,6 +44,14 @@ body {
   border-bottom: 1px solid green;
 }
 
+.input-box:-webkit-autofill,
+.input-box:-webkit-autofill:hover,
+.input-box:-webkit-autofill:focus,
+.input-box:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: #fff !important;
+}
+
 .form-group {
   margin-top: 2em;
 }
