@@ -47,6 +47,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val AdminLoginKey = "admin_role"
   val SessionLogin = "login_session"
   val StatsAdmin = "stats_admin"
+  val PatientsAdmin = "patients_admin"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
@@ -213,7 +214,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatientsTemplate: Action[AnyContent] = Action { implicit request =>
-    Ok(getPatientsTemp())
+    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { role =>
+      if (role == PatientsAdmin) {
+        Ok(getPatientsTemp())
+      } else {
+        Redirect("/login").flashing("error" -> "You haven't got right role to see page")
+      }
+    }
   }
 
   def getStats: Action[AnyContent] = Action.async { implicit request =>
@@ -304,6 +311,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           case RegLoginKey => Future.successful(Redirect("/reg"))
           case AdminLoginKey => Future.successful(Redirect("/admin"))
           case StatsAdmin => Future.successful(Redirect("/stats"))
+          case PatientsAdmin => Future.successful(Redirect("/patients"))
           case _ => Future.successful(Redirect("/login").flashing("error" -> "Your haven't got right Role"))
         }
       case None =>
@@ -320,7 +328,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                 role match {
                   case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey, SessionLogin -> login.getOrElse(SessionLogin))
                   case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey, SessionLogin -> login.getOrElse(SessionLogin))
-                  case "statsAdmin" => Redirect("/stats").addingToSession(LoginKey -> StatsAdmin, SessionLogin -> login.getOrElse(SessionLogin))
+                  case "statistics" => Redirect("/stats").addingToSession(LoginKey -> StatsAdmin, SessionLogin -> login.getOrElse(SessionLogin))
+                  case "patients" => Redirect("/patients").addingToSession(LoginKey -> PatientsAdmin, SessionLogin -> login.getOrElse(SessionLogin))
                   case _ => Redirect("/login").flashing("error" ->"Your haven't got right Role")
                 }
               case Left(error) =>
