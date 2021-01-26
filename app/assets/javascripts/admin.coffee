@@ -31,7 +31,6 @@ $ ->
     else
       toastr.error('Something went wrong! Please try again.')
 
-
   $(document).ready ->
   $('#show_hide_password a').on 'click', (event) ->
     event.preventDefault()
@@ -111,6 +110,7 @@ $ ->
       "Закрыть"
       "Yopish"
     ]
+
   $thankYou = $('#thankYou')
 
   vm.onSubmit = ->
