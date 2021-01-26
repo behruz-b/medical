@@ -34,13 +34,6 @@ $ ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
     vm.labels[fieldName][index]
 
-  getRoleType = ->
-    $.get(apiUrl.getRole)
-    .fail handleError
-    .done (response) ->
-      vm.getRoleTypeList(response)
-  getRoleType()
-
   vm.labels =
     adminPanel: [
       "Admin Panel"

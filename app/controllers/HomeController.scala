@@ -29,7 +29,7 @@ import scala.util.{Failure, Success, Try}
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: views.html.index,
                                adminTemplate: views.html.admin.adminPage,
-                               loginPage: views.html.admin.login,
+                               loginPage: views.html.login.login,
                                configuration: Configuration,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                statsActionTemp: statisticTemplete,
