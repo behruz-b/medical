@@ -4,8 +4,8 @@ $ ->
   Glob = window.Glob || {}
 
   apiUrl =
-    addDoctor: '/add-doctor'
-    getRole: 'getRoleTypes'
+    addDoctor: '/doc/add-doctor'
+    getRole: '/admin/get-roles'
 
   defaultDoctor =
     firstName: ''

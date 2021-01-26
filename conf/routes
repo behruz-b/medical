@@ -1,33 +1,31 @@
 # An example controller showing a sample home page
-GET     /                                           @controllers.HomeController.index(language = "uz")
-GET     /reg                                       @controllers.HomeController.index(language = "uz")
+#GET     /                                           @controllers.HomeController.index(language = "uz")
+POST    /login                                                  @controllers.HomeController.loginPost2
+GET     /logout                                                 @controllers.HomeController.logout
 
-GET     /admin                                      @controllers.HomeController.admin(language = "uz")
-GET     /getRoleTypes                               @controllers.HomeController.getRoleTypes
+GET     /reg/                                                   @controllers.HomeController.index(language = "uz")
+GET     /admin/                                                 @controllers.HomeController.admin(language = "uz")
+GET     /admin/get-roles                                        @controllers.HomeController.getRoleTypes
 
-GET     /login                                      @controllers.HomeController.login(lang: String ?= "uz")
+GET     /doc/                                                   @controllers.HomeController.addAnalysisResult(language = "uz")
+POST    /doc/upload-analyze-result                              @controllers.HomeController.uploadAnalysisResult
+POST    /doc/add-doctor                                         @controllers.HomeController.createDoctor
 
-POST    /login                                      @controllers.HomeController.loginPost2
-GET     /logout                                     @controllers.HomeController.logout
+GET     /patient/                                               @controllers.HomeController.getPatientsTemplate()
+POST    /patient/add-patient                                    @controllers.HomeController.createPatient
+GET     /patient/get-patients                                   @controllers.HomeController.getPatients
+GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType()
 
-GET     /doc                                        @controllers.HomeController.addAnalysisResult(language = "uz")
-POST    /doc                                        @controllers.HomeController.uploadAnalysisResult
+GET     /stats/                                                 @controllers.HomeController.getStatisticTemplate()
+GET     /stats/get-stats                                        @controllers.HomeController.getStats
 
-POST    /add-doctor                                 @controllers.HomeController.createDoctor
-POST    /patient                                    @controllers.HomeController.createPatient
-GET     /r/:customerId                              @controllers.HomeController.analysisResult(customerId)
-
-GET     /patients                                   @controllers.HomeController.getPatientsTemplate()
-GET     /get-patients                               @controllers.HomeController.getPatients
-GET     /getAnalysisType                            @controllers.HomeController.getAnalysisType()
-
-GET     /stats                                      @controllers.HomeController.getStatisticTemplate()
-GET     /getStats                                   @controllers.HomeController.getStats
-
-POST    /stub-sms                                   @controllers.HomeController.stubSmsRequest
-POST    /stub-sms/status                            @controllers.HomeController.stubSmsDeliveryStatus
+POST    /stub-sms                                               @controllers.HomeController.stubSmsRequest
+POST    /stub-sms/status                                        @controllers.HomeController.stubSmsDeliveryStatus
+GET     /r/:customerId                                          @controllers.HomeController.analysisResult(customerId)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                               @controllers.Assets.versioned(path="/public", file: Asset)
-GET     /img/*file                                  @controllers.ExternalAssets.at(path="../patients_results", file)
-->      /webjars                                     webjars.Routes
+GET     /assets/*file                                           @controllers.Assets.versioned(path="/public", file: Asset)
+# Map uploaded files from the ../patients_results folder to the /img URL path
+GET     /img/*file                                              @controllers.ExternalAssets.at(path="../patients_results", file)
+
+->      /webjars                                                webjars.Routes

@@ -6,7 +6,6 @@ import cats.data.EitherT
 import cats.implicits._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
-import play.api.http.HeaderNames.REFERER
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -47,18 +46,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val RegLoginKey = "register.role"
   val AdminLoginKey = "admin.role"
   val SessionLogin = "login_session"
-  val StatsAdmin = "stats_admin"
+  val StatsRole = "stats.role"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
   val adminPassword: String = configuration.get[String]("admin.password")
-
   def index(language: String): Action[AnyContent] = Action { implicit request =>
     val result = authByRole(RegLoginKey) {
       Ok(indexTemplate(language))
     }
     if (result.header.status == UNAUTHORIZED) {
-      Ok(loginPage(language))
+      Ok(loginPage(language)).flashing("error" -> "You haven't got right role to see page")
     } else {
       result
     }
@@ -69,7 +67,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       Ok(adminTemplate(language))
     }
     if (result.header.status == UNAUTHORIZED) {
-      Ok(loginPage(language))
+      Ok(loginPage(language)).flashing("error" -> "You haven't got right role to see page")
     } else {
       result
     }
@@ -80,17 +78,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       case Right(patient) =>
         logger.debug(s"SUCCEESS")
         if (patient.analysis_image_name.isDefined) {
-//          val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
-//          val directoryPath = new java.io.File("public/images")
-//          directoryPath.mkdirs()
-//          val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
-//          val fos = new java.io.FileOutputStream(tempFile)
-//          fos.write(fileBytes)
           val stats = StatsAction(LocalDateTime.now, request.host, action = "result_sms_click", request.headers.get("Remote-Address").get,
           login = patient.customer_id, request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
-//          Ok(analysisResultTemplate(customerId, tempFile.getPath.replace("public/", "")))
         } else {
           logger.error("Error while getting analysis file name")
           BadRequest("Error")
@@ -216,18 +207,18 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
-    val result = authByRole(RegLoginKey) {
+    val result = authByRole(DoctorLoginKey) {
       Ok(addAnalysisResultPageTemp(language))
     }
     if (result.header.status == UNAUTHORIZED) {
-      Ok(loginPage(language))
+      Ok(loginPage(language)).flashing("error" -> "You haven't got right role to see page")
     } else {
       result
     }
   }
 
   def getPatients: Action[AnyContent] = Action.async { implicit request =>
-    request.session.get(LoginKey).fold(Future.successful(Redirect("/patients").flashing("error" -> "You are not authorized"))) { _ =>
+    authByRole(DoctorLoginKey) {
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
         logger.debug(s"patients: $patients")
         Ok(Json.toJson(patients))
@@ -236,11 +227,18 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatientsTemplate: Action[AnyContent] = Action { implicit request =>
-    Ok(getPatientsTemp())
+    val result = authByRole(DoctorLoginKey) {
+      Ok(getPatientsTemp())
+    }
+    if (result.header.status == UNAUTHORIZED) {
+      Ok(loginPage("uz")).flashing("error" -> "You haven't got right role to see page")
+    } else {
+      result
+    }
   }
 
   def getStats: Action[AnyContent] = Action.async { implicit request =>
-    request.session.get(LoginKey).fold(Future.successful(Unauthorized(Json.toJson("You are not authorized")))) { _ =>
+    authByRole(StatsRole) {
       (statsManager ? GetStats).mapTo[List[StatsAction]].map { stats =>
         Ok(Json.toJson(stats))
       }
@@ -248,21 +246,27 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getStatisticTemplate: Action[AnyContent] = Action { implicit request =>
-    request.session.get(LoginKey).fold(Redirect(routes.HomeController.login())) { role =>
-      if (role == StatsAdmin) {
-        Ok(statsActionTemp())
-      } else {
-        Redirect("/login").flashing("error" -> "You haven't got right role to see page")
-      }
+    val result = authByRole(StatsRole) {
+      Ok(statsActionTemp())
+    }
+    if (result.header.status == UNAUTHORIZED) {
+      Ok(loginPage("uz")).flashing("error" -> "You haven't got right role to see page")
+    } else {
+      result
     }
   }
 
-  def getAnalysisType: Action[AnyContent] = Action { _ =>
-    Ok(Json.toJson(analysisType))
+  def getAnalysisType: Action[AnyContent] = Action { implicit request =>
+    authByRole(RegLoginKey) {
+      Ok(Json.toJson(analysisType))
+    }
   }
 
-  def getRoleTypes: Action[AnyContent] = Action { _ =>
-    Ok(Json.toJson(roleTypes))
+  def getRoleTypes: Action[AnyContent] = Action { implicit request =>
+    authByRole(AdminLoginKey) {
+      Ok(Json.toJson(roleTypes))
+    }
+
   }
 
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
@@ -319,51 +323,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def loginPost: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
-    request.session.get(LoginKey) match {
-      case Some(loginKey) =>
-        loginKey match {
-          case DoctorLoginKey => Future.successful(Redirect("/doc"))
-          case RegLoginKey => Future.successful(Redirect("/reg"))
-          case AdminLoginKey => Future.successful(Redirect("/admin"))
-          case StatsAdmin => Future.successful(Redirect("/stats"))
-          case _ => Future.successful(Redirect("/login").flashing("error" -> "Your haven't got right Role"))
-        }
-      case None =>
-        val body = request.body.asFormUrlEncoded
-        val login = body.get("adminName").flatMap(_.headOption)
-        val password = body.get("adminPass").flatMap(_.headOption)
-        if (login.exists(_.nonEmpty) || password.exists(_.nonEmpty)) {
-          if (login.get == adminLogin && password.get == adminPassword) {
-            Future.successful(Redirect("/admin").addingToSession(LoginKey -> AdminLoginKey, SessionLogin -> login.getOrElse(SessionLogin)))
-          } else {
-            (userManager ? CheckUserByLogin(login.get, password.get)).mapTo[Either[String, String]].map {
-              case Right(role) =>
-                logger.debug(role)
-                role match {
-                  case "doc" => Redirect("/doc").addingToSession(LoginKey -> DoctorLoginKey, SessionLogin -> login.getOrElse(SessionLogin))
-                  case "reg" => Redirect("/reg").addingToSession(LoginKey -> RegLoginKey, SessionLogin -> login.getOrElse(SessionLogin))
-                  case "statsAdmin" => Redirect("/stats").addingToSession(LoginKey -> StatsAdmin, SessionLogin -> login.getOrElse(SessionLogin))
-                  case _ => Redirect("/login").flashing("error" ->"Your haven't got right Role")
-                }
-              case Left(error) =>
-                Redirect("/login").flashing("error" ->error)
-            }.recover {
-              case error: Throwable =>
-                logger.error(s"Error occurred while check user: $error")
-                Redirect("/login").flashing("error" ->"Authorization failed")
-            }
-          }
-        } else {
-          Future.successful(Redirect("/login").flashing("error" -> "Login or Password undefined"))
-        }
-    }
-  }
-
   def authInit(sessionAttrName: String,
                sessionAttrVal: String,
-               sessionDuration: Option[FiniteDuration] = None): Seq[(String, String)] =
-  {
+               sessionDuration: Option[FiniteDuration] = None): Seq[(String, String)] = {
     val expiresAtSessionAttr = expiresAtSessionAttrName(sessionAttrName)
     sessionDuration.foldLeft(Map(sessionAttrName -> sessionAttrVal)) { (acc, sessionDur) =>
       val nextExpiration = System.currentTimeMillis() + sessionDur.toMillis
@@ -408,12 +370,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     loginPlayFormWithClientCode.bindFromRequest().fold(
       errorForm => {
         logger.info(s"errorForm: $errorForm")
-//        if (request.body.asFormUrlEncoded.flatMap(_.get("clientCode")).isEmpty) {
-//          logger.info(s"clientCode is empty while loginPost, referUrl:$referUrl")
-//          Future.successful(Forbidden)
-//        } else {
-          Future.successful(Redirect(referUrl).flashing("error" -> "Please enter login and password"))
-//        }
+        Future.successful(Redirect(referUrl).flashing("error" -> "Please enter login and password"))
       }, {
         case LoginFormWithClientCode(login, password) =>
           checkLoginPost(login, password, referUrl)

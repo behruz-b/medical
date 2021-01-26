@@ -2,7 +2,7 @@ package controllers
 
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import play.api.mvc.Results.Unauthorized
+import play.api.mvc.Results.{Ok, Unauthorized}
 import play.api.mvc._
 import protocols.Authentication
 import protocols.Authentication.loginPatterns
@@ -25,7 +25,7 @@ trait Auth extends LazyLogging {
 
   private def baseUriExtractor(implicit request: RequestHeader): String = {
     val path = request.path
-    List("reg", "admin", "analyze")
+    List("stats/", "patient/", "doc/", "admin/", "reg/")
       .map(keyword => (path.indexOf(keyword), keyword.length))
       .find(_._1 != -1) match {
       case Some(t) => path.substring(0, t._1 + t._2)

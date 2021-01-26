@@ -33,9 +33,11 @@ object Authentication {
 
   val loginPatterns: Map[String, Login] = Company.flatMap { domain =>
     Vector(
-      Login("/reg", routes.HomeController.index(), domain, createSessionKey(domain)),
-      Login("/admin", routes.HomeController.admin(), domain, createSessionKey(domain)),
-      Login("/analyze", routes.HomeController.addAnalysisResult(), domain, createSessionKey(domain))
+      Login("/reg/", routes.HomeController.index(), domain, createSessionKey(domain)),
+      Login("/admin/", routes.HomeController.admin(), domain, createSessionKey(domain)),
+      Login("/doc/", routes.HomeController.addAnalysisResult(), domain, createSessionKey(domain)),
+      Login("/patient/", routes.HomeController.getPatientsTemplate(), domain, createSessionKey(domain)),
+      Login("/stats/", routes.HomeController.getStatisticTemplate(), domain, createSessionKey(domain))
     )
   }.map( l => l.rootPath -> l).toMap
 

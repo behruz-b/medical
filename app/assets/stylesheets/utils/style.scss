@@ -4,6 +4,7 @@
   $particleColor: hsl(180, 100%, 80%);
 
   position: absolute;
+  left: -20px;
   transform: translateY(-10vh);
   animation-iteration-count: infinite;
   animation-timing-function: linear;
