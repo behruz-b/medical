@@ -16,6 +16,9 @@ $ ->
     else
       toastr.error('Something went wrong! Please try again.')
 
+  vm.convertStringToDate = (stringDate) ->
+    moment(stringDate).format('DD/MM/YYYY HH:MM')
+
   getStats = ->
     $.get(apiUrl.statsUrl)
     .fail handleError
