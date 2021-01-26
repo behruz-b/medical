@@ -1,7 +1,7 @@
 package doobie.domain
 
 import protocols.PatientProtocol._
-import protocols.UserProtocol.User
+import protocols.UserProtocol.{Roles, User}
 
 trait PatientRepositoryAlgebra[F[_]] {
 
@@ -15,6 +15,7 @@ trait PatientRepositoryAlgebra[F[_]] {
   def getUserByLogin(login: String):fs2.Stream[F,User]
   def getPatients: F[List[Patient]]
   def getStats: F[List[StatsAction]]
+  def getRoles: F[List[Roles]]
 
 }
 

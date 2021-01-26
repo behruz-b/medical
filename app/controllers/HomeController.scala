@@ -11,7 +11,7 @@ import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.PatientProtocol._
-import protocols.UserProtocol.{User, checkUserByLoginAndCreate}
+import protocols.UserProtocol.{GetRoles, Roles, User, checkUserByLoginAndCreate}
 import views.html._
 import views.html.statistic._
 
@@ -96,7 +96,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def createDoctor: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    authByRole(DoctorLoginKey) {
+    authByRole(AdminLoginKey) {
       Try {
         val firstName = (request.body \ "firstName").as[String]
         val lastName = (request.body \ "lastName").as[String]
@@ -105,7 +105,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         val prefixPhone = "998"
         val company_code = request.host
         val login = (request.body \ "login").as[String]
-        val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, role,
+        val roleKey = if(role == "Admin") "admin.role" else if (role == "Doctor") "doctor.role" else "register.role"
+        val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, roleKey,
           company_code, login, generatePassword)
         (userManager ? checkUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
           case Right(_) =>
@@ -219,9 +220,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getRoleTypes: Action[AnyContent] = Action { implicit request =>
+  def getRoleTypes: Action[AnyContent] = Action.async { implicit request =>
     authByRole(AdminLoginKey) {
-      Ok(Json.toJson(roleTypes))
+      (userManager ? GetRoles).mapTo[List[Roles]].map { results =>
+        val roles = results.map(_.name)
+        Ok(Json.toJson(roles))
+      }
     }
   }
 

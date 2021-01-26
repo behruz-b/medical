@@ -6,7 +6,7 @@ import doobie.implicits._
 import protocols.PatientProtocol._
 import doobie.implicits.javasql._
 import doobie.util.Read
-import protocols.UserProtocol.User
+import protocols.UserProtocol.{Roles, User}
 
 import java.sql.Timestamp
 import java.time.{LocalDate, LocalDateTime}
@@ -143,6 +143,11 @@ object MessageSQL extends CommonSQL  {
   def getStats: ConnectionIO[List[StatsAction]] = {
     val querySql = fr"""SELECT created_at, company_code, action, ip_address, login, user_agent FROM "Stats" ORDER BY created_at """
     querySql.query[StatsAction].to[List]
+  }
+
+  def getRoles: ConnectionIO[List[Roles]] = {
+    val querySql = fr"""SELECT id, name, code FROM "Roles" ORDER BY name """
+    querySql.query[Roles].to[List]
   }
 }
 
