@@ -18,7 +18,8 @@ object PatientProtocol {
                          address: String,
                          analyseType: String,
                          docFullName: Option[String] = None,
-                         docPhone: Option[String] = None)
+                         docPhone: Option[String] = None,
+                         company_code: String)
 
 
   implicit val patientFormReads: Reads[PatientForm] = (
@@ -29,21 +30,24 @@ object PatientProtocol {
       (__ \ "address").read[String] and
       (__ \ "analyseType").read[String] and
       (__ \ "docFullName").formatNullable[String] and
-      (__ \ "docPhone").formatNullable[String]
+      (__ \ "docPhone").formatNullable[String] and
+      (__ \ "company_code").read[String]
     )(PatientForm)
 
   case class DoctorForm(firstName: String,
                         lastName: String,
                         phone: String,
                         role: String,
-                        login: String)
+                        login: String,
+                        company_code: String)
 
   implicit val doctorFormReads: Reads[DoctorForm] = (
     (__ \ "firstName").read[String] and
       (__ \ "lastName").read[String] and
       (__ \ "phone").read[String] and
       (__ \ "role").read[String] and
-      (__ \ "login").read[String]
+      (__ \ "login").read[String] and
+      (__ \ "company_code").read[String]
     )(DoctorForm)
 
   case class Patient(created_at: LocalDateTime,

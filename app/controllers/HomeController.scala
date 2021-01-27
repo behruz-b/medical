@@ -92,8 +92,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     authByRole(AdminRole) {
       val body = request.body
       val phone = "998" + clearPhone(body.phone)
-      val company_code = request.host
-      val user = User(LocalDateTime.now, body.firstName, body.lastName, phone, body.role, company_code, body.login, generatePassword)
+      val user = User(LocalDateTime.now, body.firstName, body.lastName, phone, body.role, body.company_code, body.login, generatePassword)
       (userManager ? CheckUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
         case Right(_) =>
           Ok(Json.toJson(user))
@@ -111,16 +110,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     authByRole(RegRole) {
       val body = request.body
       val prefixPhone = "998"
-      val company_code = request.host
       val docPhoneWithPrefix = body.docPhone.map(p => prefixPhone + p)
       val phoneWithPrefix = prefixPhone + body.phone
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
-        company_code, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.docFullName, docPhoneWithPrefix)
+        body.company_code, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
-          val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
-            request.session.get(createSessionKey(request.host)).getOrElse(createSessionKey(request.host)), request.headers.get("User-Agent").get)
+          val stats = StatsAction(LocalDateTime.now, body.company_code, action = "reg_submit", request.headers.get("Remote-Address").get,
+            request.session.get(createSessionKey(body.company_code)).getOrElse(createSessionKey(body.company_code)), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) => BadRequest(e)

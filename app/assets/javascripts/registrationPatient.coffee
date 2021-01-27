@@ -79,6 +79,7 @@ $ ->
         docFullName: vm.patient.docFullName()
         docPhone: vm.patient.docPhone().replace(/[(|)|-]/g, "").trim()
         analysisType: vm.patient.analysisType()
+        company_code: window.location.host
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
       .done (response) ->

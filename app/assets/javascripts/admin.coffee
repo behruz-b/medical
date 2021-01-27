@@ -84,6 +84,7 @@ $ ->
         phone: vm.doctor.phone().replace(/[(|)|-]/g, "").trim()
         login: vm.doctor.login()
         role: vm.doctor.role()
+        company_code: window.location.host
       $.post(apiUrl.addDoctor, JSON.stringify(doctor))
       .fail handleError
       .done (user) ->
