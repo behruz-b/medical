@@ -88,7 +88,7 @@ $ ->
     ]
     analysisResult: [
       "Analysis result"
-      "результат анализа"
+      "Результат анализа"
       "Tahlil natijasi"
     ]
     closeModal: [
