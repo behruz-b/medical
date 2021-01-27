@@ -81,7 +81,6 @@ class PatientManager @Inject()(val configuration: Configuration,
 
   private def getPatientByLogin(login: String, password: String): Future[Either[String, String]] = {
     DoobieModule.repo.getPatientByLogin(login).compile.last.unsafeToFuture().map { result =>
-      logger.debug(s"result: ${result.exists(_.password == password)}, $result")
       if (result.exists(_.password == md5(password))) {
         Right("Successfully")
       } else {

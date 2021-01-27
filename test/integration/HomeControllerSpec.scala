@@ -25,23 +25,23 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerSuite {
       "email": "Test"
     }""")
 
-  "Create patient" should {
-    "return should be OK" in {
-      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createUser().url)
-        .withJsonBody(Patient)
-      ).get
-
-      status(sendRequest) mustBe OK
-    }
-
-    "return BAD_REQUEST" in {
-      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createUser().url)
-        .withJsonBody(BadPatient)
-      ).get
-
-      status(sendRequest) mustBe BAD_REQUEST
-    }
-  }
+//  "Create patient" should {
+//    "return should be OK" in {
+//      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createUser().url)
+//        .withJsonBody(Patient)
+//      ).get
+//
+//      status(sendRequest) mustBe OK
+//    }
+//
+//    "return BAD_REQUEST" in {
+//      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createUser().url)
+//        .withJsonBody(BadPatient)
+//      ).get
+//
+//      status(sendRequest) mustBe BAD_REQUEST
+//    }
+//  }
 
   "Index page" should {
     "return OK" in {

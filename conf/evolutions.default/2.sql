@@ -23,14 +23,22 @@ INSERT INTO "Roles" ("id", "name", "code")
 INSERT INTO "Roles" ("id", "name", "code")
  VALUES (3, 'Register', 'register.role');
 
-INSERT INTO "Users" ("id","created_at","firstname","lastname", "phone", "role", "company_code", "login", "password")
- VALUES (5,'2021-01-12 15:32:22.196016','doctor','superuser','998994461230','doctor.role','all','doc','doc123');
+INSERT INTO "Roles" ("id", "name", "code")
+ VALUES (4, 'Patient', 'patient.role');
+
+INSERT INTO "Roles" ("id", "name", "code")
+ VALUES (5, 'Stats', 'stats.role');
 
 INSERT INTO "Users" ("id","created_at","firstname","lastname", "phone", "role", "company_code", "login", "password")
- VALUES (6,'2021-01-12 15:32:22.196016','register','superuser','998994461230','register.role','all','reg','reg123');
+ VALUES (5,'2021-01-12 15:32:22.196016','doctor','superuser','998994461230','doctor.role','all','doc','c7ef8fc860e6b06ce37526b3e361700d');
 
 INSERT INTO "Users" ("id","created_at","firstname","lastname", "phone", "role", "company_code", "login", "password")
- VALUES (7,'2021-01-12 15:32:22.196016','admin','superuser','998994461230','admin.role','all','admin','reg123');
+ VALUES (6,'2021-01-12 15:32:22.196016','register','superuser','998994461230','register.role','all','reg','5c769a1e38d1af34a22a4fdf3e334409');
+
+INSERT INTO "Users" ("id","created_at","firstname","lastname", "phone", "role", "company_code", "login", "password")
+ VALUES (7,'2021-01-12 15:32:22.196016','admin','superuser','998994461230','admin.role','all','admin','0192023a7bbd73250516f069df18b500');
 
 DROP TABLE "Users";
 DROP TABLE "Roles";
+
+

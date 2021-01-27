@@ -15,7 +15,7 @@ class HomeControllerSpec extends PlayStubEnv {
 
   "Create patient" should {
     "return OK" in {
-      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createUser().url)
+      val sendRequest = route(app, FakeRequest(POST, controllers.routes.HomeController.createDoctor().url)
         .withJsonBody(patient)
       ).get
 
