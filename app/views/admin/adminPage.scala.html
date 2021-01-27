@@ -12,22 +12,25 @@
             });
     </script>
     <div class="d-flex">
-        <div class="navbar p-2 bg-dark flex-fill">
+        <div class="navbar p-2 bg-dark">
             <a class="navbar-brand" href="/">
                 <img src="@routes.Assets.versioned("images/favicon.png")" alt="logo">
                    <span class="text-white"> Smart Medical</span>
             </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                Button
-            </button>
         </div>
         <div class="p-2 bg-dark flex-fill">
-            <a class="text-decoration-none d-lg-flex d-md-flex d-sm-flex d-flex d-xl-flex justify-content-end justify-content-md-end justify-content-sm-end" href="/logout">
-                <button class="btn btn-success" type="button"><i class="fa fa-sign-out-alt"></i> Chiqish</button>
-            </a>
+            <nav class="navbar navbar-dark">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapseExample" aria-controls="collapseExample" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </nav>
+        </div>
+        <div class="p-2 bg-dark flex-fill">
+            <div class="pt-2 d-lg-flex d-md-flex d-sm-flex d-flex d-xl-flex justify-content-end justify-content-md-end justify-content-sm-end">
+                <a class="text-decoration-none" href="/logout">
+                    <button class="btn btn-success" type="button"><i class="fa fa-sign-out-alt"></i> Chiqish</button>
+                </a>
+            </div>
         </div>
     </div>
     <div class="collapse" id="collapseExample">
