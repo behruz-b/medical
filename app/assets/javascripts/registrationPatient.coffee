@@ -152,7 +152,6 @@ $ ->
       "Address"
       "Адрес"
       "Manzil"
-
     ]
     analysisType: [
       "Analysis type"

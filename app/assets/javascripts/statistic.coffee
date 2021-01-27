@@ -30,5 +30,45 @@ $ ->
       vm.stats(response)
   getStats()
 
+  vm.translate = (fieldName) -> ko.computed () ->
+    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
+    vm.labels[fieldName][index]
+
+  vm.labels =
+    statistics: [
+      "Statistics"
+      "Статистика"
+      "Statistikalar"
+    ]
+    createdAt: [
+      "Created at"
+      "Время регистрации"
+      "Ro'yhatdan o'tgan vaqti"
+    ]
+    companyCode: [
+      "Company code"
+      "Код компании"
+      "Kompaniya kodi"
+    ]
+    action: [
+      "Action"
+      "Действие"
+      "Amal"
+    ]
+    login: [
+      "Login"
+      "Логин"
+      "Login"
+    ]
+    ipAddress: [
+      "IP Address"
+      "IP адрес"
+      "IP manzil"
+    ]
+    userAgent: [
+      "User Agent"
+      "User Agent"
+      "User Agent"
+    ]
 
   ko.applyBindings {vm}

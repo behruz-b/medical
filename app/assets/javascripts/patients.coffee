@@ -56,20 +56,40 @@ $ ->
       "Эл. адрес"
       "Email"
     ]
+    dateOfBirth: [
+      "Date of birth"
+      "Дата рождения"
+      "Tug'ilgan yili"
+    ]
     phoneNumber: [
       "Phone number"
       "Телефонный номер"
       "Telefon raqami"
     ]
-    passportSerialNumber: [
-      "Passport serial number"
-      "Серийный номер паспорта"
-      "Pasport seriya raqami"
+    createdAt: [
+      "Created at"
+      "Время регистрации"
+      "Ro'yhatdan o'tgan vaqti"
     ]
-    yourID: [
-      "You are registered on ID:"
-      "Вы зарегистрированы по ID:"
-      "Sizning ID:"
+    address: [
+      "Address"
+      "Адрес"
+      "Manzil"
+    ]
+    analysisType: [
+      "Analysis type"
+      "Тип анализа"
+      "Tahlil turi"
+    ]
+    analysisResult: [
+      "Analysis result"
+      "результат анализа"
+      "Tahlil natijasi"
+    ]
+    closeModal: [
+      "Close"
+      "Закрыть"
+      "Yopish"
     ]
 
   ko.applyBindings {vm}

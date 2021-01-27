@@ -161,9 +161,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getStatisticTemplate: Action[AnyContent] = Action { implicit request =>
-    authByDashboard(StatsRole) {
-      Ok(statsActionTemp())
+  def getStatisticTemplate(language: String): Action[AnyContent] = Action { implicit request =>
+    authByDashboard(StatsRole, language) {
+      Ok(statsActionTemp(language))
     }
   }
 
