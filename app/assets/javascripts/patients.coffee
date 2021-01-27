@@ -41,6 +41,11 @@ $ ->
     vm.labels[fieldName][index]
 
   vm.labels =
+    patients: [
+      "Patients"
+      "Пациенты"
+      "Bemorlar"
+    ]
     firstName: [
       "First name"
       "Имя"

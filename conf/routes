@@ -11,7 +11,7 @@ GET     /doc/                                                   @controllers.Hom
 POST    /doc/upload-analyze-result                              @controllers.HomeController.uploadAnalysisResult
 POST    /doc/add-doctor                                         @controllers.HomeController.createDoctor
 
-GET     /patient/                                               @controllers.HomeController.getPatientsTemplate()
+GET     /patient/                                               @controllers.HomeController.getPatientsTemplate(language = "uz")
 POST    /patient/add-patient                                    @controllers.HomeController.createPatient
 GET     /patient/get-patients                                   @controllers.HomeController.getPatients
 GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType()

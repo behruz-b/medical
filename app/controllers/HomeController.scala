@@ -147,9 +147,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getPatientsTemplate: Action[AnyContent] = Action { implicit request =>
-    authByDashboard(DoctorRole) {
-      Ok(getPatientsTemp())
+  def getPatientsTemplate(language: String): Action[AnyContent] = Action { implicit request =>
+    authByDashboard(PatientRole, language) {
+      Ok(getPatientsTemp(language))
     }
   }
 

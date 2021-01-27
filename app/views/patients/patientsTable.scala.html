@@ -1,5 +1,5 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@()(implicit flash: Flash)
+@(lang: String = "uz")(implicit flash: Flash)
 @patients.main("Patients", webJarsUtil) {
     <script>
             @flash.get("error").map { response =>
@@ -8,6 +8,10 @@
             @flash.get("success").map { response =>
             toastr.success("@response")
             }
+
+            var Glob = {
+                language: '@lang'
+            };
     </script>
     <style>
             body{
@@ -17,20 +21,20 @@
     @navbar()
     <input type="hidden" data-bind="click: vm.getPatients()">
     <div class="container">
-        <h2 class="text-white">Patients Table</h2>
+        <h2 class="text-white"><span data-bind="text: vm.translate('patients')"></span></h2>
         <div class="row">
             <div class="table-responsive col-lg-12">
                 <table class="table table-bordered table-striped table-hover table-active bg-white">
                     <thead class="thead-dark">
                         <tr>
-                            <th>Ro'yhatdan o'tgan vaqti</th>
-                            <th>Ismi</th>
-                            <th>Familiyasi</th>
-                            <th>Telefon Raqami</th>
-                            <th>Manzili</th>
-                            <th>Tug'ilgan yili</th>
-                            <th>Analiz turi</th>
-                            <th>Analiz natijasi</th>
+                            <th><span data-bind="text: vm.translate('createdAt')"></span></th>
+                            <th><span data-bind="text: vm.translate('firstName')"></span></th>
+                            <th><span data-bind="text: vm.translate('lastName')"></span></th>
+                            <th><span data-bind="text: vm.translate('phoneNumber')"></span></th>
+                            <th><span data-bind="text: vm.translate('address')"></span></th>
+                            <th><span data-bind="text: vm.translate('dateOfBirth')"></span></th>
+                            <th><span data-bind="text: vm.translate('analysisType')"></span></th>
+                            <th><span data-bind="text: vm.translate('analysisResult')"></span></th>
                         </tr>
                     </thead>
                     <tbody data-bind="foreach: vm.patients()">
@@ -57,14 +61,14 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Analiz natijasi</h4>
+                        <h4 class="modal-title"><span data-bind="text: vm.translate('analysisResult')"></span></h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body text-center">
                         <img class="w-100" data-bind="attr: {src: '/img/' + vm.fileName()}" alt="#">
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Yopish</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><span data-bind="text: vm.translate('closeModal')"></span></button>
                     </div>
                 </div>
             </div>
