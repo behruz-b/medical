@@ -35,15 +35,18 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
     }.toSeq
   }
 
-  private def checkLogin(login: String, password: String, uri: String, loginParams: Login)
+  private def checkLogin(login: String, password: String, loginParams: Login)
                         (implicit request: RequestHeader): Future[Result] = {
+    val accessRole = loginParams.sessionAttr.roleSessionKey
     (userManager ? CheckUserByLogin(login, password)).mapTo[Either[String, String]].map {
-      case Right(role) =>
+      case Right(role) if role == accessRole =>
         Redirect(loginParams.redirectUrl)
-          .addingToSession(authInit(loginParams.sessionKey, role, loginParams.sessionDuration): _*)
+          .addingToSession(authInit(loginParams.sessionAttr.sessionKey, role, loginParams.sessionDuration): _*)
+      case Right(_) =>
+        Redirect(loginParams.rootPath).flashing("error" -> "You do not have access to this page")
       case Left(error) =>
         logger.error("Error occurred while check login and password", error)
-        Redirect(uri).flashing("error" -> "Login or password incorrect!")
+        Redirect(loginParams.rootPath).flashing("error" -> "Incorrect login or password. Please try again")
     }
   }
 
@@ -51,7 +54,7 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
                                 (implicit request: RequestHeader): Future[Result] = {
     loginPatterns.get(uri) match {
       case Some(value) =>
-        checkLogin(login, password, uri, value)
+        checkLogin(login, password, value)
       case None =>
         logger.info(s"unknown uri: $uri")
         Future.successful(Redirect(uri).flashing("error" -> "Something went wrong. Please try again."))
@@ -60,7 +63,7 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
 
   private def checkLoginPost(login: String, password: String, referUrl: String)
                             (implicit request: Request[AnyContent]): Future[Result] = {
-    checkLoginPassword(login, password, basePathExtractor).recover {
+    checkLoginPassword(login, password, referUrl).recover {
       case error =>
         logger.error("error", error)
         Redirect(referUrl).flashing("error" -> "Something went wrong. Please try again.")
@@ -68,14 +71,13 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
   }
 
   def loginPost: Action[AnyContent] = Action.async { implicit request =>
-    val referUrl = request.headers.get(REFERER).get
     loginPlayFormWithClientCode.bindFromRequest().fold(
       errorForm => {
         logger.info(s"errorForm: $errorForm")
-        Future.successful(Redirect(referUrl).flashing("error" -> "Please enter login and password"))
+        Future.successful(Redirect(basePathExtractor).flashing("error" -> "Please enter login and password"))
       }, {
         case LoginFormWithClientCode(login, password) =>
-          checkLoginPost(login, password, referUrl)
+          checkLoginPost(login, password, basePathExtractor)
       }
     )
   }
@@ -91,7 +93,7 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
     } else {
       val loginParams = loginPatterns(urlPath.replaceFirst("logout", ""))
       val redirectUrl = loginParams.redirectUrl
-      Redirect(redirectUrl).withSession(request.session - loginParams.sessionKey)
+      Redirect(redirectUrl).withSession(request.session - loginParams.sessionAttr.sessionKey)
     }
   }
 

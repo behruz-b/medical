@@ -2,7 +2,7 @@ package controllers
 
 import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
-import play.api.mvc.Results.{Ok, Unauthorized}
+import play.api.mvc.Results.Unauthorized
 import play.api.mvc._
 import protocols.Authentication
 import protocols.Authentication.loginPatterns
@@ -37,7 +37,7 @@ trait Auth extends LazyLogging {
     loginParam(baseUriExtractor).fold {
       logger.error(s"Error occurred while get login param: $baseUriExtractor")
       ""
-    }(_.sessionKey)
+    }(_.sessionAttr.sessionKey)
   }
 
   private def unauthorized[T: TypeTag]: T = typeOf[T] match {

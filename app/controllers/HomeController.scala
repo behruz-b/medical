@@ -10,6 +10,7 @@ import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
+import protocols.Authentication.AppRole._
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{GetRoles, Roles, User, checkUserByLoginAndCreate}
 import views.html._
@@ -40,20 +41,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   extends BaseController with CommonMethods with Auth {
 
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
-  val LoginKey = "login_session_key"
-  val DoctorLoginKey = "doctor.role"
-  val RegLoginKey = "register.role"
-  val AdminLoginKey = "admin.role"
-  val SessionLogin = "login_session"
-  val StatsRole = "stats.role"
-  val PatientsAdmin = "patients_admin"
   val tempFilesPath: String = configuration.get[String]("analysis_folder")
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
   val adminPassword: String = configuration.get[String]("admin.password")
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(RegLoginKey, language) {
+    authByDashboard(RegRole, language) {
       Ok(indexTemplate(language))
     }
   }
@@ -69,7 +63,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def admin(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(AdminLoginKey, language) {
+    authByDashboard(AdminRole, language) {
       Ok(adminTemplate(language))
     }
   }
@@ -96,7 +90,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def createDoctor: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    authByRole(AdminLoginKey) {
+    authByRole(AdminRole) {
       Try {
         val firstName = (request.body \ "firstName").as[String]
         val lastName = (request.body \ "lastName").as[String]
@@ -160,7 +154,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
-            request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
+            request.session.get(createSessionKey(request.host)).getOrElse(createSessionKey(request.host)), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
@@ -180,13 +174,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(DoctorLoginKey, language) {
+    authByDashboard(DoctorRole, language) {
       Ok(addAnalysisResultPageTemp(language))
     }
   }
 
   def getPatients: Action[AnyContent] = Action.async { implicit request =>
-    authByRole(DoctorLoginKey) {
+    authByRole(DoctorRole) {
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
         logger.debug(s"patients: $patients")
         Ok(Json.toJson(patients))
@@ -195,7 +189,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatientsTemplate: Action[AnyContent] = Action { implicit request =>
-    authByDashboard(DoctorLoginKey) {
+    authByDashboard(DoctorRole) {
       Ok(getPatientsTemp())
     }
   }
@@ -215,13 +209,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getAnalysisType: Action[AnyContent] = Action { implicit request =>
-    authByRole(RegLoginKey) {
+    authByRole(RegRole) {
       Ok(Json.toJson(analysisType))
     }
   }
 
   def getRoleTypes: Action[AnyContent] = Action.async { implicit request =>
-    authByRole(AdminLoginKey) {
+    authByRole(AdminRole) {
       (userManager ? GetRoles).mapTo[List[Roles]].map { results =>
         val roles = results.map(_.name)
         Ok(Json.toJson(roles))
@@ -249,7 +243,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
             } yield {
-              val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(SessionLogin).getOrElse(SessionLogin), request.headers.get("User-Agent").get)
+              val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(createSessionKey(request.host)).getOrElse(createSessionKey(request.host)), request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
               statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
               "File is uploaded"

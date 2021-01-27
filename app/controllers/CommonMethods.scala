@@ -1,5 +1,7 @@
 package controllers
 
+import protocols.Authentication.SessionAttr
+
 import java.security.SecureRandom
 import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
@@ -14,6 +16,10 @@ trait CommonMethods {
     for (_ <- 0 to length) password.append(passwordChars(algorithm.nextInt(passwordChars.length)))
     password.toString
   }
+
+  def createSessionKey: String => String = _ + ".session.key"
+
+  def createSessionAttr(domain: String, role: String): SessionAttr = SessionAttr(createSessionKey(domain), role)
 
   def getRandomDigit(length: Int): Int = {
     Seq.fill(length)(Random.nextInt(9)).mkString("").toInt
