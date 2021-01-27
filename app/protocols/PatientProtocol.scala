@@ -1,11 +1,50 @@
 package protocols
 
-import java.time.{LocalDate, LocalDateTime}
-import java.util.Date
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
+
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, LocalDateTime}
 
 
 object PatientProtocol {
+  implicit def localDateFormat(fieldName: String, dateFormat: String = "dd/MM/yyyy"): Reads[LocalDate] =
+    (__ \ fieldName).read[String].map(s => LocalDate.parse(s, DateTimeFormatter.ofPattern(dateFormat)))
+
+  case class PatientForm(firstName: String,
+                         lastName: String,
+                         phone: String,
+                         dateOfBirth: LocalDate,
+                         address: String,
+                         analyseType: String,
+                         docFullName: Option[String] = None,
+                         docPhone: Option[String] = None)
+
+
+  implicit val patientFormReads: Reads[PatientForm] = (
+    (__ \ "firstName").read[String] and
+      (__ \ "lastName").read[String] and
+      (__ \ "phone").read[String] and
+      localDateFormat("dateOfBirth") and
+      (__ \ "address").read[String] and
+      (__ \ "analyseType").read[String] and
+      (__ \ "docFullName").formatNullable[String] and
+      (__ \ "docPhone").formatNullable[String]
+    ) (PatientForm)
+
+  case class DoctorForm(firstName: String,
+                        lastName: String,
+                        phone: String,
+                        role: String,
+                        login: String)
+
+  implicit val doctorFormReads: Reads[DoctorForm] = (
+    (__ \ "firstName").read[String] and
+      (__ \ "lastName").read[String] and
+      (__ \ "phone").read[String] and
+      (__ \ "role").read[String] and
+      (__ \ "login").read[String]
+    ) (DoctorForm)
 
   case class Patient(created_at: LocalDateTime,
                      firstname: String,
@@ -23,6 +62,7 @@ object PatientProtocol {
                      analysis_image_name: Option[String] = None) {
     def id: Option[Int] = None
   }
+
   implicit val patientFormat: OFormat[Patient] = Json.format[Patient]
 
   case class StatsAction(created_at: LocalDateTime,
@@ -35,13 +75,21 @@ object PatientProtocol {
   implicit val StatsActionFormat: OFormat[StatsAction] = Json.format[StatsAction]
 
   case class CreatePatient(patient: Patient)
+
   case class AddStatsAction(statsAction: StatsAction)
+
   case class AddAnalysisResult(customerId: String, analysisFileName: String)
+
   case class GetPatientByCustomerId(customerId: String)
+
   case class GetPatientByLogin(login: String, password: String)
+
   case object GetPatients
+
   case object GetStats
+
   case class SendSmsToCustomer(customerId: String)
+
   case class CheckSmsDeliveryStatus(requestId: String, customerId: String)
 
   val analysisType = List(
@@ -67,13 +115,13 @@ object PatientProtocol {
    * ==Overview==
    *
    * Case class SmsStatus description.
-   *  {{{
+   * {{{
    *  code: Int,
    *  delivered-date: Date, Format(Y-m-d H:i:s),
    *  description: String,
    *  message-count: Int,
    *  ordinal: Int
-   *  }}}
+   * }}}
    */
 
   val SmsText: String => String = (customerId: String) =>

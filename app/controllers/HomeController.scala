@@ -8,11 +8,11 @@ import cats.implicits._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.mvc._
 import protocols.Authentication.AppRole._
 import protocols.PatientProtocol._
-import protocols.UserProtocol.{GetRoles, Roles, User, checkUserByLoginAndCreate}
+import protocols.UserProtocol.{GetRoles, Roles, User, CheckUserByLoginAndCreate}
 import views.html._
 import views.html.statistic._
 
@@ -23,7 +23,7 @@ import java.util.Date
 import javax.inject._
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
@@ -78,98 +78,57 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
         } else {
           logger.error("Error while getting analysis file name")
-          BadRequest("Error")
+          BadRequest("So'ralgan bemor tekshirinuv natijasi topilmadi!")
         }
-      case Left(e) =>
-        BadRequest(e)
+      case Left(e) => BadRequest(e)
     }.recover {
       case e =>
         logger.error("Error while getting patient", e)
-        BadRequest("Error")
+        BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
     }
   }
 
-  def createDoctor: Action[JsValue] = Action.async(parse.json) { implicit request =>
+  def createDoctor: Action[DoctorForm] = Action.async(parse.json[DoctorForm]) { implicit request =>
     authByRole(AdminRole) {
-      Try {
-        val firstName = (request.body \ "firstName").as[String]
-        val lastName = (request.body \ "lastName").as[String]
-        val phone = (request.body \ "phone").as[String]
-        val role = (request.body \ "role").as[String]
-        val prefixPhone = "998"
-        val company_code = request.host
-        val login = (request.body \ "login").as[String]
-        val roleKey = if(role == "Admin") "admin.role" else if (role == "Doctor") "doctor.role" else "register.role"
-        val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, roleKey,
-          company_code, login, generatePassword)
-        (userManager ? checkUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
-          case Right(_) =>
-            Ok(Json.toJson(user))
-          case Left(error) =>
-            BadRequest(error)
-        }.recover {
-          case e: Throwable =>
-            logger.error("Error while creating doctor", e)
-            Redirect("/admin").flashing("error" -> "Error")
-        }
-      } match {
-        case Success(res) => res
-        case Failure(exception) =>
-          logger.error("Error occurred while create doctor. Error:", exception)
-          Future.successful(Redirect("/admin").flashing("error" -> "Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
+      val body = request.body
+      val phone = "998" + clearPhone(body.phone)
+      val company_code = request.host
+      val user = User(LocalDateTime.now, body.firstName, body.lastName, phone, body.role, company_code, body.login, generatePassword)
+      (userManager ? CheckUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
+        case Right(_) =>
+          Ok(Json.toJson(user))
+        case Left(error) =>
+          BadRequest(error)
+      }.recover {
+        case e: Throwable =>
+          logger.error("Error while creating doctor", e)
+          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
       }
     }
   }
 
-  def createPatient: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    Try {
-      val firstName = (request.body \ "firstName").as[String]
-      val lastName = (request.body \ "lastName").as[String]
-      val phone = (request.body \ "phone").as[String]
+  def createPatient: Action[PatientForm] = Action.async(parse.json[PatientForm]) { implicit request =>
+    authByRole(DoctorRole) {
+      val body = request.body
       val prefixPhone = "998"
       val company_code = request.host
-      val dateOfBirth = (request.body \ "date").as[String]
-      val dateCheck = if (dateOfBirth.length == 8) {
-        val yearOfBirth = dateOfBirth.split("/").reverse.head
-        val fillYear = if (0 <= yearOfBirth.toInt && yearOfBirth.toInt <= 21) {
-          "20" + yearOfBirth
-        } else {
-          "19" + yearOfBirth
-        }
-        val fillDate = fillYear + "/" + dateOfBirth.split("/").reverse.tail.mkString("/")
-        val dateOfBirthday = fillDate.split("/").reverse.mkString("/")
-        dateOfBirthday
-      } else {
-        val dateOfBirthday = (request.body \ "date").as[String]
-        dateOfBirthday
-      }
-      val address = (request.body \ "address").as[String]
-      val analyseType = (request.body \ "analysisType").as[String]
-      val docFullName = (request.body \ "docFullName").asOpt[String]
-      val docPhone = (request.body \ "docPhone").asOpt[String]
-      val docPhoneWithPrefix = docPhone.map(p => prefixPhone + p)
-      val login = (firstName.head.toString + lastName).toLowerCase() + getRandomDigit(3)
-      val patient = Patient(LocalDateTime.now, firstName, lastName, prefixPhone + phone, generateCustomerId,
-        company_code, login, generatePassword, address, parseDate(dateCheck), analyseType, docFullName, docPhoneWithPrefix)
+      val docPhoneWithPrefix = body.docPhone.map(p => prefixPhone + clearPhone(p))
+      val phoneWithPrefix = prefixPhone + clearPhone(body.phone)
+      val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
+      val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
+        company_code, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
             request.session.get(createSessionKey(request.host)).getOrElse(createSessionKey(request.host)), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
-        case Left(e) =>
-          logger.debug(s"ERROR")
-          Redirect("/reg").flashing("error" -> e)
+        case Left(e) => BadRequest(e)
       }.recover {
-        case e: Any =>
+        case e: Throwable =>
           logger.error("Error while creating patient", e)
-          Redirect("/reg").flashing("error" -> "Error")
+          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
       }
-    } match {
-      case Success(res) => res
-      case Failure(exception) =>
-        logger.error("Error occurred while create patient. Error:", exception)
-        Future.successful(Redirect("/reg").flashing("error" -> "Ro'yhatdan o'tishda xatolik yuz berdi. Iltimos qaytadan harakat qilib ko'ring!"))
     }
   }
 
@@ -248,7 +207,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
               "File is uploaded"
             }).value.recover { e =>
-              logger.error(s"Unexpected error happened", e)
+              logger.error("Unexpected error happened", e)
               Left("Something went wrong")
             }
           case None =>
@@ -260,16 +219,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       Future.successful(Left("Missing file"))
     }
     result.map {
-      case Right(redirectWithSuccess) =>
+      case Right(res) =>
         logger.debug("File successfully uploaded")
-        Ok(redirectWithSuccess)
+        Ok(res)
       case Left(error) =>
-        logger.error(s"Something bad happened", error)
-        Redirect("/doc").flashing("error" -> error)
+        logger.error("Something bad happened", error)
+        BadRequest(error)
     }.recover {
       case e: Throwable =>
-        logger.error(s"Unexpected error happened", e)
-        Redirect("/doc").flashing("error" -> "Unexpected error happened")
+        logger.error("Unexpected error happened", e)
+        BadRequest("Unexpected error happened")
     }
   }
 

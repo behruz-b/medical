@@ -65,7 +65,7 @@ class PatientManager @Inject()(val configuration: Configuration,
     }.recover {
       case error: Throwable =>
         logger.error("Error occurred while create patient.", error)
-        Left("Error happened while creating patient")
+        Left("Bemorni ro'yhatga olishda xatolik yuz berdi. Iltimos qayta harakat qilib ko'ring!")
     }
   }
 

@@ -6,7 +6,7 @@ import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
 import play.api.{Configuration, Environment}
-import protocols.UserProtocol.{CheckUserByLogin, GetRoles, Roles, User, checkUserByLoginAndCreate}
+import protocols.UserProtocol.{CheckUserByLogin, GetRoles, Roles, User, CheckUserByLoginAndCreate}
 
 import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
@@ -25,7 +25,7 @@ class UserManager @Inject()(val configuration: Configuration,
     case CheckUserByLogin(login, password) =>
       checkUserByLoginAndPassword(login, password).pipeTo(sender())
 
-    case checkUserByLoginAndCreate(user) =>
+    case CheckUserByLoginAndCreate(user) =>
       checkUserByLoginAndCreate(user).pipeTo(sender())
 
     case GetRoles =>
@@ -53,9 +53,9 @@ class UserManager @Inject()(val configuration: Configuration,
       case error: Throwable =>
         logger.error("Error occurred while create user. Error: ", error)
         if (error.getMessage.contains("duplicate")) {
-          Left("Login already exists")
+          Left("Kiritilgan login avvaldan mavjud!")
         } else {
-          Left("Error occurred while create user")
+          Left("Foydalanuvchi yaratishda hatolik yuz berdi. Iltimos qaytadan urinib ko'ring!")
         }
     }
   }
