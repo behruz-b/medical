@@ -74,7 +74,7 @@ $ ->
         firstName: vm.patient.firstName()
         lastName: vm.patient.lastName()
         phone: vm.patient.phone().replace(/[(|)|-]/g, "").trim()
-        date: vm.patient.date()
+        dateOfBirth: vm.patient.date()
         address: vm.patient.address()
         docFullName: vm.patient.docFullName()
         docPhone: vm.patient.docPhone().replace(/[(|)|-]/g, "").trim()

@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import protocols.Authentication.AppRole._
 import protocols.PatientProtocol._
-import protocols.UserProtocol.{GetRoles, Roles, User, CheckUserByLoginAndCreate}
+import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, User}
 import views.html._
 import views.html.statistic._
 
@@ -108,15 +108,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def createPatient: Action[PatientForm] = Action.async(parse.json[PatientForm]) { implicit request =>
-    authByRole(DoctorRole) {
+    authByRole(RegRole) {
       val body = request.body
       val prefixPhone = "998"
       val company_code = request.host
-      val docPhoneWithPrefix = body.docPhone.map(p => prefixPhone + clearPhone(p))
-      val phoneWithPrefix = prefixPhone + clearPhone(body.phone)
+      val docPhoneWithPrefix = body.docPhone.map(p => prefixPhone + p)
+      val phoneWithPrefix = prefixPhone + body.phone
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
-        company_code, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.docFullName, docPhoneWithPrefix)
+        company_code, login, generatePassword, body.address, parseDate(body.dateOfBirth), body.analyseType, body.docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
@@ -183,52 +183,54 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
-    val result = request.body
-      .file("file")
-      .map { picture =>
-        val body = request.body.asFormUrlEncoded
-        body.get("id").flatMap(_.headOption) match {
-          case Some(customerId) =>
-            // need to create folder "patients_results" out of the project
-            val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
-            val analysisFileName = customerId + "_" + time_stamp + ".jpg"
-            Try {
-              picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
-            }.recover {
-              case e: Throwable =>
-                logger.error("Error while parsing tempFilePath", e)
-            }
-            (for {
-              _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
-              _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
-            } yield {
-              val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(createSessionKey(request.host)).getOrElse(createSessionKey(request.host)), request.headers.get("User-Agent").get)
-              statsManager ! AddStatsAction(statsAction)
-              statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
-              "File is uploaded"
-            }).value.recover { e =>
-              logger.error("Unexpected error happened", e)
-              Left("Something went wrong")
-            }
-          case None =>
-            logger.error("Customer ID not found")
-            Future.successful(Left("Customer ID not found"))
-        }
-      }.getOrElse {
-      logger.debug(s"No file to upload")
-      Future.successful(Left("Missing file"))
-    }
-    result.map {
-      case Right(res) =>
-        logger.debug("File successfully uploaded")
-        Ok(res)
-      case Left(error) =>
-        logger.error("Something bad happened", error)
-        BadRequest(error)
-    }.recover {
-      case e: Throwable =>
-        logger.error("Unexpected error happened", e)
-        BadRequest("Unexpected error happened")
+    authByRole(DoctorRole) {
+      val result = request.body
+        .file("file")
+        .map { picture =>
+          val body = request.body.asFormUrlEncoded
+          body.get("id").flatMap(_.headOption) match {
+            case Some(customerId) =>
+              // need to create folder "patients_results" out of the project
+              val time_stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
+              val analysisFileName = customerId + "_" + time_stamp + ".jpg"
+              Try {
+                picture.ref.copyTo(Paths.get(tempFilesPath + "/" + analysisFileName), replace = true)
+              }.recover {
+                case e: Throwable =>
+                  logger.error("Error while parsing tempFilePath", e)
+              }
+              (for {
+                _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
+                _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
+              } yield {
+                val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(createSessionKey(request.host)).getOrElse(createSessionKey(request.host)), request.headers.get("User-Agent").get)
+                statsManager ! AddStatsAction(statsAction)
+                statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
+                "File is uploaded"
+              }).value.recover { e =>
+                logger.error("Unexpected error happened", e)
+                Left("Something went wrong")
+              }
+            case None =>
+              logger.error("Customer ID not found")
+              Future.successful(Left("Customer ID not found"))
+          }
+        }.getOrElse {
+        logger.debug(s"No file to upload")
+        Future.successful(Left("Missing file"))
+      }
+      result.map {
+        case Right(res) =>
+          logger.debug("File successfully uploaded")
+          Ok(res)
+        case Left(error) =>
+          logger.error("Something bad happened", error)
+          BadRequest(error)
+      }.recover {
+        case e: Throwable =>
+          logger.error("Unexpected error happened", e)
+          BadRequest("Unexpected error happened")
+      }
     }
   }
 

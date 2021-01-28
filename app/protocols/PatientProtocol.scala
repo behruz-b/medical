@@ -14,7 +14,7 @@ object PatientProtocol {
   case class PatientForm(firstName: String,
                          lastName: String,
                          phone: String,
-                         dateOfBirth: LocalDate,
+                         dateOfBirth: String,
                          address: String,
                          analyseType: String,
                          docFullName: Option[String] = None,
@@ -25,12 +25,13 @@ object PatientProtocol {
     (__ \ "firstName").read[String] and
       (__ \ "lastName").read[String] and
       (__ \ "phone").read[String] and
-      localDateFormat("dateOfBirth") and
+//      localDateFormat("dateOfBirth") and
+      (__ \ "dateOfBirth").read[String] and
       (__ \ "address").read[String] and
       (__ \ "analyseType").read[String] and
       (__ \ "docFullName").formatNullable[String] and
       (__ \ "docPhone").formatNullable[String]
-    ) (PatientForm)
+    )(PatientForm)
 
   case class DoctorForm(firstName: String,
                         lastName: String,

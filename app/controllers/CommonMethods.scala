@@ -39,6 +39,7 @@ trait CommonMethods {
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         chars charAt (Random nextInt chars.length)
       }
+
       LazyList continually nextAlphaNum
     }
   }
@@ -46,7 +47,5 @@ trait CommonMethods {
   def parseDate(dateStr: String, dateFormat: String = "dd/MM/yyyy"): LocalDate =
     LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(dateFormat))
 
-  def clearPhone: String => String = _.replace("(", "")
-    .replace(")", "")
-    .replace("-", "")
+  def clearPhone: String => String = "[(|)|-]".r.replaceAllIn(_, "")
 }
