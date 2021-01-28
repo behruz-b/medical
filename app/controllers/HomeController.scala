@@ -116,7 +116,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val phoneWithPrefix = prefixPhone + body.phone
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
-        company_code, login, generatePassword, body.address, parseDate(body.dateOfBirth), body.analyseType, body.docFullName, docPhoneWithPrefix)
+        company_code, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
