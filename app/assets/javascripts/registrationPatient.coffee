@@ -8,6 +8,7 @@ $ ->
     getAnalysisType: '/patient/get-analysis-type'
     getMrtType: '/patient/get-mrt-type'
     getMsktType: '/patient/get-mskt-type'
+    getUziType: '/patient/get-uzi-type'
 
   defaultPatient =
     firstName: ''
@@ -26,6 +27,7 @@ $ ->
     getAnalysisTypeList: []
     getMrtTypeList: []
     getMsktTypeList: []
+    getUziTypeList: []
     language: Glob.language
 
   handleError = (error) ->
@@ -62,6 +64,13 @@ $ ->
       .done (response) ->
         vm.getMsktTypeList(response)
   getMsktType()
+
+  getUziType = ->
+    $.get(apiUrl.getUziType)
+      .fail handleError
+      .done (response) ->
+        vm.getUziTypeList(response)
+  getUziType()
 
   vm.onSubmit = ->
     toastr.clear()
@@ -188,6 +197,11 @@ $ ->
       "MSKT type"
       "Тип МСКТ"
       "MSKT turi"
+    ]
+    uziType: [
+      "Ultrasound type"
+      "Узи типа"
+      "Узи типа"
     ]
     thankYou: [
       "Thank you!"

@@ -184,6 +184,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def getUziType: Action[AnyContent] = Action { implicit request =>
+    authByRole(RegRole) {
+      Ok(Json.toJson(uziType))
+    }
+  }
+
   def getRoleTypes: Action[AnyContent] = Action.async { implicit request =>
     authByRole(AdminRole) {
       (userManager ? GetRoles).mapTo[List[Roles]].map { results =>
