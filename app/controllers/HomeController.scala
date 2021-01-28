@@ -114,7 +114,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val phoneWithPrefix = prefixPhone + body.phone
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
-        body.company_code, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.docFullName, docPhoneWithPrefix)
+        body.company_code, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup, body.docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, body.company_code, action = "reg_submit", request.headers.get("Remote-Address").get,
@@ -168,6 +168,18 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def getAnalysisType: Action[AnyContent] = Action { implicit request =>
     authByRole(RegRole) {
       Ok(Json.toJson(analysisType))
+    }
+  }
+
+  def getMrtType: Action[AnyContent] = Action { implicit request =>
+    authByRole(RegRole) {
+      Ok(Json.toJson(mrtType))
+    }
+  }
+
+  def getMsktType: Action[AnyContent] = Action { implicit request =>
+    authByRole(RegRole) {
+      Ok(Json.toJson(msktType))
     }
   }
 

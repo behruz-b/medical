@@ -17,18 +17,20 @@ object PatientProtocol {
                          dateOfBirth: LocalDate,
                          address: String,
                          analyseType: String,
+                         analyseGroup: String,
                          docFullName: Option[String] = None,
                          docPhone: Option[String] = None,
                          company_code: String)
 
 
   implicit val patientFormReads: Reads[PatientForm] = (
-    (__ \ "firstName").read[String] and
+      (__ \ "firstName").read[String] and
       (__ \ "lastName").read[String] and
       (__ \ "phone").read[String] and
       localDateFormat("dateOfBirth") and
       (__ \ "address").read[String] and
       (__ \ "analyseType").read[String] and
+      (__ \ "analyseGroup").read[String] and
       (__ \ "docFullName").formatNullable[String] and
       (__ \ "docPhone").formatNullable[String] and
       (__ \ "company_code").read[String]
@@ -61,6 +63,7 @@ object PatientProtocol {
                      address: String,
                      dateOfBirth: LocalDate,
                      analyseType: String,
+                     analyseGroup: String,
                      docFullName: Option[String] = None,
                      docPhone: Option[String] = None,
                      analysis_image_name: Option[String] = None) {
@@ -97,6 +100,13 @@ object PatientProtocol {
   case class CheckSmsDeliveryStatus(requestId: String, customerId: String)
 
   val analysisType = List(
+    "MRT",
+    "MSKT",
+    "UZI",
+    "Lobaratoriya"
+  )
+
+  val mrtType = List(
     "Bosh miya",
     "Bosh miya, Ko'z, Quloq, Burun bo'shliqlari, Ginofiz, Qon tomirlari",
     "Bo'yin umurtqalari, Orqa miya",
@@ -112,6 +122,22 @@ object PatientProtocol {
     "Bo'yin yumshoq to'qimalari",
     "Tana a'zolarini umumiy MRT tekshiruvi",
     "MRT kontrasi 'Magnilik'"
+  )
+
+  val msktType = List(
+    "Bosh miya, Ko'z, Quloq, Burun bo'shliqlari",
+    "Bo'yin umurtqalari",
+    "Ko'krak umurtqalari",
+    "Ko'krak qafasi",
+    "Bel umurtqalari",
+    "Buyrak usti bezlari",
+    "Qo'l oyoq bo'g'imlari",
+    "Chanoq son bo'g'inlari",
+    "Ayollar kichik chanoq a'zolari",
+    "Erkaklar kichik chanoq a'zolari",
+    "Qorin bo'shligi, Jigar, Taloq, O't pufagi qo'llari, Oshqozon osti bezi, Buyraklar",
+    "Buyraklar, Siydik yo'llari, Siydik pufagi",
+    "Kuks orligi a'zolari (Qizil ungach)"
   )
 
   /**

@@ -15,6 +15,7 @@ CREATE TABLE "Patients"
     "address"             VARCHAR   NOT NULL,
     "date_of_birth"       TIMESTAMP NOT NULL,
     "analysis_type"       VARCHAR NOT NULL,
+    "analysis_group"      VARCHAR NOT NULL,
     "receive_method"      VARCHAR   NULL,
     "doc_full_name"       VARCHAR   NULL,
     "doc_phone"           VARCHAR   NULL,

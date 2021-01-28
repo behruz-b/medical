@@ -15,8 +15,8 @@ object MessageSQL extends CommonSQL  {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
-    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String], Option[String], Option[String])].map {
-      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analysis_type, doc_full_name, doc_phone, lab_image) =>
+    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, String, Option[String], Option[String], Option[String])].map {
+      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analysis_type, analysis_group, doc_full_name, doc_phone, lab_image) =>
         Patient(
           created_at.toLocalDateTime,
           firstname = firstname,
@@ -29,6 +29,7 @@ object MessageSQL extends CommonSQL  {
           address = address,
           dateOfBirth = date_of_birth.toLocalDateTime.toLocalDate,
           analyseType = analysis_type,
+          analyseGroup = analysis_group,
           docFullName = doc_full_name,
           docPhone = doc_phone,
           analysis_image_name = lab_image
@@ -80,14 +81,14 @@ object MessageSQL extends CommonSQL  {
         ${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname},
         ${patient.phone}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password},
         ${patient.address}, ${javaLd2JavaSqlTimestamp(patient.dateOfBirth)}, ${patient.analyseType},
-        ${patient.docFullName}, ${patient.docPhone}
+        ${patient.analyseGroup}, ${patient.docFullName}, ${patient.docPhone}
       )"""
     }
 
     val fieldsName =
       fr"""
         insert into "Patients" (created_at, firstname, lastname, phone, customer_id, company_code, login, password,
-         address, date_of_birth, analysis_type, doc_full_name, doc_phone)
+         address, date_of_birth, analysis_type, analysis_group, doc_full_name, doc_phone)
         """
 
     updateQueryWithUniqueId(fieldsName ++ values)
@@ -118,12 +119,12 @@ object MessageSQL extends CommonSQL  {
   }
 
   def getByCustomerId(customerId: String): Query0[Patient] = {
-    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,doc_full_name,doc_phone,analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
+    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
     querySql.query[Patient]
   }
 
   def getPatientByLogin(login: String): doobie.Query0[Patient] = {
-    val querySql = fr"""select created_at,firstname,lastname,phone,customer_id, company_code,login,password,address,date_of_birth,analysis_type,doc_full_name,doc_phone,analysis_image_name from "Patients" WHERE login = $login"""
+    val querySql = fr"""select created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,analysis_image_name from "Patients" WHERE login = $login"""
       querySql.query[Patient]
   }
 
@@ -135,7 +136,7 @@ object MessageSQL extends CommonSQL  {
   def getPatients: ConnectionIO[List[Patient]] = {
     val querySql =
       sql"""
-        SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,doc_full_name,doc_phone,analysis_image_name FROM "Patients" ORDER BY created_at
+        SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,analysis_image_name FROM "Patients" ORDER BY created_at
       """
     querySql.query[Patient].to[List]
   }

@@ -51,6 +51,14 @@
            optionsText: $data, optionsValue: $data, value: vm.patient.analysisType, optionsCaption: vm.translate('analysisType')" autocomplete="off"></select>
         </div>
         <div class="form-group col-sm-6 col-12">
+          <select class="select form-control bg-white" id="mrtType" data-bind="options: vm.getMrtTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.patient.analysisGroup, optionsCaption: vm.translate('mrtType')" autocomplete="off"></select>
+        </div>
+        <div class="form-group col-sm-6 col-12">
+          <select class="select form-control bg-white" id="msktType" data-bind="options: vm.getMsktTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.patient.analysisGroup, optionsCaption: vm.translate('msktType')" autocomplete="off"></select>
+        </div>
+        <div class="form-group col-sm-6 col-12">
           <input class="form-control input-box" type="text" id="docFullName" data-bind="value: vm.patient.docFullName" name="docFullName" value="" onchange="this.setAttribute('value', this.value);">
           <label for="docFullName" class="label"><span data-bind="text: vm.translate('docFullName')"></span></label>
         </div>

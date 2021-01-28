@@ -6,6 +6,8 @@ $ ->
   apiUrl =
     registerUrl: '/patient/add-patient'
     getAnalysisType: '/patient/get-analysis-type'
+    getMrtType: '/patient/get-mrt-type'
+    getMsktType: '/patient/get-mskt-type'
 
   defaultPatient =
     firstName: ''
@@ -16,11 +18,14 @@ $ ->
     docFullName: ''
     docPhone: ''
     analysisType: ''
+    analysisGroup: ''
 
   vm = ko.mapping.fromJS
     patient: defaultPatient
     customerId: ''
     getAnalysisTypeList: []
+    getMrtTypeList: []
+    getMsktTypeList: []
     language: Glob.language
 
   handleError = (error) ->
@@ -39,10 +44,24 @@ $ ->
 
   getAnalysisType = ->
     $.get(apiUrl.getAnalysisType)
-    .fail handleError
-    .done (response) ->
-      vm.getAnalysisTypeList(response)
+      .fail handleError
+      .done (response) ->
+        vm.getAnalysisTypeList(response)
   getAnalysisType()
+
+  getMrtType = ->
+    $.get(apiUrl.getMrtType)
+      .fail handleError
+      .done (response) ->
+        vm.getMrtTypeList(response)
+  getMrtType()
+
+  getMsktType = ->
+    $.get(apiUrl.getMsktType)
+      .fail handleError
+      .done (response) ->
+        vm.getMsktTypeList(response)
+  getMsktType()
 
   vm.onSubmit = ->
     toastr.clear()
@@ -79,6 +98,7 @@ $ ->
         docFullName: vm.patient.docFullName()
         docPhone: vm.patient.docPhone().replace(/[(|)|-]/g, "").trim()
         analysisType: vm.patient.analysisType()
+        analysisGroup: vm.patient.analysisGroup()
         company_code: window.location.host
       $.post(apiUrl.registerUrl, JSON.stringify(patient))
       .fail handleError
@@ -158,6 +178,16 @@ $ ->
       "Analysis type"
       "Тип анализа"
       "Tahlil turi"
+    ]
+    mrtType: [
+      "MRT type"
+      "Тип МРТ"
+      "MRT turi"
+    ]
+    msktType: [
+      "MSKT type"
+      "Тип МСКТ"
+      "MSKT turi"
     ]
     thankYou: [
       "Thank you!"
