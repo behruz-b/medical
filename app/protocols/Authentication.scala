@@ -17,10 +17,8 @@ object Authentication extends CommonMethods {
     val StatsRole = "stats.role"
     val PatientRole = "patient.role"
   }
-
-  import protocols.Authentication.AppRole._
-
-  val Company = Vector("localhost:9000", "smart-medical.uz")
+  val LoginSessionKey = "login.session.key"
+  import AppRole._
 
   case class LoginFormWithClientCode(
                                       login: String = "",
@@ -31,7 +29,6 @@ object Authentication extends CommonMethods {
     mapping(
       "login" -> nonEmptyText,
       "password" -> nonEmptyText,
-      //      "clientCode" -> nonEmptyText
     )(LoginFormWithClientCode.apply)(LoginFormWithClientCode.unapply)
   }
 
@@ -39,17 +36,14 @@ object Authentication extends CommonMethods {
 
   case class Login(rootPath: String,
                    redirectUrl: Call,
-                   companyCode: String,
                    sessionAttr: SessionAttr,
                    sessionDuration: Option[FiniteDuration] = 60.minutes.some)
 
-  val loginPatterns: Map[String, Login] = Company.flatMap { domain =>
-    Vector(
-      Login("/reg/", routes.HomeController.index(), domain, createSessionAttr(domain, RegRole)),
-      Login("/admin/", routes.HomeController.admin(), domain, createSessionAttr(domain, AdminRole)),
-      Login("/doc/", routes.HomeController.addAnalysisResult(), domain, createSessionAttr(domain, DoctorRole)),
-      Login("/patient/", routes.HomeController.getPatientsTemplate(), domain, createSessionAttr(domain, PatientRole)),
-      Login("/stats/", routes.HomeController.getStatisticTemplate(), domain, createSessionAttr(domain, StatsRole))
-    )
-  }.map(l => l.rootPath -> l).toMap
+  val loginPatterns: Map[String, Login] = Vector(
+      Login("/reg/", routes.HomeController.index(), createSessionAttr(RegRole)),
+      Login("/admin/", routes.HomeController.admin(), createSessionAttr(AdminRole)),
+      Login("/doc/", routes.HomeController.addAnalysisResult(), createSessionAttr(DoctorRole)),
+      Login("/patient/", routes.HomeController.getPatientsTemplate(), createSessionAttr(PatientRole)),
+      Login("/stats/", routes.HomeController.getStatisticTemplate(), createSessionAttr(StatsRole))
+    ).map(l => l.rootPath -> l).toMap
 }

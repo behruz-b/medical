@@ -45,7 +45,7 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
       case Right(_) =>
         Redirect(loginParams.rootPath).flashing("error" -> "You do not have access to this page")
       case Left(error) =>
-        logger.error("Error occurred while check login and password", error)
+        logger.error(s"Error occurred while check login and password: $error")
         Redirect(loginParams.rootPath).flashing("error" -> "Incorrect login or password. Please try again")
     }
   }
@@ -56,7 +56,7 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
       case Some(value) =>
         checkLogin(login, password, value)
       case None =>
-        logger.info(s"unknown uri: $uri")
+        logger.info(s"Unknown uri: $uri")
         Future.successful(Redirect(uri).flashing("error" -> "Something went wrong. Please try again."))
     }
   }
