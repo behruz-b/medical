@@ -11,6 +11,7 @@ $ ->
 
 root.my =
   growlTimeoutSeconds: 5
+  logoutUrl: '/logout'
 
   showGrowl: (observableBoolean) ->
     observableBoolean true
@@ -104,6 +105,9 @@ root.my =
 #        observable parseFloat(observable())
 
 # used in dashboards
+
+  logout: ->
+    my.navigateToUrl(my.logoutUrl)
 
   navigateToUrl: (url) ->
     a = document.createElement('a')

@@ -31,7 +31,7 @@ trait PlayStubEnv extends PlaySpec with GuiceOneAppPerSuite {
         override def configure(): Unit = {
           bindActor[PatientManagerStub]("patient-manager")
         }})
-      .build
+      .build()
   }
 
 }

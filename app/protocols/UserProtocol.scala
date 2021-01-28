@@ -22,7 +22,7 @@ object UserProtocol {
 
   case class CheckUserByLogin(login: String, password: String)
   case class CreateUser(user: User)
-  case class checkUserByLoginAndCreate(user: User)
+  case class CheckUserByLoginAndCreate(user: User)
   case class Roles(id: Int, name: String, code: String)
   case object GetRoles
   implicit val rolesFormat: OFormat[Roles] = Json.format[Roles]

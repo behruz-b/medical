@@ -5,13 +5,13 @@ import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
+import play.api.{Configuration, Environment}
+import protocols.UserProtocol.{CheckUserByLogin, GetRoles, Roles, User, CheckUserByLoginAndCreate}
 
 import javax.inject.Inject
-import play.api.{Configuration, Environment}
-import protocols.UserProtocol.{CheckUserByLogin, CreateUser, GetRoles, Roles, User, checkUserByLoginAndCreate}
-
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
+import protocols.SecurityUtils.md5
 
 class UserManager @Inject()(val configuration: Configuration,
                             val environment: Environment)
@@ -25,41 +25,21 @@ class UserManager @Inject()(val configuration: Configuration,
     case CheckUserByLogin(login, password) =>
       checkUserByLoginAndPassword(login, password).pipeTo(sender())
 
-//    case CreateUser(user) =>
-//      createUser(user).pipeTo(sender())
-
-    case checkUserByLoginAndCreate(user) =>
+    case CheckUserByLoginAndCreate(user) =>
       checkUserByLoginAndCreate(user).pipeTo(sender())
 
     case GetRoles =>
       getRoles.pipeTo(sender())
   }
 
-//  private def createUser(user: User): Future[Either[String, String]] = {
-//    (for {
-//      result <- DoobieModule.repo.createUser(user).unsafeToFuture()
-//    } yield {
-//      logger.debug(s"result: $result")
-//      Right("Successfully User created")
-//    }).recover {
-//      case e: Throwable =>
-//        logger.error("Error", e)
-//        Left("Error happened while creating user")
-//    }
-//  }
-
   private def checkUserByLoginAndPassword(login: String, password: String): Future[Either[String, String]] = {
-    logger.debug(s"login: $login, password: $password")
-    (for {
-      result <- DoobieModule.repo.getUserByLogin(login).compile.last.unsafeToFuture()
-    } yield {
-      logger.debug(s"result: ${result.exists(_.password == password)}, $result")
-      if (result.exists(_.password == password)) {
+    DoobieModule.repo.getUserByLogin(login).compile.last.unsafeToFuture().map { result =>
+      if (result.exists(_.password == md5(password))) {
         Right(result.get.role)
       } else {
         Left("Incorrect login or password")
       }
-    }).recover {
+    }.recover {
       case e: Throwable =>
         logger.error("Error", e)
         Left("Error happened while requesting Login or Password")
@@ -67,25 +47,21 @@ class UserManager @Inject()(val configuration: Configuration,
   }
 
   private def checkUserByLoginAndCreate(user: User): Future[Either[String, String]] = {
-    DoobieModule.repo.createUser(user).unsafeToFuture().map { _ =>
+    DoobieModule.repo.createUser(user.copy(password = md5(user.password))).unsafeToFuture().map { _ =>
       Right("Successfully created!")
     }.recover {
       case error: Throwable =>
         logger.error("Error occurred while create user. Error: ", error)
-        if (error.getMessage.contains("duplicate")){
-          Left("Login already exists")
+        if (error.getMessage.contains("duplicate")) {
+          Left("Kiritilgan login avvaldan mavjud!")
         } else {
-          Left("Error occurred while create user")
+          Left("Foydalanuvchi yaratishda hatolik yuz berdi. Iltimos qaytadan urinib ko'ring!")
         }
     }
   }
 
   private def getRoles: Future[List[Roles]] = {
-    for {
-      roles <- DoobieModule.repo.getRoles.unsafeToFuture()
-    } yield {
-      roles
-    }
+    DoobieModule.repo.getRoles.unsafeToFuture()
   }
 
 }

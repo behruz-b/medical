@@ -13,19 +13,19 @@ import java.time.LocalDateTime
 class MessageMigrationQueryTypeCheckSpec extends funsuite.AnyFunSuite with Matchers with doobie.scalatest.IOChecker {
 
   override val transactor = DbTransactor
-  val samplePatient: Patient = Patient(
-    created_at = LocalDateTime.now(),
-    firstname = "Nick",
-    lastname = "Fury",
-    phone = "11234567891",
-    email = "nicck.fury@mail.com".some,
-    passport = "AA1112233",
-    customer_id = "G-324",
-    login = "nickf",
-    password = "diek3Jdua"
-  )
-
-  test("Create Chats in DB") {IO(create(samplePatient))}
-  test("Get Chats") {IO(getByCustomerId("G-"))}
+//  val samplePatient: Patient = Patient(
+//    created_at = LocalDateTime.now(),
+//    firstname = "Nick",
+//    lastname = "Fury",
+//    phone = "11234567891",
+//    email = "nicck.fury@mail.com".some,
+//    passport = "AA1112233",
+//    customer_id = "G-324",
+//    login = "nickf",
+//    password = "diek3Jdua"
+//  )
+//
+//  test("Create Chats in DB") {IO(create(samplePatient))}
+//  test("Get Chats") {IO(getByCustomerId("G-"))}
 
 }

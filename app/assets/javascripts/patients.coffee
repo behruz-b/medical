@@ -12,7 +12,10 @@ $ ->
     fileName: ''
 
   handleError = (error) ->
-    if error.status is 500 or (error.status is 400 and error.responseText)
+    $.unblockUI()
+    if error.status is 401
+      my.logout()
+    else if error.status is 500 or (error.status is 400 and error.responseText)
       toastr.error(error.responseText)
     else
       toastr.error('Something went wrong! Please try again.')
@@ -38,6 +41,11 @@ $ ->
     vm.labels[fieldName][index]
 
   vm.labels =
+    patients: [
+      "Patients"
+      "Пациенты"
+      "Bemorlar"
+    ]
     firstName: [
       "First name"
       "Имя"
@@ -53,20 +61,40 @@ $ ->
       "Эл. адрес"
       "Email"
     ]
+    dateOfBirth: [
+      "Date of birth"
+      "Дата рождения"
+      "Tug'ilgan yili"
+    ]
     phoneNumber: [
       "Phone number"
       "Телефонный номер"
       "Telefon raqami"
     ]
-    passportSerialNumber: [
-      "Passport serial number"
-      "Серийный номер паспорта"
-      "Pasport seriya raqami"
+    createdAt: [
+      "Created at"
+      "Время регистрации"
+      "Ro'yhatdan o'tgan vaqti"
     ]
-    yourID: [
-      "You are registered on ID:"
-      "Вы зарегистрированы по ID:"
-      "Sizning ID:"
+    address: [
+      "Address"
+      "Адрес"
+      "Manzil"
+    ]
+    analysisType: [
+      "Analysis type"
+      "Тип анализа"
+      "Tahlil turi"
+    ]
+    analysisResult: [
+      "Analysis result"
+      "Результат анализа"
+      "Tahlil natijasi"
+    ]
+    closeModal: [
+      "Close"
+      "Закрыть"
+      "Yopish"
     ]
 
   ko.applyBindings {vm}
