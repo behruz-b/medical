@@ -17,7 +17,7 @@ GET     /patient/get-patients                                   @controllers.Hom
 GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType()
 GET     /patient/get-mrt-type                                   @controllers.HomeController.getMrtType()
 GET     /patient/get-mskt-type                                  @controllers.HomeController.getMsktType()
-GET     /patient/get-uzi-type                                   @controllers.HomeController.getUziType
+GET     /patient/get-uzi-type                                   @controllers.HomeController.getUziType()
 
 GET     /stats/                                                 @controllers.HomeController.getStatisticTemplate(language = "uz")
 GET     /stats/get-stats                                        @controllers.HomeController.getStats

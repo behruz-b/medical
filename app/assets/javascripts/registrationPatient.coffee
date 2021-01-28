@@ -46,30 +46,30 @@ $ ->
 
   getAnalysisType = ->
     $.get(apiUrl.getAnalysisType)
-      .fail handleError
-      .done (response) ->
-        vm.getAnalysisTypeList(response)
+    .fail handleError
+    .done (response) ->
+      vm.getAnalysisTypeList(response)
   getAnalysisType()
 
   getMrtType = ->
     $.get(apiUrl.getMrtType)
-      .fail handleError
-      .done (response) ->
-        vm.getMrtTypeList(response)
+    .fail handleError
+    .done (response) ->
+      vm.getMrtTypeList(response)
   getMrtType()
 
   getMsktType = ->
     $.get(apiUrl.getMsktType)
-      .fail handleError
-      .done (response) ->
-        vm.getMsktTypeList(response)
+    .fail handleError
+    .done (response) ->
+      vm.getMsktTypeList(response)
   getMsktType()
 
   getUziType = ->
     $.get(apiUrl.getUziType)
-      .fail handleError
-      .done (response) ->
-        vm.getUziTypeList(response)
+    .fail handleError
+    .done (response) ->
+      vm.getUziTypeList(response)
   getUziType()
 
   vm.onSubmit = ->
@@ -96,6 +96,9 @@ $ ->
       return no
     else if !vm.patient.analysisType()
       toastr.error("Iltimos tahlil turini kiriting!")
+      return no
+    else if !vm.patient.analysisGroup()
+      toastr.error("Iltimos tahlil guruhini kiriting!")
       return no
     else
       patient =
@@ -201,7 +204,7 @@ $ ->
     uziType: [
       "Ultrasound type"
       "Узи типа"
-      "Узи типа"
+      "UZI turi"
     ]
     thankYou: [
       "Thank you!"
