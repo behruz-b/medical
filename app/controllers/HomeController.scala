@@ -119,7 +119,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, body.company_code, action = "reg_submit", request.headers.get("Remote-Address").get,
-            request.session.get(createSessionKey(body.company_code)).getOrElse(createSessionKey(body.company_code)), request.headers.get("User-Agent").get)
+            request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) => BadRequest(e)
@@ -201,7 +201,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                 _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
                 _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
               } yield {
-                val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(createSessionKey(request.host)).getOrElse(createSessionKey(request.host)), request.headers.get("User-Agent").get)
+                val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
                 statsManager ! AddStatsAction(statsAction)
                 statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
                 "File is uploaded"
