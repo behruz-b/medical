@@ -11,6 +11,7 @@ import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.Authentication.AppRole._
+import protocols.Authentication.LoginSessionKey
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{GetRoles, Roles, User, checkUserByLoginAndCreate}
 import views.html._
@@ -99,7 +100,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         val prefixPhone = "998"
         val company_code = request.host
         val login = (request.body \ "login").as[String]
-        val roleKey = if(role == "Admin") "admin.role" else if (role == "Doctor") "doctor.role" else "register.role"
+        val roleKey = if (role == "Admin") "admin.role" else if (role == "Doctor") "doctor.role" else "register.role"
         val user = User(LocalDateTime.now, firstName, lastName, prefixPhone + phone, roleKey,
           company_code, login, generatePassword)
         (userManager ? checkUserByLoginAndCreate(user)).mapTo[Either[String, String]].map {
@@ -154,7 +155,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, request.host, action = "reg_submit", request.headers.get("Remote-Address").get,
-            request.session.get(createSessionKey(request.host)).getOrElse(createSessionKey(request.host)), request.headers.get("User-Agent").get)
+            request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
         case Left(e) =>
@@ -243,7 +244,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
               _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
             } yield {
-              val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(createSessionKey(request.host)).getOrElse(createSessionKey(request.host)), request.headers.get("User-Agent").get)
+              val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
               statsManager ! AddStatsAction(statsAction)
               statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
               "File is uploaded"
