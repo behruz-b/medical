@@ -176,8 +176,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def getRoleTypes: Action[AnyContent] = Action.async { implicit request =>
     authByRole(AdminRole) {
       (userManager ? GetRoles).mapTo[List[Roles]].map { results =>
-        val roles = results.map(_.name)
-        Ok(Json.toJson(roles))
+        Ok(Json.toJson(results))
       }
     }
   }
