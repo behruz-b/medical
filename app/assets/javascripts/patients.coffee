@@ -4,7 +4,7 @@ $ ->
   Glob = window.Glob || {}
 
   apiUrl =
-    patientsUrl: '/get-patients'
+    patientsUrl: '/patient/get-patients'
 
   vm = ko.mapping.fromJS
     language: Glob.language
@@ -30,11 +30,12 @@ $ ->
     vm.fileName(fileName)
     $('#analysisImage').modal('show')
 
-  vm.getPatients = ->
+  getPatients = ->
     $.get(apiUrl.patientsUrl)
     .fail handleError
     .done (response) ->
       vm.patients(response)
+  getPatients()
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3

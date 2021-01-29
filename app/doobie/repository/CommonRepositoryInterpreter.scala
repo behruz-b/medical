@@ -45,7 +45,7 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
     commonSql.addDeliveryStatus(customerId, deliveryStatus).run.transact(xa)
   }
   override def addSmsLinkClick(customerId: String, smsLinkClick: String): F[Int] = {
-    commonSql.addDeliveryStatus(customerId, smsLinkClick).run.transact(xa)
+    commonSql.addSmsLinkClick(customerId, smsLinkClick).run.transact(xa)
   }
   override def getByCustomerId(customerId: String): fs2.Stream[F,Patient] = {
     commonSql.getByCustomerId(customerId).stream.transact(xa)

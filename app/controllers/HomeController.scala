@@ -145,7 +145,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatients: Action[AnyContent] = Action.async { implicit request =>
-    authByRole(isDoctor || isManager) {
+    authByRole(isAdmin || isManager || isDoctor) {
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
         Ok(Json.toJson(patients))
       }
@@ -153,8 +153,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatientsTemplate(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(isManager, language) {
-      Ok(getPatientsTemp(isAuthorized, isManager, language))
+    authByDashboard(isAdmin || isManager || isDoctor, language) {
+      Ok(getPatientsTemp(isAuthorized, isAdmin, language))
     }
   }
 
