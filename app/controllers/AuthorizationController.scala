@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class AuthorizationController @Inject()(val controllerComponents: ControllerComponents,
                                         @Named("user-manager") val userManager: ActorRef)
-                                        (implicit val ec: ExecutionContext)
+                                       (implicit val ec: ExecutionContext)
   extends BaseController with Auth {
   implicit val defaultTimeout: Timeout = Timeout(30.seconds)
 
@@ -45,7 +45,7 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
       case Right(_) =>
         Redirect(loginParams.rootPath).flashing("error" -> "You do not have access to this page")
       case Left(error) =>
-        logger.error(s"Error occurred while check login and password: $error")
+        logger.warn(s"Error occurred while check login and password: $error")
         Redirect(loginParams.rootPath).flashing("error" -> "Incorrect login or password. Please try again")
     }
   }

@@ -1,7 +1,6 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
 @(customerId: String, fileName: String)
 @main("Analysis Result", webJarsUtil) {
-    @navbar()
     <div class="container">
         <img src="@routes.Assets.versioned(fileName)" width="320" height="200">
         <p>Click on the button to download it:</p>

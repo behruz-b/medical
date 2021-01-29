@@ -1,4 +1,4 @@
-@()
+@(isAuthorized: Boolean)
 
 <div class="d-flex">
   <div class="p-2 bg-dark flex-fill">
@@ -8,9 +8,11 @@
     </a>
   </div>
   <div class="p-2 bg-dark flex-fill">
-    <a class="text-decoration-none d-lg-flex d-md-flex d-sm-flex d-flex d-xl-flex
-     justify-content-end justify-content-md-end justify-content-sm-end" href="@routes.AuthorizationController.logout()">
+    @if(isAuthorized) {
+      <a class="text-decoration-none d-lg-flex d-md-flex d-sm-flex d-flex d-xl-flex
+      justify-content-end justify-content-md-end justify-content-sm-end" href="@routes.AuthorizationController.logout()">
         <button class="btn btn-success" type="button"><i class="fa fa-sign-out-alt"></i> Chiqish</button>
-    </a>
+      </a>
+    }
   </div>
 </div>

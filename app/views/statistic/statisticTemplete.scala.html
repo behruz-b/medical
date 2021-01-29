@@ -1,6 +1,6 @@
 @import views.html.statistic.main
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(lang: String = "uz")(implicit flash: Flash)
+@(isAuthorized: Boolean, lang: String = "uz")(implicit flash: Flash)
 @statistic.main("Stats", webJarsUtil) {
     <script>
             @flash.get("error").map { response =>
@@ -19,7 +19,7 @@
             overflow-y: auto;
         }
     </style>
-    @navbar()
+    @navbar(isAuthorized)
     <div class="container">
         <h2 class="text-white"><span data-bind="text: vm.translate('statistics')"></span></h2>
         <div class="row">

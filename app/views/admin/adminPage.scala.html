@@ -1,12 +1,12 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(lang: String = "uz")
+@(isAuthorized: Boolean, lang: String = "uz")
 @admin.main("Admin Page", webJarsUtil) {
     <script>
             var Glob = {
                 language: '@lang'
             };
     </script>
-    @navbar()
+    @navbar(isAuthorized)
     <div class="row box-align-center">
         <input type="hidden" data-bind="click: vm.getRoleType()">
         <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">

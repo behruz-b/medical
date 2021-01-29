@@ -28,6 +28,7 @@ import scala.util.Try
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: views.html.index,
+                               regTemplate: views.html.register.register,
                                adminTemplate: views.html.admin.adminPage,
                                loginPage: views.html.admin.login,
                                configuration: Configuration,
@@ -45,10 +46,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
   val adminPassword: String = configuration.get[String]("admin.password")
+  private def isAuthorized(implicit request: RequestHeader): Boolean = request.session.get(LoginSessionKey).isDefined
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
+    Ok(indexTemplate(isAuthorized, language))
+  }
+
+  def registerPage(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isRegister || isManager, language) {
-      Ok(indexTemplate(language))
+      Ok(regTemplate(isAuthorized, language))
     }
   }
 
@@ -64,7 +70,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def admin(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isAdmin, language) {
-      Ok(adminTemplate(language))
+      Ok(adminTemplate(isAuthorized, language))
     }
   }
 
@@ -132,7 +138,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isDoctor || isManager, language) {
-      Ok(addAnalysisResultPageTemp(language))
+      Ok(addAnalysisResultPageTemp(isAuthorized, language))
     }
   }
 
@@ -147,7 +153,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def getPatientsTemplate(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isManager, language) {
-      Ok(getPatientsTemp(language))
+      Ok(getPatientsTemp(isAuthorized, language))
     }
   }
 
@@ -161,7 +167,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def getStatisticTemplate(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isAdmin, language) {
-      Ok(statsActionTemp(language))
+      Ok(statsActionTemp(isAuthorized, language))
     }
   }
 

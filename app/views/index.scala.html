@@ -1,5 +1,5 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(lang: String = "uz")
+@(isAuthorized: Boolean, lang: String = "uz")
 @main("Home Page", webJarsUtil) {
   <script>
           function autotab(el) {
@@ -21,85 +21,7 @@
             language: '@lang'
           };
   </script>
-  @navbar()
-  <div class="row box-align-center">
-    <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
-      <h2 class="text-white"><span data-bind="text: vm.translate('registrationForm')"></span></h2>
-      <form name="register_form" class="row">
-        <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="first_name" data-bind="value: vm.patient.firstName" name="first_name" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="first_name" class="label"><span data-bind="text: vm.translate('firstName')"></span></label>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="last_name" name="last_name" data-bind="value: vm.patient.lastName" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="last_name" class="label"><span data-bind="text: vm.translate('lastName')"></span></label>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="phone" name="phone" data-bind="masked: vm.patient.phone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="phone" class="label"><span data-bind="text: vm.translate('phoneNumber')"></span></label>
-        </div>
-        <div class="form-group col-sm-6 col-4">
-          <input class="form-control input-box" type="text" id="date" name="date" data-bind="masked: vm.patient.date, mask: '99/99/9999'" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="date" class="label"><span data-bind="text: vm.translate('date')"></span></label>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="address" name="address" data-bind="value: vm.patient.address" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="address" class="label"><span data-bind="text: vm.translate('address')"></span></label>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="analysisType" data-bind="options: vm.getAnalysisTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.patient.analysisType, optionsCaption: vm.translate('analysisType')" autocomplete="off"></select>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="mrtType" data-bind="options: vm.getMrtTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.patient.analysisGroup, optionsCaption: vm.translate('mrtType')" autocomplete="off"></select>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="msktType" data-bind="options: vm.getMsktTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.patient.analysisGroup, optionsCaption: vm.translate('msktType')" autocomplete="off"></select>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="uziType" data-bind="options: vm.getUziTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.patient.analysisGroup, optionsCaption: vm.translate('uziType')" autocomplete="off"></select>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="docFullName" data-bind="value: vm.patient.docFullName" name="docFullName" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="docFullName" class="label"><span data-bind="text: vm.translate('docFullName')"></span></label>
-        </div>
-        <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="docPhone" name="phone" data-bind="masked: vm.patient.docPhone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="docPhone" class="label"><span data-bind="text: vm.translate('docPhone')"></span></label>
-        </div>
-        <div class="col-12">
-          <div class="text-center">
-            <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit"><span data-bind="text: vm.translate('register')"></span></button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="modal" id="thankYou" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-body">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <div class="text-center">
-            <i class="fa fa-check-circle text-success fa-10x m-2"></i>
-            <h3><span data-bind="text: vm.translate('thankYou')"></span></h3>
-            <h3><span data-bind="text: vm.translate('yourID')"></span>
-              <span class="text-success" data-bind="text: vm.customerId()"></span>
-            </h3>
-            <a class="btn btn-primary mt-2" data-dismiss="modal" aria-label="Close" href="">
-              <span data-bind="text: vm.translate('closeModal')"></span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  @navbar(isAuthorized)
   @for(_ <- 0 to 100) {
     <div class="circle-container">
       <div class="circle"></div>
