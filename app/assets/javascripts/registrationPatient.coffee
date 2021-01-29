@@ -14,7 +14,7 @@ $ ->
     firstName: ''
     lastName: ''
     phone: ''
-    date: ''
+    dateOfBirth: ''
     address: ''
     docFullName: ''
     docPhone: ''
@@ -29,6 +29,9 @@ $ ->
     getMsktTypeList: []
     getUziTypeList: []
     language: Glob.language
+    selectedMrt: ''
+    selectedMskt: ''
+    selectedUzi: ''
 
   handleError = (error) ->
     $.unblockUI()
@@ -74,6 +77,7 @@ $ ->
 
   vm.onSubmit = ->
     toastr.clear()
+    clearedPhone = my.clearPhone(vm.patient.phone())
     if !vm.patient.firstName()
       toastr.error("Iltimos ismingizni kiriting!")
       return no
@@ -82,13 +86,13 @@ $ ->
       return no
     else if !vm.patient.phone()
       toastr.error("Iltimos telefon raqamingizni kiriting!")
-    else if vm.patient.phone() and !my.isValidPhone(vm.patient.phone().replace(/[(|)|-]/g, "").trim())
+    else if vm.patient.phone() and !my.isValidPhone(clearedPhone)
       toastr.error("Iltimos telefon raqamingizni to'gri kiriting!")
       return no
-    else if !vm.patient.date()
+    else if !vm.patient.dateOfBirth()
       toastr.error("Iltimos tug'ilgan yilini kiriting!")
       return no
-    else if (vm.patient.date() and (vm.patient.date().length < 8 or vm.patient.date().length == 9))
+    else if vm.patient.dateOfBirth() and vm.patient.dateOfBirth().length isnt 10
       toastr.error("Iltimos tug'ilgan yilini to'g'ri kiriting!")
       return no
     else if !vm.patient.address()
@@ -97,34 +101,33 @@ $ ->
     else if !vm.patient.analysisType()
       toastr.error("Iltimos tahlil turini kiriting!")
       return no
-    else if !vm.patient.analysisGroup()
-      toastr.error("Iltimos tahlil guruhini kiriting!")
+    else if vm.patient.analysisType() is "MRT" and !vm.selectedMrt()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
+    else if vm.patient.analysisType() is "MSKT" and !vm.selectedMskt()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
+    else if vm.patient.analysisType() is "UZI" and !vm.selectedUzi()
+      toastr.error("Iltimos tahlil turini kiriting!")
       return no
     else
-      patient =
-        firstName: vm.patient.firstName()
-        lastName: vm.patient.lastName()
-        phone: vm.patient.phone().replace(/[(|)|-]/g, "").trim()
-        dateOfBirth: vm.patient.date()
-        address: vm.patient.address()
-        docFullName: vm.patient.docFullName()
-        docPhone: vm.patient.docPhone().replace(/[(|)|-]/g, "").trim()
-        analysisType: vm.patient.analysisType()
-        analysisGroup: vm.patient.analysisGroup()
-        company_code: window.location.host
-      $.post(apiUrl.registerUrl, JSON.stringify(patient))
+      data = ko.mapping.toJS vm.patient
+      data.phone = clearedPhone
+      data.docPhone = my.clearPhone(vm.patient.docPhone())
+      data.companyCode = window.location.host
+      data.analysisGroup =
+        if vm.patient.analysisType() is "MRT"
+          vm.selectedMrt()
+        else if vm.patient.analysisType() is "MSKT"
+          vm.selectedMskt()
+        else if vm.patient.analysisType() is "UZI"
+          vm.selectedUzi()
+      $.post(apiUrl.registerUrl, JSON.stringify(data))
       .fail handleError
       .done (response) ->
         vm.customerId(response)
         ko.mapping.fromJS(defaultPatient, {}, vm.patient)
         $thankYou.modal('show')
-
-  checkSize = (el) ->
-    if el.value.length > 0
-      $label.removeClass 'move-top'
-      $label.addClass 'move-top'
-    else
-      $label.removeClass 'move-top'
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
@@ -176,10 +179,10 @@ $ ->
       "Телефон врача"
       "Shifokorning telefon raqami"
     ]
-    date: [
-      "Date of birth"
-      "Дата рождения"
-      "Tug'ilgan yili"
+    dateOfBirth: [
+      "Date of birth (day/month/year)"
+      "Дата рождения (den/mesets/god)"
+      "Tug'ilgan yili (kun/oy/yil)"
     ]
     address: [
       "Address"

@@ -81,6 +81,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           val stats = StatsAction(LocalDateTime.now, request.host, action = "result_sms_click", request.headers.get("Remote-Address").get,
             login = patient.customer_id, request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
+          val patientStats = AddSmsLinkClick(customerId = patient.customer_id, smsLinkClick = "click")
+          patientManager ! patientStats
           Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
         } else {
           logger.error("Error while getting analysis file name")
@@ -120,10 +122,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val phoneWithPrefix = prefixPhone + body.phone
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
-        body.company_code, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup, body.docFullName, docPhoneWithPrefix)
+        body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup, body.docFullName, docPhoneWithPrefix)
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
         case Right(_) =>
-          val stats = StatsAction(LocalDateTime.now, body.company_code, action = "reg_submit", request.headers.get("Remote-Address").get,
+          val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
             request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))

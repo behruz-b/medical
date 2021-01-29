@@ -43,6 +43,9 @@ class PatientManager @Inject()(val configuration: Configuration,
     case AddAnalysisResult(customerId, analysisFileName) =>
       addAnalysisResult(customerId, analysisFileName).pipeTo(sender())
 
+    case AddSmsLinkClick(customerId, smsLinkClick) =>
+      addSmsLinkClick(customerId, smsLinkClick).pipeTo(sender())
+
     case GetPatientByCustomerId(customerId) =>
       getPatientByCustomerId(customerId).pipeTo(sender())
 
@@ -95,6 +98,20 @@ class PatientManager @Inject()(val configuration: Configuration,
 
   private def addAnalysisResult(customerId: String, analysisFileName: String): Future[Either[String, String]] = {
     DoobieModule.repo.addAnalysisResult(customerId, analysisFileName).unsafeToFuture().map { result =>
+      if (result == 1) {
+        Right("Successfully")
+      } else {
+        Left("Error while adding Analysis File to DB")
+      }
+    }.recover {
+      case e: Throwable =>
+        logger.error("Error occurred while add analysis result.", e)
+        Left("Error happened while adding Analysis File to DB")
+    }
+  }
+
+  private def addSmsLinkClick(customerId: String, smsLinkClick: String): Future[Either[String, String]] = {
+    DoobieModule.repo.addSmsLinkClick(customerId, smsLinkClick).unsafeToFuture().map { result =>
       if (result == 1) {
         Right("Successfully")
       } else {

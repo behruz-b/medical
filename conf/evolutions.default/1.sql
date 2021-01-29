@@ -23,4 +23,6 @@ CREATE TABLE "Patients"
     "analysis_image_name" VARCHAR   NULL
 );
 
+ALTER TABLE "Patients" ADD COLUMN sms_link_click VARCHAR NULL;
+
 DROP TABLE "Patients";

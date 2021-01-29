@@ -15,8 +15,8 @@ object MessageSQL extends CommonSQL  {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
-    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, String, Option[String], Option[String], Option[String])].map {
-      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analysis_type, analysis_group, doc_full_name, doc_phone, lab_image) =>
+    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, String, Option[String], Option[String], Option[String], Option[String])].map {
+      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analysis_type, analysis_group, sms_link_click, doc_full_name, doc_phone, lab_image) =>
         Patient(
           created_at.toLocalDateTime,
           firstname = firstname,
@@ -30,11 +30,13 @@ object MessageSQL extends CommonSQL  {
           dateOfBirth = date_of_birth.toLocalDateTime.toLocalDate,
           analyseType = analysis_type,
           analyseGroup = analysis_group,
+          smsLinkClick = sms_link_click,
           docFullName = doc_full_name,
           docPhone = doc_phone,
           analysis_image_name = lab_image
         )
     }
+
 //  implicit val writePatient: Write[Patient] =
 //    Write[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String])].contramap { f =>
 //        (
@@ -52,6 +54,7 @@ object MessageSQL extends CommonSQL  {
 //          f.docFullName
 //        )
 //    }
+
   implicit val userRead: Read[User] =
     Read[(Timestamp, String, String, String, String, String, String,String)].map {
       case (created_at, firstname, lastname, phone, role, company_code, login, password) =>
@@ -96,6 +99,11 @@ object MessageSQL extends CommonSQL  {
 
   def addDeliveryStatus(customerId: String, deliveryStatus: String): Update0 = {
     sql"""UPDATE "Patients" SET delivery_status=$deliveryStatus
+          WHERE customer_id=$customerId""".update
+  }
+
+  def addSmsLinkClick(customerId: String, smsLinkClick: String): Update0 = {
+    sql"""UPDATE "Patients" SET sms_lick_click=$smsLinkClick
           WHERE customer_id=$customerId""".update
   }
 

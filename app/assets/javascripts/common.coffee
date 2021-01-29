@@ -78,6 +78,9 @@ root.my =
 #  regexpAlpha:
 #    /[a-z]/i
 
+  clearPhone: (text) ->
+    text.replace(/[(|)|-]/g, "").trim()
+
   hasText: (s) ->
     !_.isEmpty(_.trim(s))
 

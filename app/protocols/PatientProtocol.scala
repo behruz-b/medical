@@ -26,7 +26,7 @@ object PatientProtocol {
                          analyseGroup: String,
                          docFullName: Option[String] = None,
                          docPhone: Option[String] = None,
-                         company_code: String)
+                         companyCode: String)
 
 
   implicit val patientFormReads: Reads[PatientForm] = (
@@ -35,11 +35,11 @@ object PatientProtocol {
       (__ \ "phone").read[String] and
       localDateFormat("dateOfBirth") and
       (__ \ "address").read[String] and
-      (__ \ "analyseType").read[String] and
-      (__ \ "analyseGroup").read[String] and
-      (__ \ "docFullName").formatNullable[String] and
-      (__ \ "docPhone").formatNullable[String] and
-      (__ \ "company_code").read[String]
+      (__ \ "analysisType").read[String] and
+      (__ \ "analysisGroup").read[String] and
+      optStringRead("docFullName") and
+      optStringRead("docPhone") and
+      (__ \ "companyCode").read[String]
     )(PatientForm)
 
   case class DoctorForm(firstName: String,
@@ -72,6 +72,7 @@ object PatientProtocol {
                      analyseGroup: String,
                      docFullName: Option[String] = None,
                      docPhone: Option[String] = None,
+                     smsLinkClick: Option[String] = None,
                      analysis_image_name: Option[String] = None) {
     def id: Option[Int] = None
   }
@@ -92,6 +93,8 @@ object PatientProtocol {
   case class AddStatsAction(statsAction: StatsAction)
 
   case class AddAnalysisResult(customerId: String, analysisFileName: String)
+
+  case class AddSmsLinkClick(customerId: String, smsLinkClick: String)
 
   case class GetPatientByCustomerId(customerId: String)
 

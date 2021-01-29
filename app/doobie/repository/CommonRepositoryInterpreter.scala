@@ -14,6 +14,7 @@ trait CommonSQL {
   def addStatsAction(statsAction: StatsAction): ConnectionIO[Int]
   def addAnalysisResult(customerId: String, analysisFileName: String): Update0
   def addDeliveryStatus(customerId: String, deliveryStatus: String): Update0
+  def addSmsLinkClick(customerId: String, smsLinkClick: String): Update0
   def getByCustomerId(customerId: String): Query0[Patient]
   def getPatientByLogin(login: String): Query0[Patient]
   def getUserByLogin(login: String): Query0[User]
@@ -42,6 +43,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   }
   override def addDeliveryStatus(customerId: String, deliveryStatus: String): F[Int] = {
     commonSql.addDeliveryStatus(customerId, deliveryStatus).run.transact(xa)
+  }
+  override def addSmsLinkClick(customerId: String, smsLinkClick: String): F[Int] = {
+    commonSql.addDeliveryStatus(customerId, smsLinkClick).run.transact(xa)
   }
   override def getByCustomerId(customerId: String): fs2.Stream[F,Patient] = {
     commonSql.getByCustomerId(customerId).stream.transact(xa)
