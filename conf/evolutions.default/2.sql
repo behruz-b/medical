@@ -24,10 +24,8 @@ INSERT INTO "Roles" ("id", "name", "code")
  VALUES (3, 'Register', 'register.role');
 
 INSERT INTO "Roles" ("id", "name", "code")
- VALUES (4, 'Patient', 'patient.role');
+ VALUES (6, 'Manager', 'manager.role');
 
-INSERT INTO "Roles" ("id", "name", "code")
- VALUES (5, 'Stats', 'stats.role');
 -- pass doc123
 INSERT INTO "Users" ("id","created_at","firstname","lastname", "phone", "role", "company_code", "login", "password")
  VALUES (5,'2021-01-12 15:32:22.196016','doctor','superuser','998994461230','doctor.role','all','doc','c7ef8fc860e6b06ce37526b3e361700d');

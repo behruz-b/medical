@@ -10,7 +10,6 @@ import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.Json
 import play.api.mvc._
-import protocols.Authentication.AppRole._
 import protocols.Authentication.LoginSessionKey
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, User}
@@ -48,14 +47,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val adminPassword: String = configuration.get[String]("admin.password")
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(RegRole, language) {
+    authByDashboard(isRegister || isManager, language) {
       Ok(indexTemplate(language))
     }
   }
 
-  def authByDashboard(role: String, lang: String = "uz")(result: => Result)
+  def authByDashboard(hasAccess: Boolean, lang: String = "uz")(result: => Result)
                      (implicit request: RequestHeader): Result = {
-    val res = authByRole(role)(result)
+    val res = authByRole(hasAccess)(result)
     if (res.header.status == UNAUTHORIZED) {
       Ok(loginPage(lang))
     } else {
@@ -64,7 +63,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def admin(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(AdminRole, language) {
+    authByDashboard(isAdmin, language) {
       Ok(adminTemplate(language))
     }
   }
@@ -90,7 +89,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def createDoctor: Action[DoctorForm] = Action.async(parse.json[DoctorForm]) { implicit request =>
-    authByRole(AdminRole) {
+    authByRole(isAdmin) {
       val body = request.body
       val phone = "998" + clearPhone(body.phone)
       val user = User(LocalDateTime.now, body.firstName, body.lastName, phone, body.role, body.company_code, body.login, generatePassword)
@@ -108,7 +107,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def createPatient: Action[PatientForm] = Action.async(parse.json[PatientForm]) { implicit request =>
-    authByRole(RegRole) {
+    authByRole(isRegister || isManager) {
       val body = request.body
       val prefixPhone = "998"
       val docPhoneWithPrefix = body.docPhone.map(p => prefixPhone + p)
@@ -132,13 +131,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(DoctorRole, language) {
+    authByDashboard(isDoctor || isManager, language) {
       Ok(addAnalysisResultPageTemp(language))
     }
   }
 
   def getPatients: Action[AnyContent] = Action.async { implicit request =>
-    authByRole(DoctorRole) {
+    authByRole(isDoctor || isManager) {
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
         logger.debug(s"patients: $patients")
         Ok(Json.toJson(patients))
@@ -147,13 +146,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatientsTemplate(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(PatientRole, language) {
+    authByDashboard(isManager, language) {
       Ok(getPatientsTemp(language))
     }
   }
 
   def getStats: Action[AnyContent] = Action.async { implicit request =>
-    authByRole(StatsRole) {
+    authByRole(isAdmin) {
       (statsManager ? GetStats).mapTo[List[StatsAction]].map { stats =>
         Ok(Json.toJson(stats))
       }
@@ -161,13 +160,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getStatisticTemplate(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(StatsRole, language) {
+    authByDashboard(isAdmin, language) {
       Ok(statsActionTemp(language))
     }
   }
 
   def getAnalysisType: Action[AnyContent] = Action { implicit request =>
-    authByRole(RegRole) {
+    authByRole(isRegister || isManager) {
       Ok(Json.toJson(analysisType))
     }
   }
@@ -191,7 +190,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getRoleTypes: Action[AnyContent] = Action.async { implicit request =>
-    authByRole(AdminRole) {
+    authByRole(isAdmin) {
       (userManager ? GetRoles).mapTo[List[Roles]].map { results =>
         Ok(Json.toJson(results))
       }
@@ -199,7 +198,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def uploadAnalysisResult: Action[MultipartFormData[Files.TemporaryFile]] = Action.async(parse.multipartFormData) { implicit request =>
-    authByRole(DoctorRole) {
+    authByRole(isDoctor || isManager) {
       val result = request.body
         .file("file")
         .map { picture =>

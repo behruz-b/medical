@@ -12,9 +12,9 @@ POST    /doc/upload-analyze-result                              @controllers.Hom
 POST    /doc/add-doctor                                         @controllers.HomeController.createDoctor
 
 GET     /patient/                                               @controllers.HomeController.getPatientsTemplate(language = "uz")
-POST    /patient/add-patient                                    @controllers.HomeController.createPatient
 GET     /patient/get-patients                                   @controllers.HomeController.getPatients
-GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType()
+GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType
+POST    /patient/add-patient                                    @controllers.HomeController.createPatient
 GET     /patient/get-mrt-type                                   @controllers.HomeController.getMrtType()
 GET     /patient/get-mskt-type                                  @controllers.HomeController.getMsktType()
 GET     /patient/get-uzi-type                                   @controllers.HomeController.getUziType()

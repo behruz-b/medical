@@ -14,11 +14,12 @@ object Authentication extends CommonMethods {
     val DoctorRole = "doctor.role"
     val RegRole = "register.role"
     val AdminRole = "admin.role"
-    val StatsRole = "stats.role"
-    val PatientRole = "patient.role"
+    val ManagerRole = "manager.role"
   }
-  val LoginSessionKey = "login.session.key"
+
   import AppRole._
+
+  val LoginSessionKey = "login.session.key"
 
   case class LoginFormWithClientCode(
                                       login: String = "",
@@ -32,7 +33,7 @@ object Authentication extends CommonMethods {
     )(LoginFormWithClientCode.apply)(LoginFormWithClientCode.unapply)
   }
 
-  case class SessionAttr(sessionKey: String, roleSessionKey: String)
+  case class SessionAttr(sessionKey: String, roleSessionKey: Set[String])
 
   case class Login(rootPath: String,
                    redirectUrl: Call,
@@ -40,10 +41,10 @@ object Authentication extends CommonMethods {
                    sessionDuration: Option[FiniteDuration] = 60.minutes.some)
 
   val loginPatterns: Map[String, Login] = Vector(
-      Login("/reg/", routes.HomeController.index(), createSessionAttr(RegRole)),
-      Login("/admin/", routes.HomeController.admin(), createSessionAttr(AdminRole)),
-      Login("/doc/", routes.HomeController.addAnalysisResult(), createSessionAttr(DoctorRole)),
-      Login("/patient/", routes.HomeController.getPatientsTemplate(), createSessionAttr(PatientRole)),
-      Login("/stats/", routes.HomeController.getStatisticTemplate(), createSessionAttr(StatsRole))
+      Login("/reg/", routes.HomeController.index(), createSessionAttr(Set(RegRole, ManagerRole, AdminRole))),
+      Login("/admin/", routes.HomeController.admin(), createSessionAttr(Set(AdminRole))),
+      Login("/doc/", routes.HomeController.addAnalysisResult(), createSessionAttr(Set(DoctorRole, ManagerRole, AdminRole))),
+      Login("/patient/", routes.HomeController.getPatientsTemplate(), createSessionAttr(Set(ManagerRole, AdminRole))),
+      Login("/stats/", routes.HomeController.getStatisticTemplate(), createSessionAttr(Set(AdminRole)))
     ).map(l => l.rootPath -> l).toMap
 }

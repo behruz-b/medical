@@ -18,7 +18,7 @@ trait CommonMethods {
     password.toString
   }
 
-  def createSessionAttr(role: String): SessionAttr = SessionAttr(LoginSessionKey, role)
+  def createSessionAttr(role: Set[String]): SessionAttr = SessionAttr(LoginSessionKey, role)
 
   def getRandomDigit: Int => Int = Seq.fill(_)(Random.nextInt(Digits)).mkString("").toInt
 

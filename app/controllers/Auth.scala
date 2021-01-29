@@ -5,6 +5,7 @@ import com.typesafe.scalalogging.LazyLogging
 import play.api.mvc.Results.Unauthorized
 import play.api.mvc._
 import protocols.Authentication
+import protocols.Authentication.AppRole._
 import protocols.Authentication.loginPatterns
 
 import scala.concurrent.duration.FiniteDuration
@@ -21,6 +22,22 @@ trait Auth extends LazyLogging {
   object ErrorText {
     val SessionExpired = "Session expired. Please log in."
     val Unauthorized = "Unauthorized. Please log in."
+  }
+
+  def isManager(implicit request: RequestHeader): Boolean = {
+    request.session.get(roleSessionKey).exists(r => r.contains(ManagerRole) || r.contains(AdminRole))
+  }
+
+  def isAdmin(implicit request: RequestHeader): Boolean = {
+    request.session.get(roleSessionKey).exists(_.contains(AdminRole))
+  }
+
+  def isDoctor(implicit request: RequestHeader): Boolean = {
+    request.session.get(roleSessionKey).exists(r => r.contains(DoctorRole) || r.contains(AdminRole))
+  }
+
+  def isRegister(implicit request: RequestHeader): Boolean = {
+    request.session.get(roleSessionKey).exists(r => r.contains(RegRole) || r.contains(AdminRole))
   }
 
   private def baseUriExtractor(implicit request: RequestHeader): String = {
@@ -45,16 +62,11 @@ trait Auth extends LazyLogging {
     case t if t <:< typeOf[Future[Result]] => Future.successful(Unauthorized(ErrorText.Unauthorized)).asInstanceOf[T]
   }
 
-  def authByRole[T: TypeTag](role: String)(result: => T)(implicit request: RequestHeader): T = {
-    request.session.get(roleSessionKey) match {
-      case Some(userRole) =>
-        if (userRole == role) {
-          checkAuth(roleSessionKey, loginParam(baseUriExtractor).flatMap(_.sessionDuration))(result)
-        } else {
-          unauthorized
-        }
-      case None =>
-        unauthorized
+  def authByRole[T: TypeTag](hasAccess: Boolean)(result: => T)(implicit request: RequestHeader): T = {
+    if (hasAccess) {
+      checkAuth(roleSessionKey, loginParam(baseUriExtractor).flatMap(_.sessionDuration))(result)
+    } else {
+      unauthorized
     }
   }
 

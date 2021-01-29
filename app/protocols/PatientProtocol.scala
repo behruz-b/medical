@@ -1,5 +1,6 @@
 package protocols
 
+import org.apache.commons.lang3.StringUtils
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
 
@@ -10,6 +11,11 @@ import java.time.{LocalDate, LocalDateTime}
 object PatientProtocol {
   implicit def localDateFormat(fieldName: String, dateFormat: String = "dd/MM/yyyy"): Reads[LocalDate] =
     (__ \ fieldName).read[String].map(s => LocalDate.parse(s, DateTimeFormatter.ofPattern(dateFormat)))
+
+  def optStringRead(fieldName: String): Reads[Option[String]] =
+    (__ \ fieldName).readNullable[String].map { s =>
+      if (s.exists(StringUtils.isNotBlank)) s else None
+    }
 
   case class PatientForm(firstName: String,
                          lastName: String,
@@ -50,7 +56,7 @@ object PatientProtocol {
       (__ \ "role").read[String] and
       (__ \ "login").read[String] and
       (__ \ "company_code").read[String]
-    )(DoctorForm)
+    ) (DoctorForm)
 
   case class Patient(created_at: LocalDateTime,
                      firstname: String,

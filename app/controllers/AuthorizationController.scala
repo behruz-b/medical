@@ -37,9 +37,9 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
 
   private def checkLogin(login: String, password: String, loginParams: Login)
                         (implicit request: RequestHeader): Future[Result] = {
-    val accessRole = loginParams.sessionAttr.roleSessionKey
+    val accessRoles = loginParams.sessionAttr.roleSessionKey
     (userManager ? CheckUserByLogin(login, password)).mapTo[Either[String, String]].map {
-      case Right(role) if role == accessRole =>
+      case Right(role) if accessRoles.contains(role) =>
         Redirect(loginParams.redirectUrl)
           .addingToSession(authInit(loginParams.sessionAttr.sessionKey, role, loginParams.sessionDuration): _*)
       case Right(_) =>
