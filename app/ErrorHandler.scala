@@ -20,7 +20,7 @@ class ErrorHandler @Inject()(implicit val webJarsUtil: WebJarsUtil,
   extends DefaultHttpErrorHandler(environment, config, sourceMapper, router)
     with LazyLogging {
 
-  private val requestedByRobots = Set[String](
+  private val RobotRequests = Set(
     "N8kJ",
     "VLui",
     "8d2z",
@@ -46,8 +46,8 @@ class ErrorHandler @Inject()(implicit val webJarsUtil: WebJarsUtil,
     "/philips-email/"
   )
 
-  def isRequestedByRobots: String => Boolean = uri =>
-    requestedByRobots.exists(uri.contains) || uri.endsWith(".sql") || uri.endsWith(".sql.zip")
+  def isRobot: String => Boolean = uri =>
+    RobotRequests.exists(uri.contains) || uri.endsWith(".sql") || uri.endsWith(".sql.zip")
 
   def isFavicon: String => Boolean = path => path.endsWith("favicon.ico") || path.endsWith("favicon.png")
 
@@ -61,7 +61,7 @@ class ErrorHandler @Inject()(implicit val webJarsUtil: WebJarsUtil,
 
     val isAppleTouchResource = path.matches("""^.*/apple-touch-icon.*\.png$""")
 
-    val shouldIgnore = isRequestedByRobots(uri) || isFavicon(path) || isAppleTouchResource || isOptionsMethod || isHeadMethod
+    val shouldIgnore = isRobot(uri) || isFavicon(path) || isAppleTouchResource || isOptionsMethod || isHeadMethod
     val shouldRetryWithSlash = isGetMethod && !path.endsWith("/")
     logger.debug(s"shouldRetryWithSlash: $shouldRetryWithSlash")
     if (shouldIgnore) {
