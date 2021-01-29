@@ -19,7 +19,7 @@
             overflow-y: auto;
         }
     </style>
-    @navbar(isAuthorized)
+    @navbar(isAuthorized, isManager = true)
     <div class="container">
         <h2 class="text-white"><span data-bind="text: vm.translate('statistics')"></span></h2>
         <div class="row">

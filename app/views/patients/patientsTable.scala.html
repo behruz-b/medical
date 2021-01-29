@@ -1,5 +1,5 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(isAuthorized: Boolean, lang: String = "uz")(implicit flash: Flash)
+@(isAuthorized: Boolean, isManager: Boolean, lang: String = "uz")(implicit flash: Flash)
 @patients.main("Patients", webJarsUtil) {
     <script>
             @flash.get("error").map { response =>
@@ -18,7 +18,7 @@
                 overflow-y: auto;
             }
     </style>
-    @navbar(isAuthorized)
+    @navbar(isAuthorized, isManager)
     <input type="hidden" data-bind="click: vm.getPatients()">
     <div class="container">
         <h2 class="text-white"><span data-bind="text: vm.translate('patients')"></span></h2>

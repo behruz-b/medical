@@ -4,7 +4,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import play.api.mvc._
-import protocols.Authentication.{Login, LoginFormWithClientCode, loginPatterns, loginPlayFormWithClientCode}
+import protocols.Authentication.{Login, LoginFormWithClientCode, LoginSessionKey, loginPatterns, loginPlayFormWithClientCode}
 import protocols.UserProtocol.CheckUserByLogin
 
 import java.net.URL
@@ -89,11 +89,14 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
       request.uri
     }
     if (request.session.isEmpty) {
-      BadRequest("You are not authorized")
+      BadRequest("You are not authorized!")
+    } else if (urlPath == "/") {
+      Redirect(routes.HomeController.index().url)
+        .withSession(request.session - LoginSessionKey - expiresAtSessionAttrName(LoginSessionKey))
     } else {
       val loginParams = loginPatterns(urlPath.replaceFirst("logout", ""))
       val redirectUrl = loginParams.redirectUrl
-      Redirect(redirectUrl).withSession(request.session - loginParams.sessionAttr.sessionKey)
+      Redirect(redirectUrl).withSession(request.session - loginParams.sessionAttr.sessionKey - expiresAtSessionAttrName(LoginSessionKey))
     }
   }
 

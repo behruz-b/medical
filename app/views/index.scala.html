@@ -1,5 +1,5 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(isAuthorized: Boolean, lang: String = "uz")
+@(isAuthorized: Boolean, isManager: Boolean, lang: String = "uz")
 @main("Home Page", webJarsUtil) {
   <script>
           function autotab(el) {
@@ -21,7 +21,7 @@
             language: '@lang'
           };
   </script>
-  @navbar(isAuthorized)
+  @navbar(isAuthorized, isManager)
   @for(_ <- 0 to 100) {
     <div class="circle-container">
       <div class="circle"></div>

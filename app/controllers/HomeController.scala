@@ -49,12 +49,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   private def isAuthorized(implicit request: RequestHeader): Boolean = request.session.get(LoginSessionKey).isDefined
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
-    Ok(indexTemplate(isAuthorized, language))
+    Ok(indexTemplate(isAuthorized, isManager, language))
   }
 
   def registerPage(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isRegister || isManager, language) {
-      Ok(regTemplate(isAuthorized, language))
+      Ok(regTemplate(isAuthorized, isManager, language))
     }
   }
 
@@ -138,14 +138,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isDoctor || isManager, language) {
-      Ok(addAnalysisResultPageTemp(isAuthorized, language))
+      Ok(addAnalysisResultPageTemp(isAuthorized, isManager, language))
     }
   }
 
   def getPatients: Action[AnyContent] = Action.async { implicit request =>
     authByRole(isDoctor || isManager) {
       (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
-        logger.debug(s"patients: $patients")
         Ok(Json.toJson(patients))
       }
     }
@@ -153,7 +152,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def getPatientsTemplate(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isManager, language) {
-      Ok(getPatientsTemp(isAuthorized, language))
+      Ok(getPatientsTemp(isAuthorized, isManager, language))
     }
   }
 

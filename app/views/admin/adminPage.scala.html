@@ -6,7 +6,7 @@
                 language: '@lang'
             };
     </script>
-    @navbar(isAuthorized)
+    @navbar(isAuthorized, isManager = true)
     <div class="row box-align-center">
         <input type="hidden" data-bind="click: vm.getRoleType()">
         <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">

@@ -6,7 +6,7 @@ import play.api.mvc.Results.Unauthorized
 import play.api.mvc._
 import protocols.Authentication
 import protocols.Authentication.AppRole._
-import protocols.Authentication.loginPatterns
+import protocols.Authentication.{LoginSessionKey, loginPatterns}
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
@@ -25,19 +25,19 @@ trait Auth extends LazyLogging {
   }
 
   def isManager(implicit request: RequestHeader): Boolean = {
-    request.session.get(roleSessionKey).exists(r => r.contains(ManagerRole) || r.contains(AdminRole))
+    request.session.get(LoginSessionKey).exists(r => r.contains(ManagerRole) || r.contains(AdminRole))
   }
 
   def isAdmin(implicit request: RequestHeader): Boolean = {
-    request.session.get(roleSessionKey).exists(_.contains(AdminRole))
+    request.session.get(LoginSessionKey).exists(_.contains(AdminRole))
   }
 
   def isDoctor(implicit request: RequestHeader): Boolean = {
-    request.session.get(roleSessionKey).exists(r => r.contains(DoctorRole) || r.contains(AdminRole))
+    request.session.get(LoginSessionKey).exists(r => r.contains(DoctorRole) || r.contains(AdminRole))
   }
 
   def isRegister(implicit request: RequestHeader): Boolean = {
-    request.session.get(roleSessionKey).exists(r => r.contains(RegRole) || r.contains(AdminRole))
+    request.session.get(LoginSessionKey).exists(r => r.contains(RegRole) || r.contains(AdminRole))
   }
 
   private def baseUriExtractor(implicit request: RequestHeader): String = {
