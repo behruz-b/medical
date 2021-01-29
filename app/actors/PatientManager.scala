@@ -5,10 +5,11 @@ import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
-import io.circe.Json
+import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
 import protocols.PatientProtocol._
+import protocols.SecurityUtils.md5
 import util.StringUtil
 
 import javax.inject.Inject
@@ -29,11 +30,11 @@ class PatientManager @Inject()(val configuration: Configuration,
   private val SmsLogin = smsConfig.get[String]("login")
   private val SmsPassword = smsConfig.get[String]("password")
 
-// For testing purpose test DB
-//  override def preStart: Unit = {
-//    self ! AddAnalysisResult("U-668", "Sample Image Name of Analysis")
-//    self ! CheckSmsDeliveryStatus("430349076")
-//  }
+  // For testing purpose test DB
+  //  override def preStart: Unit = {
+  //    self ! AddAnalysisResult("U-668", "Sample Image Name of Analysis")
+  //    self ! CheckSmsDeliveryStatus("430349076")
+  //  }
 
   override def receive: Receive = {
     case CreatePatient(patient) =>
@@ -59,11 +60,9 @@ class PatientManager @Inject()(val configuration: Configuration,
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
-    (for {
-      _ <- DoobieModule.repo.create(patient).unsafeToFuture()
-    } yield {
+    DoobieModule.repo.create(patient.copy(password = md5(patient.password))).unsafeToFuture().map { _ =>
       Right("Successfully added")
-    }).recover {
+    }.recover {
       case error: Throwable =>
         logger.error("Error occurred while create patient.", error)
         Left("Error happened while creating patient")
@@ -71,11 +70,9 @@ class PatientManager @Inject()(val configuration: Configuration,
   }
 
   private def getPatientByCustomerId(customerId: String): Future[Either[String, Patient]] = {
-    (for {
-      patient <- DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture()
-    } yield {
+    DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
       Right(patient.get)
-    }).recover {
+    }.recover {
       case error: Throwable =>
         logger.error("Error occurred while get patient by customer id", error)
         Left("Error happened while requesting patient")
@@ -83,16 +80,14 @@ class PatientManager @Inject()(val configuration: Configuration,
   }
 
   private def getPatientByLogin(login: String, password: String): Future[Either[String, String]] = {
-    (for {
-      result <- DoobieModule.repo.getPatientByLogin(login).compile.last.unsafeToFuture()
-    } yield {
+    DoobieModule.repo.getPatientByLogin(login).compile.last.unsafeToFuture().map { result =>
       logger.debug(s"result: ${result.exists(_.password == password)}, $result")
-      if (result.exists(_.password == password)) {
+      if (result.exists(_.password == md5(password))) {
         Right("Successfully")
       } else {
         Left("Incorrect login or password")
       }
-    }).recover {
+    }.recover {
       case e: Throwable =>
         logger.error("Error", e)
         Left("Error happened while requesting Login or Password")
@@ -100,15 +95,13 @@ class PatientManager @Inject()(val configuration: Configuration,
   }
 
   private def addAnalysisResult(customerId: String, analysisFileName: String): Future[Either[String, String]] = {
-    (for {
-      result <- DoobieModule.repo.addAnalysisResult(customerId, analysisFileName).unsafeToFuture()
-    } yield {
+    DoobieModule.repo.addAnalysisResult(customerId, analysisFileName).unsafeToFuture().map { result =>
       if (result == 1) {
         Right("Successfully")
       } else {
         Left("Error while adding Analysis File to DB")
       }
-    }).recover {
+    }.recover {
       case e: Throwable =>
         logger.error("Error occurred while add analysis result.", e)
         Left("Error happened while adding Analysis File to DB")
@@ -116,40 +109,21 @@ class PatientManager @Inject()(val configuration: Configuration,
   }
 
   private def getPatients: Future[List[Patient]] = {
-    for {
-      patients <- DoobieModule.repo.getPatients.unsafeToFuture()
-    } yield {
-      logger.debug(s"ppp: $patients")
-      patients
+    DoobieModule.repo.getPatients.unsafeToFuture()
+  }
+
+  private def sendSMS(customerId: String): Future[Either[String, String]] = {
+    getPatientByCustomerId(customerId).flatMap {
+      case Right(p) =>
+        actualSendingSMS(p.phone, customerId)
+      case Left(e) =>
+        logger.error(s"Error happened", e)
+        Future.successful(Left("Error occurred while sending SMS to Customer"))
     }
   }
 
-  /**
-   * @param number is the phone number to which the sms should be sent
-   * @param text   is the text of the message to be sent sms
-   * @return Sms status via
-   * {{{case class SmsStatus}}}
-   */
-
-
-  private def sendSMS(customerId: String): Future[Either[String, String]] = {
-
-    (for  {
-      patient <- getPatientByCustomerId(customerId)
-    } yield {
-      patient match {
-        case Right(p) =>
-            actualSendingSMS(p.phone, customerId)
-        case Left(e) =>
-          logger.error(s"Error happened", e)
-          Future.successful(Left("Error occurred while sending SMS to Customer"))
-      }
-    }).flatten
-
-  }
-
-  private def actualSendingSMS(phone: String, customerId: String): Future[Either[String, String]] ={
-    logger.debug(s"SMS API: ${StringUtil.maskMiddlePart(SmsApi,10,2)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin,1,1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword,2,2)}")
+  private def actualSendingSMS(phone: String, customerId: String): Future[Either[String, String]] = {
+    logger.debug(s"SMS API: ${StringUtil.maskMiddlePart(SmsApi, 10)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin, 1, 1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword)}")
     val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"${SmsText(customerId)}"}]"""
     val result = ws.url(SmsApi)
       .withRequestTimeout(15.seconds)
@@ -159,7 +133,7 @@ class PatientManager @Inject()(val configuration: Configuration,
       val body = r.json(0)
       logger.debug(s"SMS API Result: $body")
       r.status match {
-        case 200 =>
+        case OK =>
           val id = (body \ "request_id").asOpt[Int]
           if (id.isDefined) {
             logger.debug(s"RequestId: $id")
@@ -193,11 +167,9 @@ class PatientManager @Inject()(val configuration: Configuration,
       val body = deliveryStatus.json
       logger.debug(s"SMS deliveryStatus: $body")
       deliveryStatus.status match {
-        case 200 =>
-          val deliveryNotification = ((body \ "messages")(0) \ "status").as[String]
-          for {
-            _ <- DoobieModule.repo.addDeliveryStatus(customerId, deliveryNotification).unsafeToFuture()
-          }
+        case OK =>
+          val deliveryNotification = ((body \ "messages") (0) \ "status").as[String]
+          DoobieModule.repo.addDeliveryStatus(customerId, deliveryNotification).unsafeToFuture()
           logger.debug(s"Delivery Notification: $deliveryNotification")
         case _ =>
           val errorText = (body \ "text").head.asOpt[String]

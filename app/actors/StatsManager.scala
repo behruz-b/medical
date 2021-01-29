@@ -7,14 +7,13 @@ import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
 import play.api.{Configuration, Environment}
 import protocols.PatientProtocol._
-import javax.inject.Inject
 
+import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 class StatsManager @Inject()(val configuration: Configuration,
-                             val environment: Environment,
-                             )
+                             val environment: Environment)
                             (implicit val ec: ExecutionContext)
   extends Actor with LazyLogging {
 
@@ -27,14 +26,12 @@ class StatsManager @Inject()(val configuration: Configuration,
 
     case GetStats =>
       getStats.pipeTo(sender())
-}
+  }
 
   private def addStatsAction(statsAction: StatsAction): Future[Either[String, String]] = {
-    (for {
-      _ <- DoobieModule.repo.addStatsAction(statsAction).unsafeToFuture()
-    } yield {
+    DoobieModule.repo.addStatsAction(statsAction).unsafeToFuture().map { _ =>
       Right("Successfully added")
-    }).recover {
+    }.recover {
       case error: Throwable =>
         logger.error("Error occurred while create patient.", error)
         Left("Error happened while creating patient")
@@ -42,10 +39,6 @@ class StatsManager @Inject()(val configuration: Configuration,
   }
 
   private def getStats: Future[List[StatsAction]] = {
-    for {
-      stats <- DoobieModule.repo.getStats.unsafeToFuture()
-    } yield {
-      stats
-    }
+    DoobieModule.repo.getStats.unsafeToFuture()
   }
 }
