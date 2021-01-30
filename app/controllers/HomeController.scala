@@ -62,7 +62,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                      (implicit request: RequestHeader): Result = {
     val res = authByRole(role)(result)
     if (res.header.status == UNAUTHORIZED) {
-      Ok(loginPage(lang)).flashing("error" -> "You haven't got right role to see page")
+      Ok(loginPage(lang))
     } else {
       result
     }
