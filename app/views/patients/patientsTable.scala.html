@@ -13,17 +13,12 @@
                 language: '@lang'
             };
     </script>
-    <style>
-            body{
-                overflow-y: auto;
-            }
-    </style>
     @navbar(isAuthorized, isManager)
-    <div class="container">
-        <h2 class="text-white"><span data-bind="text: vm.translate('patients')"></span></h2>
+    <div class="container bg-secondary">
+        <h2 class="text-white mt-3"><span data-bind="text: vm.translate('patients')"></span></h2>
         <div class="row">
             <div class="table-responsive col-lg-12">
-                <table class="table table-bordered table-striped table-hover table-active bg-white">
+                <table class="table table-bordered table-striped table-hover table-active bg-white overflow-auto">
                     <thead class="thead-dark">
                         <tr>
                             <th><span data-bind="text: vm.translate('createdAt')"></span></th>
@@ -33,6 +28,8 @@
                             <th><span data-bind="text: vm.translate('address')"></span></th>
                             <th><span data-bind="text: vm.translate('dateOfBirth')"></span></th>
                             <th><span data-bind="text: vm.translate('analysisType')"></span></th>
+                            <th><span data-bind="text: vm.translate('analysisGroup')"></span></th>
+                            <th><span data-bind="text: vm.translate('smsLinkClick')"></span></th>
                             <th><span data-bind="text: vm.translate('analysisResult')"></span></th>
                         </tr>
                     </thead>
@@ -45,6 +42,8 @@
                             <td data-bind="text: $data.address"></td>
                             <td data-bind="text: $root.vm.convertMonthToDayDate($data.dateOfBirth)"></td>
                             <td data-bind="text: $data.analyseType"></td>
+                            <td data-bind="text: $data.analyseGroup"></td>
+                            <td data-bind="text: $data.smsLinkClick"></td>
                             <td>
                                 <img width="50" height="50" data-bind="attr: {src: '/img/' + $data.analysis_image_name},
                                  click: $root.vm.showFullImage($data.analysis_image_name)">

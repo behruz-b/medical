@@ -87,6 +87,16 @@ $ ->
       "Тип анализа"
       "Tahlil turi"
     ]
+    analysisGroup: [
+      "Analysis group"
+      "Группа анализа"
+      "Tahlil guruhi"
+    ]
+    smsLinkClick: [
+      "Result SMS"
+      "Результат СМС"
+      "SMS natijasi"
+    ]
     analysisResult: [
       "Analysis result"
       "Результат анализа"
