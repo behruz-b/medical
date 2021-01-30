@@ -5,6 +5,8 @@ name := "medical"
 
 version := "1.0"
 
+maintainer := "smart-medical@scala.uz"
+
 SassKeys.cssStyle := Maxified
 
 SassKeys.generateSourceMaps := false
