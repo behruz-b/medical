@@ -41,7 +41,7 @@ object Authentication extends CommonMethods {
                    sessionDuration: Option[FiniteDuration] = 60.minutes.some)
 
   val loginPatterns: Map[String, Login] = Vector(
-      Login("/reg/", routes.HomeController.index(), createSessionAttr(Set(RegRole, ManagerRole, AdminRole))),
+      Login("/reg/", routes.HomeController.registerPage(), createSessionAttr(Set(RegRole, ManagerRole, AdminRole))),
       Login("/admin/", routes.HomeController.admin(), createSessionAttr(Set(AdminRole))),
       Login("/doc/", routes.HomeController.addAnalysisResult(), createSessionAttr(Set(DoctorRole, ManagerRole, AdminRole))),
       Login("/patient/", routes.HomeController.getPatientsTemplate(), createSessionAttr(Set(ManagerRole, AdminRole))),
