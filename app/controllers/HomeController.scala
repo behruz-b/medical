@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import protocols.Authentication.LoginSessionKey
 import protocols.PatientProtocol._
-import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, User}
+import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
 import views.html._
 import views.html.statistic._
 
@@ -233,6 +233,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                 val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
                 statsManager ! AddStatsAction(statsAction)
                 statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
+                (userManager ? SendSmsToDoctor(customerId)).mapTo[Either[String, String]].recover { e =>
+                  logger.error("Unexpected error happened", e)
+                  BadRequest("Something went wrong")
+                }
                 "File is uploaded"
               }).value.recover { e =>
                 logger.error("Unexpected error happened", e)

@@ -23,7 +23,13 @@ object UserProtocol {
   case class CheckUserByLogin(login: String, password: String)
   case class CreateUser(user: User)
   case class CheckUserByLoginAndCreate(user: User)
+  case class CheckSmsDeliveryStatusDoc(requestId: String)
+  case class SendSmsToDoctor(customerId: String)
   case class Roles(id: Int, name: String, code: String)
   case object GetRoles
   implicit val rolesFormat: OFormat[Roles] = Json.format[Roles]
+
+  val SmsTextDoc: String => String = (customerId: String) =>
+    s"'Elegant Farm' Diagnostika Markazi Sizning bemoringizning tibbiy xulosasi tayyor.\\n Tibbiy xulosani" +
+      s"quyidagi havola orqali olishingiz mumkin:\\n http://elegant-farm.uz/r/$customerId"
 }
