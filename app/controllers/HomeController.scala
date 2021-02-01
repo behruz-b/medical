@@ -27,6 +27,7 @@ import scala.util.Try
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
+                               val dashboardTemp: views.html.dashboard.dashboard,
                                indexTemplate: views.html.index,
                                regTemplate: views.html.register.register,
                                adminTemplate: views.html.admin.adminPage,
@@ -50,6 +51,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
     Ok(indexTemplate(isAuthorized, isManager, language))
+  }
+
+  def dashboard(language: String): Action[AnyContent] = Action {
+    Ok(dashboardTemp(language))
   }
 
   def registerPage(language: String): Action[AnyContent] = Action { implicit request =>
