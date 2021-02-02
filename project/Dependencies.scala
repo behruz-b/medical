@@ -22,6 +22,7 @@ object Dependencies {
     val toastr = "2.1.2"
     val fontAwesome = "5.14.0"
     val momentJs = "2.8.1"
+    val popperJs = "2.5.4"
     val logBack = "1.3.0-alpha5"
     val logOver = "1.7.30"
     val openTable = "0.10.0"
@@ -91,6 +92,7 @@ object Dependencies {
       "org.webjars" % "toastr" % Versions.toastr,
       "org.webjars" % "font-awesome" % Versions.fontAwesome,
       "org.webjars" % "momentjs" % Versions.momentJs,
+      "org.webjars" % "popper.js" % Versions.popperJs,
       "org.webjars" % "jquery-ui-src" % Versions.jQueryUI,
       "org.webjars" % "jquery-file-upload" % Versions.jQueryFileUpload,
       "org.webjars.bower" % "jquery-mask-plugin" % Versions.jQueryMask,
