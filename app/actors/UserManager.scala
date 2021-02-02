@@ -96,12 +96,12 @@ class UserManager @Inject()(val configuration: Configuration,
         actualSendingSMSToDoctor(p.docPhone.get, customerId)
       case Left(e) =>
         logger.error(s"Error happened", e)
-        Future.successful(Left("Error occurred while sending SMS to Customer"))
+        Future.successful(Left("Error occurred while sending SMS to Doc"))
     }
   }
 
   private def actualSendingSMSToDoctor(phone: String, customerId: String): Future[Either[String, String]] = {
-    logger.debug(s"SMS API: ${StringUtil.maskMiddlePart(SmsApi, 10)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin, 1, 1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword)}")
+    logger.debug(s"SMS API Doc: ${StringUtil.maskMiddlePart(SmsApi, 10)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin, 1, 1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword)}")
     val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"${SmsTextDoc(customerId)}"}]"""
     val result = ws.url(SmsApi)
       .withRequestTimeout(15.seconds)
@@ -109,7 +109,7 @@ class UserManager @Inject()(val configuration: Configuration,
       .post(data)
     result.map { r =>
       val body = r.json(0)
-      logger.debug(s"SMS API Result: $body")
+      logger.debug(s"SMS API Result doc: $body")
       r.status match {
         case 200 =>
           val id = (body \ "request_id").asOpt[Int]
@@ -130,12 +130,12 @@ class UserManager @Inject()(val configuration: Configuration,
     }.recover {
       case e =>
         logger.error("Error occurred while sending SMS to sms provider", e)
-        Left("Error while sending SMS")
+        Left("Error while sending SMS to doc")
     }
   }
 
   private def checkSmsDeliveryStatus(requestId: String) = {
-    logger.debug(s"Checking SMS Delivery status...")
+    logger.debug(s"Checking SMS Delivery status doc...")
     val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"request_id":"$requestId"}]"""
     val result = ws.url(apiStatus)
       .withRequestTimeout(15.seconds)
@@ -143,7 +143,7 @@ class UserManager @Inject()(val configuration: Configuration,
       .post(data)
     result.map { deliveryStatus =>
       val body = deliveryStatus.json
-      logger.debug(s"SMS deliveryStatus: $body")
+      logger.debug(s"SMS deliveryStatus doc: $body")
       deliveryStatus.status match {
         case 200 =>
           val deliveryNotification = ((body \ "messages") (0) \ "status").as[String]
