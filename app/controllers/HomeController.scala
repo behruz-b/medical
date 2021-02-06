@@ -184,19 +184,19 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getMrtType: Action[AnyContent] = Action { implicit request =>
-    authByRole(isRegister) {
+    authByRole(isRegister || isManager) {
       Ok(Json.toJson(mrtType))
     }
   }
 
   def getMsktType: Action[AnyContent] = Action { implicit request =>
-    authByRole(isRegister) {
+    authByRole(isRegister || isManager) {
       Ok(Json.toJson(msktType))
     }
   }
 
   def getUziType: Action[AnyContent] = Action { implicit request =>
-    authByRole(isRegister) {
+    authByRole(isRegister || isManager) {
       Ok(Json.toJson(uziType))
     }
   }
