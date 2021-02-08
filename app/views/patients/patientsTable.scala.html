@@ -45,8 +45,10 @@
                             <td data-bind="text: $data.analyseGroup"></td>
                             <td data-bind="text: $data.smsLinkClick"></td>
                             <td>
+                                    <!-- ko if: $data.analysis_image_name -->
                                 <img width="50" height="50" data-bind="attr: {src: '/img/' + $data.analysis_image_name},
                                  click: $root.vm.showFullImage($data.analysis_image_name)">
+                                    <!-- /ko -->
                             </td>
                         </tr>
                     </tbody>
