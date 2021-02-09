@@ -106,6 +106,10 @@ object PatientProtocol {
 
   case class SendSmsToCustomer(customerId: String)
 
+  case class sendSmsToCustomer(customerId: String, login: String, password: String)
+
+  case class CheckSmsDeliveryStatusToCustomer(requestId: String)
+
   case class CheckSmsDeliveryStatus(requestId: String, customerId: String)
 
   val analysisType = List(
@@ -181,4 +185,7 @@ object PatientProtocol {
     s"Sizga katta rahmat bizning 'Elegant Farm' Diagnostika Markaziga tashrif buyurganingiz uchun, sizning" +
       s" sog'liqingiz biz uchun juda muhim.\\nTibbiy xulosangizni quyidagi havola orqali olishingiz mumkin:" +
       s"\\nhttp://elegant-farm.uz/r/$customerId"
+
+  val SmsTextCustomer: (String, String, String) => String = (customerId: String, login: String, password: String) =>
+    s"Siz ro'yxatdan o'tdingiz sizning ID: $customerId Login: $login Parol: $password"
 }

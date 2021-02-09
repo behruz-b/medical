@@ -134,6 +134,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
             request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           Ok(Json.toJson(patient.customer_id))
+          (patientManager ? sendSmsToCustomer(patient.customer_id,patient.login,patient.password)).mapTo[Either[String, String]].recover { e =>
+            logger.error("Unexpected error happened", e)
+            BadRequest("Something went wrong")
+          }
         case Left(e) => BadRequest(e)
       }.recover {
         case e: Throwable =>
