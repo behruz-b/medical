@@ -1,5 +1,6 @@
 # An example controller showing a sample home page
-GET     /                                                       @controllers.HomeController.dashboard(language = "uz")
+GET     /                                                       @controllers.HomeController.index(language = "uz")
+GET     /dashboard                                              @controllers.HomeController.dashboard(language = "uz")
 GET     /index                                                  @controllers.HomeController.index(language = "uz")
 POST    /login                                                  @controllers.AuthorizationController.loginPost
 GET     /logout                                                 @controllers.AuthorizationController.logout
