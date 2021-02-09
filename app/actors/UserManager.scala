@@ -1,24 +1,27 @@
 package actors
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
-import protocols.PatientProtocol.{GetPatientByCustomerId, Patient}
+import protocols.PatientProtocol.{AddStatsAction, GetPatientByCustomerId, Patient, StatsAction}
 import protocols.UserProtocol.{CheckSmsDeliveryStatusDoc, CheckUserByLogin, CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, SmsTextDoc, User}
 import util.StringUtil
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import protocols.SecurityUtils.md5
 
+import java.time.LocalDateTime
+
 class UserManager @Inject()(val configuration: Configuration,
                             val environment: Environment,
-                            ws: WSClient)
+                            ws: WSClient,
+                            @Named("stats-manager") val statsManager: ActorRef)
                            (implicit val ec: ExecutionContext)
   extends Actor with LazyLogging {
 
@@ -93,7 +96,13 @@ class UserManager @Inject()(val configuration: Configuration,
   private def sendSMSToDoctor(customerId: String): Future[Either[String, String]] = {
     getPatientByCustomerId(customerId).flatMap {
       case Right(p) =>
-        actualSendingSMSToDoctor(p.docPhone.get, customerId)
+        if (p.docPhone.isDefined) {
+          val statsAction = StatsAction(LocalDateTime.now, "-", "doc_send_sms", "-", "-", "-")
+          statsManager ! AddStatsAction(statsAction)
+          actualSendingSMSToDoctor(p.docPhone.get, customerId)
+        } else {
+          Future.successful(Right("Message not sent to doctor"))
+        }
       case Left(e) =>
         logger.error(s"Error happened", e)
         Future.successful(Left("Error occurred while sending SMS to Doc"))

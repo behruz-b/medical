@@ -232,7 +232,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               } yield {
                 val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
                 statsManager ! AddStatsAction(statsAction)
-                statsManager ! AddStatsAction(statsAction.copy(action = "doc_send_sms"))
                 (userManager ? SendSmsToDoctor(customerId)).mapTo[Either[String, String]].recover { e =>
                   logger.error("Unexpected error happened", e)
                   BadRequest("Something went wrong")
