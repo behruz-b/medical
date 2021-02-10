@@ -278,6 +278,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok("""{"messages":[{"message-id":735211340,"channel":"SMS","status":"Delivered","status-date":"2021-01-14 14:34:23"}]}""")
   }
 
+//  def getImage(path: String) = {
+//    val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
+//    val directoryPath = new java.io.File("public/images")
+//    directoryPath.mkdirs()
+//    val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
+//    val fos = new java.io.FileOutputStream(tempFile)
+//    fos.write(fileBytes)
+//  }
+
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
 
   private def generatePassword = getRandomPassword(7)
