@@ -9,7 +9,7 @@ $ ->
   vm = ko.mapping.fromJS
     language: Glob.language
     patients: []
-    fileName: ''
+    customerId: ''
 
   handleError = (error) ->
     $.unblockUI()
@@ -26,8 +26,8 @@ $ ->
   vm.convertMonthToDayDate = (date) ->
     moment(date).format('DD/MM/YYYY')
 
-  vm.showFullImage = (fileName) -> ->
-    vm.fileName(fileName)
+  vm.showFullImage = (customerId) -> ->
+    vm.customerId(customerId)
     $('#analysisImage').modal('show')
 
   getPatients = ->
