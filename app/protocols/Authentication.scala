@@ -20,6 +20,7 @@ object Authentication extends CommonMethods {
   import AppRole._
 
   val LoginSessionKey = "login.session.key"
+  val LoginWithSession = "login"
 
   case class LoginFormWithClientCode(
                                       login: String = "",

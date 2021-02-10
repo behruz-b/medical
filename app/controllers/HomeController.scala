@@ -10,7 +10,7 @@ import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.Json
 import play.api.mvc._
-import protocols.Authentication.LoginSessionKey
+import protocols.Authentication.{LoginSessionKey, LoginWithSession}
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
 import views.html._
@@ -131,7 +131,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].flatMap {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
-            request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
+            request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
           (patientManager ? SendIdToPatientViaSms(patient.customer_id)).mapTo[Either[String, String]].recover { e =>
             logger.error("Unexpected error happened", e)
@@ -235,7 +235,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                 _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
                 _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
               } yield {
-                val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
+                val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
                 statsManager ! AddStatsAction(statsAction)
                 (userManager ? SendSmsToDoctor(customerId)).mapTo[Either[String, String]].recover { e =>
                   logger.error("Unexpected error happened", e)
