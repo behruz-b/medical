@@ -115,8 +115,8 @@ object PatientProtocol {
   val analysisType = List(
     "MRT",
     "MSKT",
-    "UZI",
-    "Lobaratoriya"
+    "UZI"
+//    "Lobaratoriya"
   )
 
   val mrtType = List(
