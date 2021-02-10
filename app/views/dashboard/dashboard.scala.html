@@ -3,9 +3,9 @@
 @(lang: String)
 @dashboard.main("Elegant-Farm.Uz", webJarsUtil) {
     <script type="text/javascript">
-        var Glob = {
-            language: '@lang'
-        }
+            var Glob = {
+                language: '@lang'
+            }
     </script>
 
         <!-- ======= Top Bar ======= -->
@@ -17,11 +17,11 @@
                 <i class="fa fa-map-marker-alt"></i> Urganch shahri
             </div>
             <div class="social-links">
-                <a href="#" class="twitter"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="skype"><i class="fab fa-skype"></i></a>
-                <a href="#" class="linkedin"><i class="fab fa-telegram-plane"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-skype"></i></a>
+                <a href="#"><i class="fab fa-telegram-plane"></i></a>
             </div>
         </div>
     </div>
@@ -54,7 +54,7 @@
                             <li><a href="#">Drop Down 4</a></li>
                         </ul>
                     </li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#footer">Contact</a></li>
                 </ul>
             </nav>
             <a href="#appointment" class="appointment-btn scrollto">Customer ID</a>
@@ -123,7 +123,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-xl-5 col-lg-6 video-box d-flex justify-content-center align-items-stretch">
-                        <a href="https://www.youtube.com" class="venobox play-btn mb-4" data-vbtype="video" data-autoplay="true"></a>
+                        <a href="https://www.youtube.com" class="play-btn mb-4" data-vbtype="video" data-autoplay="true"></a>
                     </div>
                     <div class="col-xl-7 col-lg-6 icon-boxes d-flex flex-column align-items-stretch justify-content-center py-5 px-lg-5">
                         <h3>Enim quis est voluptatibus aliquid consequatur fugiat</h3>
@@ -238,70 +238,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-            <!-- ======= Appointment Section ======= -->
-        <section id="appointment" class="appointment section-bg">
-            <div class="container">
-
-                <div class="section-title">
-                    <h2>Make an Appointment</h2>
-                    <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
-                </div>
-
-                <form action="" method="post" role="form" class="php-email-form">
-                    <div class="form-row">
-                        <div class="col-md-4 form-group">
-                            <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars">
-                            <div class="validate"></div>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email">
-                            <div class="validate"></div>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <input type="tel" class="form-control" name="phone" id="phone" placeholder="Your Phone" data-rule="minlen:4" data-msg="Please enter at least 4 chars">
-                            <div class="validate"></div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="col-md-4 form-group">
-                            <input type="datetime" name="date" class="form-control datepicker" id="date" placeholder="Appointment Date" data-rule="minlen:4" data-msg="Please enter at least 4 chars">
-                            <div class="validate"></div>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <select name="department" id="department" class="form-control">
-                                <option value="">Select Department</option>
-                                <option value="Department 1">Department 1</option>
-                                <option value="Department 2">Department 2</option>
-                                <option value="Department 3">Department 3</option>
-                            </select>
-                            <div class="validate"></div>
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <select name="doctor" id="doctor" class="form-control">
-                                <option value="">Select Doctor</option>
-                                <option value="Doctor 1">Doctor 1</option>
-                                <option value="Doctor 2">Doctor 2</option>
-                                <option value="Doctor 3">Doctor 3</option>
-                            </select>
-                            <div class="validate"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <textarea class="form-control" name="message" rows="5" placeholder="Message (Optional)"></textarea>
-                        <div class="validate"></div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="loading">Loading</div>
-                        <div class="error-message"></div>
-                        <div class="sent-message">Your appointment request has been sent successfully. Thank you!</div>
-                    </div>
-                    <div class="text-center"><button type="submit">Make an Appointment</button></div>
-                </form>
-
             </div>
         </section>
 
@@ -543,194 +479,6 @@
             </div>
         </section>
 
-            <!-- ======= Testimonials Section ======= -->
-        @* <section id="testimonials" class="testimonials">*@
-        @* <div class="container">*@
-        @* <div class="owl-carousel testimonials-carousel">*@
-        @* <div class="testimonial-wrap">*@
-        @* <div class="testimonial-item">*@
-        @* <img src="@routes.Assets.versioned("images/dashboard/testimonial.jpg")" class="testimonial-img" alt="">*@
-        @* <h3>Saul Goodman</h3>*@
-        @* <h4>Ceo &amp; Founder</h4>*@
-        @* <p>*@
-        @* <i class="fas fa-quote-left quote-icon-left"></i>*@
-        @* Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit rhoncus. Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at semper.*@
-        @* <i class="fas fa-quote-right quote-icon-right"></i>*@
-        @* </p>*@
-        @* </div>*@
-        @* </div>*@
-        @* <div class="testimonial-wrap">*@
-        @* <div class="testimonial-item">*@
-        @* <img src="@routes.Assets.versioned("images/dashboard/testimonial.jpg")" class="testimonial-img" alt="">*@
-        @* <h3>Sara Wilsson</h3>*@
-        @* <h4>Designer</h4>*@
-        @* <p>*@
-        @* <i class="fas fa-quote-left quote-icon-left"></i>*@
-        @* Export tempor illum tamen malis malis eram quae irure esse labore quem cillum quid cillum eram malis quorum velit fore eram velit sunt aliqua noster fugiat irure amet legam anim culpa.*@
-        @* <i class="fas fa-quote-right quote-icon-right"></i>*@
-        @* </p>*@
-        @* </div>*@
-        @* </div>*@
-        @* <div class="testimonial-wrap">*@
-        @* <div class="testimonial-item">*@
-        @* <img src="@routes.Assets.versioned("images/dashboard/testimonial.jpg")" class="testimonial-img" alt="">*@
-        @* <h3>Jena Karlis</h3>*@
-        @* <h4>Store Owner</h4>*@
-        @* <p>*@
-        @* <i class="fas fa-quote-left quote-icon-left"></i>*@
-        @* Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla quem veniam duis minim tempor labore quem eram duis noster aute amet eram fore quis sint minim.*@
-        @* <i class="fas fa-quote-right quote-icon-right"></i>*@
-        @* </p>*@
-        @* </div>*@
-        @* </div>*@
-        @* <div class="testimonial-wrap">*@
-        @* <div class="testimonial-item">*@
-        @* <img src="@routes.Assets.versioned("images/dashboard/testimonial.jpg")" class="testimonial-img" alt="">*@
-        @* <h3>Matt Brandon</h3>*@
-        @* <h4>Freelancer</h4>*@
-        @* <p>*@
-        @* <i class="fas fa-quote-left quote-icon-left"></i>*@
-        @* Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export minim fugiat minim velit minim dolor enim duis veniam ipsum anim magna sunt elit fore quem dolore labore illum veniam.*@
-        @* <i class="fas fa-quote-right quote-icon-right"></i>*@
-        @* </p>*@
-        @* </div>*@
-        @* </div>*@
-        @* <div class="testimonial-wrap">*@
-        @* <div class="testimonial-item">*@
-        @* <img src="@routes.Assets.versioned("images/dashboard/testimonial.jpg")" class="testimonial-img" alt="">*@
-        @* <h3>John Larson</h3>*@
-        @* <h4>Entrepreneur</h4>*@
-        @* <p>*@
-        @* <i class="fas fa-quote-left quote-icon-left"></i>*@
-        @* Quis quorum aliqua sint quem legam fore sunt eram irure aliqua veniam tempor noster veniam enim culpa labore duis sunt culpa nulla illum cillum fugiat legam esse veniam culpa fore nisi cillum quid.*@
-        @* <i class="fas fa-quote-right quote-icon-right"></i>*@
-        @* </p>*@
-        @* </div>*@
-        @* </div>*@
-        @* </div>*@
-        @* </div>*@
-        @* </section>*@
-        <section id="myCarousel" class="carousel slide" data-ride="carousel">
-            <div class="container">
-                    <!-- Carousel indicators -->
-                <ol class="carousel-indicators">
-                    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-                    <li data-target="#myCarousel" data-slide-to="1"></li>
-                    <li data-target="#myCarousel" data-slide-to="2"></li>
-                </ol>
-                <div class="carousel-inner">
-                    <div class="row carousel-item active">
-                        <div class="row">
-                            <div class="col-1">
-                                <img src="@routes.Assets.versioned(" images/dashboard/testimonial.jpg")"
-                                class="testimonial-img" alt="testimonial image">
-                            </div>
-                            <div class="col-5">
-                                <h3>Saul Goodman</h3>
-                                <h4>Ceo &amp; Founder</h4>
-                                <p>
-                                    <i class="fas fa-quote-left quote-icon-left"></i>
-                                    Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit
-                                    rhoncus.
-                                    Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at
-                                    semper.
-                                    <i class="fas fa-quote-right quote-icon-right"></i>
-                                </p>
-                            </div>
-                            <div class="col-1">
-                                <img src="@routes.Assets.versioned(" images/dashboard/testimonial.jpg")"
-                                class="testimonial-img" alt="testimonial image">
-                            </div>
-                            <div class="col-5">
-                                <h3>Saul Goodman</h3>
-                                <h4>Ceo &amp; Founder</h4>
-                                <p>
-                                    <i class="fas fa-quote-left quote-icon-left"></i>
-                                    Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit
-                                    rhoncus.
-                                    Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at
-                                    semper.
-                                    <i class="fas fa-quote-right quote-icon-right"></i>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row carousel-item">
-                        <div class="row">
-                            <div class="col-1">
-                                <img src="@routes.Assets.versioned(" images/dashboard/testimonial.jpg")"
-                                class="testimonial-img" alt="testimonial image">
-                            </div>
-                            <div class="col-5">
-                                <h3>Saul Goodman</h3>
-                                <h4>Ceo &amp; Founder</h4>
-                                <p>
-                                    <i class="fas fa-quote-left quote-icon-left"></i>
-                                    Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit
-                                    rhoncus.
-                                    Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at
-                                    semper.
-                                    <i class="fas fa-quote-right quote-icon-right"></i>
-                                </p>
-                            </div>
-                            <div class="col-1">
-                                <img src="@routes.Assets.versioned(" images/dashboard/testimonial.jpg")"
-                                class="testimonial-img" alt="testimonial image">
-                            </div>
-                            <div class="col-5">
-                                <h3>Saul Goodman</h3>
-                                <h4>Ceo &amp; Founder</h4>
-                                <p>
-                                    <i class="fas fa-quote-left quote-icon-left"></i>
-                                    Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit
-                                    rhoncus.
-                                    Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at
-                                    semper.
-                                    <i class="fas fa-quote-right quote-icon-right"></i>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row carousel-item">
-                        <div class="row">
-                            <div class="col-1">
-                                <img src="@routes.Assets.versioned(" images/dashboard/testimonial.jpg")"
-                                class="testimonial-img" alt="testimonial image">
-                            </div>
-                            <div class="col-5">
-                                <h3>Saul Goodman</h3>
-                                <h4>Ceo &amp; Founder</h4>
-                                <p>
-                                    <i class="fas fa-quote-left quote-icon-left"></i>
-                                    Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit
-                                    rhoncus.
-                                    Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at
-                                    semper.
-                                    <i class="fas fa-quote-right quote-icon-right"></i>
-                                </p>
-                            </div>
-                            <div class="col-1">
-                                <img src="@routes.Assets.versioned(" images/dashboard/testimonial.jpg")"
-                                class="testimonial-img" alt="testimonial image">
-                            </div>
-                            <div class="col-5">
-                                <h3>Saul Goodman</h3>
-                                <h4>Ceo &amp; Founder</h4>
-                                <p>
-                                    <i class="fas fa-quote-left quote-icon-left"></i>
-                                    Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit
-                                    rhoncus.
-                                    Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at
-                                    semper.
-                                    <i class="fas fa-quote-right quote-icon-right"></i>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
             <!-- ======= Gallery Section ======= -->
         <section id="gallery" class="gallery">
             <div class="container">
@@ -743,14 +491,14 @@
                 <div class="row no-gutters">
                     <div class="col-lg-3 col-md-4">
                         <div class="gallery-item">
-                            <a href="#" class="venobox" data-gall="gallery-item">
+                            <a href="#" data-gall="gallery-item">
                                 <img src="@routes.Assets.versioned("images/dashboard/gallery-1.jpg")" alt="#" class="img-fluid">
                             </a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4">
                         <div class="gallery-item">
-                            <a href="#" class="venobox" data-gall="gallery-item">
+                            <a href="#" data-gall="gallery-item">
                                 <img src="@routes.Assets.versioned("images/dashboard/gallery-2.jpg")" alt="#" class="img-fluid">
                             </a>
                         </div>
@@ -758,111 +506,45 @@
 
                     <div class="col-lg-3 col-md-4">
                         <div class="gallery-item">
-                            <a href="#" class="venobox" data-gall="gallery-item">
+                            <a href="#" data-gall="gallery-item">
                                 <img src="@routes.Assets.versioned("images/dashboard/gallery-3.jpg")" alt="#" class="img-fluid">
                             </a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4">
                         <div class="gallery-item">
-                            <a href="#" class="venobox" data-gall="gallery-item">
+                            <a href="#" data-gall="gallery-item">
                                 <img src="@routes.Assets.versioned("images/dashboard/gallery-4.jpg")" alt="#" class="img-fluid">
                             </a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4">
                         <div class="gallery-item">
-                            <a href="#" class="venobox" data-gall="gallery-item">
+                            <a href="#" data-gall="gallery-item">
                                 <img src="@routes.Assets.versioned("images/dashboard/gallery-5.jpg")" alt="#" class="img-fluid">
                             </a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4">
                         <div class="gallery-item">
-                            <a href="#" class="venobox" data-gall="gallery-item">
+                            <a href="#" data-gall="gallery-item">
                                 <img src="@routes.Assets.versioned("images/dashboard/gallery-6.jpg")" alt="#" class="img-fluid">
                             </a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4">
                         <div class="gallery-item">
-                            <a href="#" class="venobox" data-gall="gallery-item">
+                            <a href="#" data-gall="gallery-item">
                                 <img src="@routes.Assets.versioned("images/dashboard/gallery-7.jpg")" alt="#" class="img-fluid">
                             </a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4">
                         <div class="gallery-item">
-                            <a href="#" class="venobox" data-gall="gallery-item">
+                            <a href="#" data-gall="gallery-item">
                                 <img src="@routes.Assets.versioned("images/dashboard/gallery-8.jpg")" alt="#" class="img-fluid">
                             </a>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-            <!-- ======= Contact Section ======= -->
-        <section id="contact" class="contact">
-            <div class="container">
-                <div class="section-title">
-                    <h2>Contact</h2>
-                    <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>
-                </div>
-            </div>
-            <div>
-                <iframe style="border: 0;
-                    width: 100%;
-                    height: 350px;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5900.4965874004365!2d60.60063577418977!3d41.54471872132864!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x5e3e18a501278f1!2sELEGANT!5e0!3m2!1sru!2s!4v1612175867764!5m2!1sru!2s" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
-            </div>
-            <div class="container">
-                <div class="row mt-5">
-                    <div class="col-lg-4">
-                        <div class="info">
-                            <div class="address">
-                                <i class="fa fa-map-marker-alt"></i>
-                                <h4>Location:</h4>
-                                <p>A108 Adam Street, New York, NY 535022</p>
-                            </div>
-                            <div class="email">
-                                <i class="fas fa-envelope"></i>
-                                <h4>Email:</h4>
-                                <p>info@@elegant-farm.uz</p>
-                            </div>
-                            <div class="phone">
-                                <i class="fas fa-phone-alt"></i>
-                                <h4>Call:</h4>
-                                <p>+1 5589 55488 55s</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-8 mt-5 mt-lg-0">
-                        <form action="" method="post" role="form" class="php-email-form">
-                            <div class="form-row">
-                                <div class="col-md-6 form-group">
-                                    <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
-                                    <div class="validate"></div>
-                                </div>
-                                <div class="col-md-6 form-group">
-                                    <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email" />
-                                    <div class="validate"></div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
-                                <div class="validate"></div>
-                            </div>
-                            <div class="form-group">
-                                <textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message"></textarea>
-                                <div class="validate"></div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="loading">Loading</div>
-                                <div class="error-message"></div>
-                                <div class="sent-message">Your message has been sent. Thank you!</div>
-                            </div>
-                            <div class="text-center"><button type="submit">Send Message</button></div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -908,11 +590,11 @@
                     </div>
 
                     <div class="col-lg-4 col-md-6 footer-newsletter">
-                        <h4>Join Our Newsletter</h4>
-                        <p>Tamen quem nulla quae legam multos aute sint culpa legam noster magna</p>
-                        <form action="" method="post">
-                            <input type="email" name="email"><input type="submit" value="Subscribe">
-                        </form>
+                        <h4>Location</h4>
+                        <div>
+                            <iframe style="border: 0;
+                                width: 100%;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5900.4965874004365!2d60.60063577418977!3d41.54471872132864!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x5e3e18a501278f1!2sELEGANT!5e0!3m2!1sru!2s!4v1612175867764!5m2!1sru!2s" frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+                        </div>
                     </div>
 
                 </div>
@@ -929,15 +611,23 @@
                 </div>
             </div>
             <div class="social-links text-center text-md-right pt-3 pt-md-0">
-                <a href="#" class="twitter"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="google-plus"><i class="fab fa-skype"></i></a>
-                <a href="#" class="linkedin"><i class="fab fa-telegram-plane"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-skype"></i></a>
+                <a href="#"><i class="fab fa-telegram-plane"></i></a>
             </div>
         </div>
     </footer>
 
     <div id="preloader"></div>
     <a href="#" class="back-to-top"><i class="fa fa-angle-up"></i></a>
+
+        <!-- Dashboard JS Files -->
+    <script src="@routes.Assets.versioned("dashboardjs/main.js")"></script>
+    <script src="@routes.Assets.versioned("dashboardjs/counterup/counterup.min.js")"></script>
+    <script src="@routes.Assets.versioned("dashboardjs/counterup/counterup.min.js")"></script>
+    <script src="@routes.Assets.versioned("dashboardjs/jquery.easing/jquery.easing.min.js")"></script>
+    <script src="@routes.Assets.versioned("dashboardjs/waypoints/jquery.waypoints.min.js")"></script>
+    <script src="@routes.Assets.versioned("dashboardjs/bootstrap-datepicker/js/bootstrap-datepicker.min.js")"></script>
 }
