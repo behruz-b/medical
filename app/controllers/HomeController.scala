@@ -9,7 +9,7 @@ import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.Json
-import play.api.mvc._
+import play.api.mvc.{request, _}
 import protocols.Authentication.{LoginSessionKey, LoginWithSession}
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
@@ -128,23 +128,10 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
         body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup, body.docFullName, docPhoneWithPrefix)
-      (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].flatMap {
-        case Right(_) =>
-          val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
-            request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
-          statsManager ! AddStatsAction(stats)
-          (patientManager ? SendIdToPatientViaSms(patient.customer_id)).mapTo[Either[String, String]].recover { e =>
-            logger.error("Unexpected error happened", e)
-            BadRequest("Something went wrong")
-          }.map { _ =>
-            Ok(Json.toJson(patient.customer_id))
-          }
-        case Left(e) => Future.successful(BadRequest(e))
-      }.recover {
-        case e: Throwable =>
-          logger.error("Error while creating patient", e)
-          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
-      }
+      getUniqueCustomerId(1, patient)
+//      val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
+//        request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
+//      statsManager ! AddStatsAction(stats)
     }
   }
 
@@ -280,6 +267,38 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val body = request.body.asFormUrlEncoded
     logger.debug(s"Stub SMS Delivery Status: $body")
     Ok("""{"messages":[{"message-id":735211340,"channel":"SMS","status":"Delivered","status-date":"2021-01-14 14:34:23"}]}""")
+  }
+
+  private def getUniqueCustomerId(attempts: Int, patient: Patient): Future[Result] = {
+    if (attempts < 5) {
+      (patientManager ? CheckCustomerId(patient.customer_id)).mapTo[Either[String, Patient]].flatMap {
+        case Left(_) =>
+          createPatientInDB(patient)
+        case Right(_) =>
+          val withNewCustomerId = patient.copy(customer_id = generateCustomerId)
+          getUniqueCustomerId(attempts + 1, withNewCustomerId)
+      }
+    } else {
+      logger.error("Couldn't generate unique customerId")
+      Future.successful(BadRequest("Couldn't generate customerId"))
+    }
+  }
+
+  private def createPatientInDB(patient: Patient): Future[Result] = {
+    (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].flatMap {
+      case Right(_) =>
+        (patientManager ? SendIdToPatientViaSms(patient.customer_id)).mapTo[Either[String, String]].recover { e =>
+          logger.error("Unexpected error happened", e)
+          BadRequest("Something went wrong")
+        }.map { _ =>
+          Ok(Json.toJson(patient.customer_id))
+        }
+      case Left(e) => Future.successful(BadRequest(e))
+    }.recover {
+      case e: Throwable =>
+        logger.error("Error while creating patient", e)
+        BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+    }
   }
 
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
