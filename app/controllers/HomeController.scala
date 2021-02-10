@@ -128,17 +128,18 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
         body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup, body.docFullName, docPhoneWithPrefix)
-      (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].map {
+      (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].flatMap {
         case Right(_) =>
           val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
             request.session.get(LoginSessionKey).getOrElse(LoginSessionKey), request.headers.get("User-Agent").get)
           statsManager ! AddStatsAction(stats)
-          Ok(Json.toJson(patient.customer_id))
-          (patientManager ? sendSmsToCustomer(patient.customer_id,patient.login,patient.password)).mapTo[Either[String, String]].recover { e =>
+          (patientManager ? SendIdToPatientViaSms(patient.customer_id)).mapTo[Either[String, String]].recover { e =>
             logger.error("Unexpected error happened", e)
             BadRequest("Something went wrong")
+          }.map { _ =>
+            Ok(Json.toJson(patient.customer_id))
           }
-        case Left(e) => BadRequest(e)
+        case Left(e) => Future.successful(BadRequest(e))
       }.recover {
         case e: Throwable =>
           logger.error("Error while creating patient", e)

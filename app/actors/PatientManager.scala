@@ -58,14 +58,12 @@ class PatientManager @Inject()(val configuration: Configuration,
     case SendSmsToCustomer(customerId) =>
       sendSMS(customerId).pipeTo(sender())
 
-    case sendSmsToCustomer(customerId,login,password) =>
-      SmsToCustomer(customerId,login,password).pipeTo(sender())
+    case SendIdToPatientViaSms(customerId) =>
+      sendIdToPatientViaSms(customerId).pipeTo(sender())
 
     case CheckSmsDeliveryStatus(requestId, customerId) =>
       checkSmsDeliveryStatus(requestId, customerId).pipeTo(sender())
 
-    case CheckSmsDeliveryStatusToCustomer(requestId) =>
-      checkSmsDeliveryStatusToCustomer(requestId).pipeTo(sender())
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
@@ -137,26 +135,26 @@ class PatientManager @Inject()(val configuration: Configuration,
   private def sendSMS(customerId: String): Future[Either[String, String]] = {
     getPatientByCustomerId(customerId).flatMap {
       case Right(p) =>
-        actualSendingSMS(p.phone, customerId)
+        actualSendingSMS(p.phone,SmsText(customerId), customerId)
       case Left(e) =>
         logger.error(s"Error happened", e)
         Future.successful(Left("Error occurred while sending SMS to Customer"))
     }
   }
 
-  private def SmsToCustomer(customerId: String, login: String, password: String): Future[Either[String, String]] = {
+  private def sendIdToPatientViaSms(customerId: String): Future[Either[String, String]] = {
     getPatientByCustomerId(customerId).flatMap {
       case Right(p) =>
-        actualSendingSMSToCustomer(p.phone, customerId, login, password)
+        actualSendingSMS(p.phone, SmsTextForPatientId(customerId), customerId)
       case Left(e) =>
         logger.error(s"Error happened", e)
         Future.successful(Left("Error occurred while sending SMS to Customer"))
     }
   }
 
-  private def actualSendingSMS(phone: String, customerId: String): Future[Either[String, String]] = {
+  private def actualSendingSMS(phone: String, smsText: String, customerId: String): Future[Either[String, String]] = {
     logger.debug(s"SMS API: ${StringUtil.maskMiddlePart(SmsApi, 10)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin, 1, 1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword)}")
-    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"${SmsText(customerId)}"}]"""
+    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"$smsText"}]"""
     val result = ws.url(SmsApi)
       .withRequestTimeout(15.seconds)
       .withHttpHeaders("Content-Type" -> "application/x-www-form-urlencoded")
@@ -170,40 +168,6 @@ class PatientManager @Inject()(val configuration: Configuration,
           if (id.isDefined) {
             logger.debug(s"RequestId: $id")
             context.system.scheduler.scheduleOnce(5.seconds, self, CheckSmsDeliveryStatus(id.get.toString, customerId))
-            Right("Successfully sent")
-          } else {
-            val errorText = (body \ "text").asOpt[String]
-            logger.error(s"Error occurred while sending SMS, error: ${errorText.getOrElse("Error Text undefined")}")
-            Left("Error occurred while sending SMS")
-          }
-        case _ =>
-          val errorText = (body \ "text").head.asOpt[String]
-          logger.error(s"Error Text: $errorText")
-          Left("Error happened")
-      }
-    }.recover {
-      case e =>
-        logger.error("Error occurred while sending SMS to sms provider", e)
-        Left("Error while sending SMS")
-    }
-  }
-
-  private def actualSendingSMSToCustomer(phone: String, customerId: String, login: String, password: String): Future[Either[String, String]] = {
-    logger.debug(s"SMS API: ${StringUtil.maskMiddlePart(SmsApi, 10)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin, 1, 1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword)}")
-    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"${SmsTextCustomer(customerId,login,password)}"}]"""
-    val result = ws.url(SmsApi)
-      .withRequestTimeout(15.seconds)
-      .withHttpHeaders("Content-Type" -> "application/x-www-form-urlencoded")
-      .post(data)
-    result.map { r =>
-      val body = r.json(0)
-      logger.debug(s"SMS API Result: $body")
-      r.status match {
-        case OK =>
-          val id = (body \ "request_id").asOpt[Int]
-          if (id.isDefined) {
-            logger.debug(s"RequestId: $id")
-            context.system.scheduler.scheduleOnce(5.seconds, self, CheckSmsDeliveryStatusToCustomer(id.get.toString))
             Right("Successfully sent")
           } else {
             val errorText = (body \ "text").asOpt[String]
@@ -247,27 +211,4 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def checkSmsDeliveryStatusToCustomer(requestId: String) = {
-    logger.debug(s"Checking SMS Delivery status...")
-    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"request_id":"$requestId"}]"""
-    val result = ws.url(apiStatus)
-      .withRequestTimeout(15.seconds)
-      .withHttpHeaders("Content-Type" -> "application/x-www-form-urlencoded")
-      .post(data)
-    result.map { deliveryStatus =>
-      val body = deliveryStatus.json
-      logger.debug(s"SMS deliveryStatus: $body")
-      deliveryStatus.status match {
-        case OK =>
-          val deliveryNotification = ((body \ "messages") (0) \ "status").as[String]
-          logger.debug(s"Delivery Notification: $deliveryNotification")
-        case _ =>
-          val errorText = (body \ "text").head.asOpt[String]
-          logger.debug(s"Error Text: $errorText")
-      }
-    }.recover {
-      case e =>
-        logger.error("Error occurred while sending SMS to sms provider", e)
-    }
-  }
 }
