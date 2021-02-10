@@ -7,16 +7,15 @@ import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
-import protocols.PatientProtocol.{AddStatsAction, GetPatientByCustomerId, Patient, StatsAction}
-import protocols.UserProtocol.{CheckSmsDeliveryStatusDoc, CheckUserByLogin, CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, SmsTextDoc, User}
+import protocols.PatientProtocol.{AddStatsAction, Patient, StatsAction}
+import protocols.SecurityUtils.md5
+import protocols.UserProtocol.{CheckSmsDeliveryStatusDoc, CheckUserByLogin, CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, SmsTextDoc, User, getSmsTextForUserCreation}
 import util.StringUtil
 
+import java.time.LocalDateTime
 import javax.inject.{Inject, Named}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
-import protocols.SecurityUtils.md5
-
-import java.time.LocalDateTime
 
 class UserManager @Inject()(val configuration: Configuration,
                             val environment: Environment,
@@ -67,6 +66,7 @@ class UserManager @Inject()(val configuration: Configuration,
 
   private def checkUserByLoginAndCreate(user: User): Future[Either[String, String]] = {
     DoobieModule.repo.createUser(user.copy(password = md5(user.password))).unsafeToFuture().map { _ =>
+      actualSendingSMS(user.phone, getSmsTextForUserCreation(user.role, user.login, user.password))
       Right("Successfully created!")
     }.recover {
       case error: Throwable =>
@@ -99,7 +99,7 @@ class UserManager @Inject()(val configuration: Configuration,
         if (p.docPhone.isDefined) {
           val statsAction = StatsAction(LocalDateTime.now, "-", "doc_send_sms", "-", "-", "-")
           statsManager ! AddStatsAction(statsAction)
-          actualSendingSMSToDoctor(p.docPhone.get, customerId)
+          actualSendingSMS(p.docPhone.get, SmsTextDoc(customerId))
         } else {
           Future.successful(Right("Message not sent to doctor"))
         }
@@ -109,9 +109,9 @@ class UserManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def actualSendingSMSToDoctor(phone: String, customerId: String): Future[Either[String, String]] = {
-    logger.debug(s"SMS API Doc: ${StringUtil.maskMiddlePart(SmsApi, 10)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin, 1, 1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword)}")
-    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"${SmsTextDoc(customerId)}"}]"""
+  private def actualSendingSMS(phone: String, smsText: String): Future[Either[String, String]] = {
+    logger.debug(s"SMS API in UserManagement: ${StringUtil.maskMiddlePart(SmsApi, 10)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin, 1, 1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword)}")
+    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"$smsText"}]"""
     val result = ws.url(SmsApi)
       .withRequestTimeout(15.seconds)
       .withHttpHeaders("Content-Type" -> "application/x-www-form-urlencoded")
@@ -143,7 +143,7 @@ class UserManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def checkSmsDeliveryStatus(requestId: String) = {
+  private def checkSmsDeliveryStatus(requestId: String): Future[Unit] = {
     logger.debug(s"Checking SMS Delivery status doc...")
     val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"request_id":"$requestId"}]"""
     val result = ws.url(apiStatus)
