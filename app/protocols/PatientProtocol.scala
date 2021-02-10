@@ -108,8 +108,6 @@ object PatientProtocol {
 
   case class SendIdToPatientViaSms(customerId: String)
 
-  case class CheckSmsDeliveryStatusToCustomer(requestId: String)
-
   case class CheckSmsDeliveryStatus(requestId: String, customerId: String)
 
   val analysisType = List(

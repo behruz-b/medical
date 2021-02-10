@@ -19,8 +19,7 @@ CREATE TABLE "Patients"
     "doc_full_name"       VARCHAR   NULL,
     "doc_phone"           VARCHAR   NULL,
     "delivery_status"     VARCHAR   NULL,
-    "analysis_image_name" VARCHAR   NULL,
-    UNIQUE(customer_id)
+    "analysis_image_name" VARCHAR   NULL
 );
 
 ALTER TABLE "Patients" ADD COLUMN sms_link_click VARCHAR NULL;
