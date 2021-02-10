@@ -20,10 +20,11 @@ CREATE TABLE "Patients"
     "doc_phone"           VARCHAR   NULL,
     "delivery_status"     VARCHAR   NULL,
     "analysis_image_name" VARCHAR   NULL,
-    UNIQUE (customer_id)
+    UNIQUE(customer_id)
 );
 
 ALTER TABLE "Patients" ADD COLUMN sms_link_click VARCHAR NULL;
 ALTER TABLE "Patients" ADD COLUMN analysis_group VARCHAR NOT NULL DEFAULT '-';
 ALTER TABLE "Patients" ADD CONSTRAINT customer_id_unique UNIQUE (customer_id);
+
 DROP TABLE "Patients";
