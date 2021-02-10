@@ -1,6 +1,6 @@
 @import views.html.dashboard.main
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(lang: String)
+@(isAuthorized: Boolean, isManager: Boolean, lang: String)
 @dashboard.main("Elegant-Farm.Uz", webJarsUtil) {
     <script type="text/javascript">
             var Glob = {
@@ -37,34 +37,37 @@
                     <li><a href="#services">Services</a></li>
                     <li><a href="#departments">Departments</a></li>
                     <li><a href="#doctors">Doctors</a></li>
-                    <li class="drop-down"><a href="">Drop Down</a>
+                    <li><a href="#footer">Contact</a></li>
+                    @if(isManager) {
+
+                    }
+                    @if(isAuthorized) {
+                        <li><a href="@routes.AuthorizationController.logout()">Chiqish</a></li>
+                    } else {
+                    <li class="drop-down"><a href="">Login</a>
                         <ul>
-                            <li><a href="#">Drop Down 1</a></li>
-                            <li class="drop-down"><a href="#">Deep Drop Down</a>
+                            <li><a href="@routes.HomeController.registerPage()">Register Patient</a></li>
+                            <li><a href="@routes.HomeController.addAnalysisResult()">Doctor Page</a></li>
+                            @*<li class="drop-down"><a href="#">Deep Drop Down</a>
                                 <ul>
                                     <li><a href="#">Deep Drop Down 1</a></li>
                                     <li><a href="#">Deep Drop Down 2</a></li>
                                     <li><a href="#">Deep Drop Down 3</a></li>
-                                    <li><a href="#">Deep Drop Down 4</a></li>
-                                    <li><a href="#">Deep Drop Down 5</a></li>
                                 </ul>
-                            </li>
-                            <li><a href="#">Drop Down 2</a></li>
-                            <li><a href="#">Drop Down 3</a></li>
-                            <li><a href="#">Drop Down 4</a></li>
+                            </li>*@
                         </ul>
                     </li>
-                    <li><a href="#footer">Contact</a></li>
+                    }
                 </ul>
             </nav>
-            <a href="#appointment" class="appointment-btn scrollto">Customer ID</a>
+            <a href="#" class="appointment-btn scrollto">Customer ID</a>
         </div>
     </header>
 
         <!-- ======= Hero Section ======= -->
     <section id="hero" class="d-flex align-items-center">
         <div class="container">
-            <h1>Welcome to Elegant-Farm</h1>
+            <h1>Welcome to Elegant Farm</h1>
             <h2>We are team of talented designers making websites with Bootstrap</h2>
             <a href="#about" class="btn-get-started scrollto">Get Started</a>
         </div>
@@ -558,7 +561,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 footer-contact">
-                        <h3>Elegant-Farm</h3>
+                        <h3>Elegant Farm</h3>
                         <p>
                             Urganch shahri<br>
                             Mo'ljal: Feruz Restarani<br>
@@ -625,7 +628,6 @@
 
         <!-- Dashboard JS Files -->
     <script src="@routes.Assets.versioned("dashboardjs/main.js")"></script>
-    <script src="@routes.Assets.versioned("dashboardjs/counterup/counterup.min.js")"></script>
     <script src="@routes.Assets.versioned("dashboardjs/counterup/counterup.min.js")"></script>
     <script src="@routes.Assets.versioned("dashboardjs/jquery.easing/jquery.easing.min.js")"></script>
     <script src="@routes.Assets.versioned("dashboardjs/waypoints/jquery.waypoints.min.js")"></script>

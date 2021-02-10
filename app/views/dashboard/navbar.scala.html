@@ -1,0 +1,56 @@
+@(isAuthorized: Boolean, isManager: Boolean)
+
+<div id="topbar" class="d-none d-lg-flex align-items-center fixed-top">
+    <div class="container d-flex">
+        <div class="contact-info mr-auto">
+            <i class="fa fa-envelope"></i> <a href="mailto:info@@elegant-farm.uz">info@@elegant-farm.uz</a>
+            <i class="fa fa-phone"></i> +998 (99) 777-55-55
+            <i class="fa fa-map-marker-alt"></i> Urganch shahri
+        </div>
+        <div class="social-links">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-skype"></i></a>
+            <a href="#"><i class="fab fa-telegram-plane"></i></a>
+        </div>
+    </div>
+</div>
+
+    <!-- ======= Header ======= -->
+<header id="header" class="fixed-top">
+    <div class="container d-flex align-items-center">
+        <h1 class="logo mr-auto"><a href="#">Elegant Farm</a></h1>
+        <nav class="nav-menu d-none d-lg-block">
+            <ul>
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#departments">Departments</a></li>
+                <li><a href="#doctors">Doctors</a></li>
+                @if(isManager) {
+
+                }
+                @if(isAuthorized) {
+                    <li><a href="@routes.AuthorizationController.logout()">Chiqish</a></li>
+                } else {
+                <li class="drop-down"><a href="">Drop Down</a>
+                    <ul>
+                        <li><a href="@routes.HomeController.registerPage()">Register Patient</a></li>
+                        <li><a href="@routes.HomeController.addAnalysisResult()">Doctor Page</a></li>
+                        <li class="drop-down"><a href="#">Deep Drop Down</a>
+                            <ul>
+                                <li><a href="#">Deep Drop Down 1</a></li>
+                                <li><a href="#">Deep Drop Down 2</a></li>
+                                <li><a href="#">Deep Drop Down 3</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                }
+                <li><a href="#footer">Contact</a></li>
+            </ul>
+        </nav>
+        <a href="#appointment" class="appointment-btn scrollto">Customer ID</a>
+    </div>
+</header>

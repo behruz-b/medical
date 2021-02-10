@@ -53,8 +53,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok(indexTemplate(isAuthorized, isManager, language))
   }
 
-  def dashboard(language: String): Action[AnyContent] = Action {
-    Ok(dashboardTemp(language))
+  def dashboard(language: String): Action[AnyContent] = Action { implicit request =>
+    Ok(dashboardTemp(isAuthorized, isManager, language))
   }
 
   def registerPage(language: String): Action[AnyContent] = Action { implicit request =>
