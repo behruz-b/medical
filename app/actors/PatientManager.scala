@@ -58,6 +58,9 @@ class PatientManager @Inject()(val configuration: Configuration,
     case SendSmsToCustomer(customerId) =>
       sendSMS(customerId).pipeTo(sender())
 
+    case CheckCustomerId(customerId) =>
+      checkCustomerId(customerId).pipeTo(sender())
+
     case SendIdToPatientViaSms(customerId) =>
       sendIdToPatientViaSms(customerId).pipeTo(sender())
 
@@ -77,6 +80,16 @@ class PatientManager @Inject()(val configuration: Configuration,
   }
 
   private def getPatientByCustomerId(customerId: String): Future[Either[String, Patient]] = {
+    DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
+      Right(patient.get)
+    }.recover {
+      case error: Throwable =>
+        logger.error("Error occurred while get patient by customer id", error)
+        Left("Error happened while requesting patient")
+    }
+  }
+
+  private def checkCustomerId(customerId: String): Future[Either[String, Patient]] = {
     DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
       Right(patient.get)
     }.recover {

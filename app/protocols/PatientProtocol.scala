@@ -106,6 +106,8 @@ object PatientProtocol {
 
   case class SendSmsToCustomer(customerId: String)
 
+  case class CheckCustomerId(customerId: String)
+
   case class SendIdToPatientViaSms(customerId: String)
 
   case class CheckSmsDeliveryStatus(requestId: String, customerId: String)
