@@ -122,6 +122,7 @@ $ ->
           vm.selectedMskt()
         else if vm.patient.analysisType() is "UZI"
           vm.selectedUzi()
+      my.blockUI()
       $.post(apiUrl.registerUrl, JSON.stringify(data))
       .fail handleError
       .done (response) ->
