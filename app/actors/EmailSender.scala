@@ -27,7 +27,7 @@ class EmailSender @Inject()(val configuration: Configuration,
       sendSingleMail(email, smtpConfig)
   }
 
-  private def sendMail(email: Email, smtpConfig: SMTPConfiguration, recipients: Vector[String]): Int = {
+  private def sendMail(email: Email, smtpConfig: SMTPConfiguration, recipients: Seq[String]): Int = {
     recipients.foldLeft(0) { case (time, recipient) =>
       val sendEmail = SendSingleMail(email.copy(to = Seq(recipient)), smtpConfig)
       val next = time + 3
@@ -44,6 +44,8 @@ class EmailSender @Inject()(val configuration: Configuration,
       mailer.send(email)
     } match {
       case Failure(error) =>
+        val sendEmail = SendSingleMail(email, smtpConfig)
+        context.system.scheduler.scheduleOnce(5.seconds, self, sendEmail)
         logger.error(s"Error while sending single email: from [${email.from}] subject [${email.subject}] recipient [${email.to}]", error)
       case Success(_) =>
         logger.debug(s"Finished sending single email: from [${email.from}] subject [${email.subject}]")

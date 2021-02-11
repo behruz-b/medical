@@ -1,15 +1,17 @@
 package controllers
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, ActorSelection, ActorSystem}
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.data.EitherT
 import cats.implicits._
+import com.typesafe.config.Config
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.Json
 import play.api.mvc._
+import protocols.AppProtocol.NotifyMessage
 import protocols.Authentication.LoginSessionKey
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
@@ -37,6 +39,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                statsActionTemp: statisticTemplete,
                                getPatientsTemp: patients.patientsTable,
                                @Named("patient-manager") val patientManager: ActorRef,
+                               //                               @Named("monitoring-notifier") val monitoring: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
@@ -47,6 +50,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
   val adminPassword: String = configuration.get[String]("admin.password")
+
+  val actorConfig: Config = configuration.get[Configuration]("monitoring-actor").underlying
+  val monitoringActorSystemPath: String = configuration.get[String]("monitoring-notifier")
+  lazy val actorSystem: ActorSystem = ActorSystem("medical", actorConfig)
+  lazy val notifierManager: ActorSelection = actorSystem.actorSelection(monitoringActorSystemPath)
+
   private def isAuthorized(implicit request: RequestHeader): Boolean = request.session.get(LoginSessionKey).isDefined
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
@@ -66,6 +75,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def authByDashboard(hasAccess: Boolean, lang: String = "uz")(result: => Result)
                      (implicit request: RequestHeader): Result = {
     val res = authByRole(hasAccess)(result)
+        logger.debug(s"monitoring: $notifierManager")
+    notifierManager ! NotifyMessage(s"errorText")
+
     if (res.header.status == UNAUTHORIZED) {
       Ok(loginPage(lang))
     } else {
@@ -278,14 +290,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok("""{"messages":[{"message-id":735211340,"channel":"SMS","status":"Delivered","status-date":"2021-01-14 14:34:23"}]}""")
   }
 
-//  def getImage(path: String) = {
-//    val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
-//    val directoryPath = new java.io.File("public/images")
-//    directoryPath.mkdirs()
-//    val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
-//    val fos = new java.io.FileOutputStream(tempFile)
-//    fos.write(fileBytes)
-//  }
+  //  def getImage(path: String) = {
+  //    val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
+  //    val directoryPath = new java.io.File("public/images")
+  //    directoryPath.mkdirs()
+  //    val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
+  //    val fos = new java.io.FileOutputStream(tempFile)
+  //    fos.write(fileBytes)
+  //  }
 
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
 

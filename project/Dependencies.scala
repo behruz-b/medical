@@ -44,6 +44,8 @@ object Dependencies {
     val scalaJHttp = "org.scalaj" %% "scalaj-http" % "2.4.2"
     val jsonJoda = "com.typesafe.play" %% "play-json-joda" % Versions.jsonJoda
     val pureConfig = Seq("com.github.pureconfig" %% "pureconfig" % Versions.pureConfig)
+    val ioNetty =       "io.netty" % "netty" % "3.10.6.Final"
+
     val playMailerLibs = Seq(
       "com.typesafe.play" %% "play-mailer" % Versions.playMailer,
       "com.typesafe.play" %% "play-mailer-guice" % Versions.playMailer
@@ -67,10 +69,9 @@ object Dependencies {
       "org.postgresql" % "postgresql" % Versions.postgreSql
     )
     val akka = Seq(
+      "com.typesafe.akka" %% "akka-actor" % Versions.akka,
       "com.typesafe.akka" %% "akka-remote" % Versions.akka,
-      "com.typesafe.akka" %% "akka-cluster-sharding-typed" % Versions.akka,
-      "com.typesafe.akka" %% "akka-actor-typed" % Versions.akka,
-      "com.typesafe.akka" %% "akka-serialization-jackson" % Versions.akka,
+      "com.typesafe.akka" %% "akka-persistence" % Versions.akka,
       "com.typesafe.akka" %% "akka-testkit" % Versions.akka % Test
     )
     val doobieLibs = Seq(
@@ -108,7 +109,8 @@ object Dependencies {
     Libraries.fs2Experimental,
     Libraries.scalaLogging,
     Libraries.scalaJHttp,
-    Libraries.scalaTestPlus
+    Libraries.scalaTestPlus,
+    Libraries.ioNetty
   ) ++
     Libraries.playMailerLibs ++
     Libraries.dbLibs ++

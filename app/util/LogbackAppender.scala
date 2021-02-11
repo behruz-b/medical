@@ -5,6 +5,7 @@ import akka.util.Timeout
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.AppenderBase
 import com.typesafe.scalalogging.LazyLogging
+import protocols.AppProtocol.NotifyMessage
 
 import scala.concurrent.duration.DurationInt
 import scala.util.Try
@@ -51,7 +52,9 @@ trait LogbackAppender[T] extends AppenderBase[T] with LazyLogging {
   }
 
   private def sendNotification(errorText: String): Unit = {
+    logger.info(s"error: $errorText")
+    logger.warn(s"error: $errorText")
     logger.debug(s"error: $errorText")
-//    notifManager ! MonitoringNotifMessage(s"$loggingPrefix $errorText")
+    notifierManager ! NotifyMessage(s"$loggingPrefix $errorText")
   }
 }
