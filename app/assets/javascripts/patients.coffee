@@ -27,7 +27,9 @@ $ ->
     moment(date).format('DD/MM/YYYY')
 
   vm.showFullImage = (customerId) -> ->
+    console.log('cc: ', customerId)
     vm.customerId(customerId)
+    console.log('customerId: ', vm.customerId())
     $('#analysisImage').modal('show')
 
   getPatients = ->
@@ -35,6 +37,7 @@ $ ->
     .fail handleError
     .done (response) ->
       vm.patients(response)
+      console.log(vm.patients())
   getPatients()
 
   vm.translate = (fieldName) -> ko.computed () ->
