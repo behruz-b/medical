@@ -4,7 +4,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import play.api.mvc._
-import protocols.Authentication.{Login, LoginFormWithClientCode, LoginSessionKey, loginPatterns, loginPlayFormWithClientCode}
+import protocols.Authentication.{Login, LoginFormWithClientCode, LoginSessionKey, LoginWithSession, loginPatterns, loginPlayFormWithClientCode}
 import protocols.UserProtocol.CheckUserByLogin
 
 import java.net.URL
@@ -41,7 +41,8 @@ class AuthorizationController @Inject()(val controllerComponents: ControllerComp
     (userManager ? CheckUserByLogin(login, password)).mapTo[Either[String, String]].map {
       case Right(role) if accessRoles.contains(role) =>
         Redirect(loginParams.redirectUrl)
-          .addingToSession(authInit(loginParams.sessionAttr.sessionKey, role, loginParams.sessionDuration): _*)
+          .addingToSession(authInit(loginParams.sessionAttr.sessionKey, role, loginParams.sessionDuration) ++
+            authInit(LoginWithSession, login, loginParams.sessionDuration): _*)
       case Right(_) =>
         Redirect(loginParams.rootPath).flashing("error" -> "You do not have access to this page")
       case Left(error) =>

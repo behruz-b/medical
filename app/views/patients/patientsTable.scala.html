@@ -46,8 +46,8 @@
                             <td data-bind="text: $data.smsLinkClick"></td>
                             <td>
                                     <!-- ko if: $data.analysis_image_name -->
-                                <img width="50" height="50" data-bind="attr: {src: '/img/' + $data.analysis_image_name},
-                                 click: $root.vm.showFullImage($data.analysis_image_name)">
+                                <img width="50" height="50" data-bind="attr: {src: '/r/' + $data.customer_id},
+                                 click: $root.vm.showFullImage($data.customer_id)">
                                     <!-- /ko -->
                             </td>
                         </tr>
@@ -65,7 +65,7 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body text-center">
-                        <img class="w-100" data-bind="attr: {src: '/img/' + vm.fileName()}" alt="#">
+                        <img class="w-100" data-bind="attr: {src: '/r/' + vm.customerId()}" alt="#">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal"><span data-bind="text: vm.translate('closeModal')"></span></button>

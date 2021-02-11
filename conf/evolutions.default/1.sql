@@ -24,5 +24,6 @@ CREATE TABLE "Patients"
 
 ALTER TABLE "Patients" ADD COLUMN sms_link_click VARCHAR NULL;
 ALTER TABLE "Patients" ADD COLUMN analysis_group VARCHAR NOT NULL DEFAULT '-';
+ALTER TABLE "Patients" ADD CONSTRAINT customer_id_unique UNIQUE (customer_id);
 
 DROP TABLE "Patients";

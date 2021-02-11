@@ -30,6 +30,7 @@ object Dependencies {
     val jQueryMask = "1.14.12"
     val pureConfig = "0.13.0"
     val compass = "0.12.7"
+    val popperJS = "1.12.9-1"
   }
 
   object Libraries {
@@ -97,7 +98,8 @@ object Dependencies {
       "org.webjars" % "jquery-ui-src" % Versions.jQueryUI,
       "org.webjars" % "jquery-file-upload" % Versions.jQueryFileUpload,
       "org.webjars.bower" % "jquery-mask-plugin" % Versions.jQueryMask,
-      "org.webjars" % "jquery-blockui" % Versions.jQueryBlockUI
+      "org.webjars" % "jquery-blockui" % Versions.jQueryBlockUI,
+      "org.webjars" % "popper.js" % Versions.popperJS
     )
   }
   val rootDependencies: Seq[ModuleID] = Seq(

@@ -58,8 +58,15 @@ class PatientManager @Inject()(val configuration: Configuration,
     case SendSmsToCustomer(customerId) =>
       sendSMS(customerId).pipeTo(sender())
 
+    case CheckCustomerId(customerId) =>
+      checkCustomerId(customerId).pipeTo(sender())
+
+    case SendIdToPatientViaSms(customerId) =>
+      sendIdToPatientViaSms(customerId).pipeTo(sender())
+
     case CheckSmsDeliveryStatus(requestId, customerId) =>
       checkSmsDeliveryStatus(requestId, customerId).pipeTo(sender())
+
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
@@ -73,6 +80,16 @@ class PatientManager @Inject()(val configuration: Configuration,
   }
 
   private def getPatientByCustomerId(customerId: String): Future[Either[String, Patient]] = {
+    DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
+      Right(patient.get)
+    }.recover {
+      case error: Throwable =>
+        logger.error("Error occurred while get patient by customer id", error)
+        Left("Error happened while requesting patient")
+    }
+  }
+
+  private def checkCustomerId(customerId: String): Future[Either[String, Patient]] = {
     DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
       Right(patient.get)
     }.recover {
@@ -131,16 +148,26 @@ class PatientManager @Inject()(val configuration: Configuration,
   private def sendSMS(customerId: String): Future[Either[String, String]] = {
     getPatientByCustomerId(customerId).flatMap {
       case Right(p) =>
-        actualSendingSMS(p.phone, customerId)
+        actualSendingSMS(p.phone,SmsText(customerId), customerId)
       case Left(e) =>
         logger.error(s"Error happened", e)
         Future.successful(Left("Error occurred while sending SMS to Customer"))
     }
   }
 
-  private def actualSendingSMS(phone: String, customerId: String): Future[Either[String, String]] = {
+  private def sendIdToPatientViaSms(customerId: String): Future[Either[String, String]] = {
+    getPatientByCustomerId(customerId).flatMap {
+      case Right(p) =>
+        actualSendingSMS(p.phone, SmsTextForPatientId(customerId), customerId)
+      case Left(e) =>
+        logger.error(s"Error happened", e)
+        Future.successful(Left("Error occurred while sending SMS to Customer"))
+    }
+  }
+
+  private def actualSendingSMS(phone: String, smsText: String, customerId: String): Future[Either[String, String]] = {
     logger.debug(s"SMS API: ${StringUtil.maskMiddlePart(SmsApi, 10)}, SMS Login: ${StringUtil.maskMiddlePart(SmsLogin, 1, 1)}, SMS Password: ${StringUtil.maskMiddlePart(SmsPassword)}")
-    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"${SmsText(customerId)}"}]"""
+    val data = s"""login=$SmsLogin&password=$SmsPassword&data=[{"phone":"$phone","text":"$smsText"}]"""
     val result = ws.url(SmsApi)
       .withRequestTimeout(15.seconds)
       .withHttpHeaders("Content-Type" -> "application/x-www-form-urlencoded")
@@ -196,4 +223,5 @@ class PatientManager @Inject()(val configuration: Configuration,
         logger.error("Error occurred while sending SMS to sms provider", e)
     }
   }
+
 }
