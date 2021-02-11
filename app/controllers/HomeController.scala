@@ -79,7 +79,24 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def analysisResult(customerId: String): Action[AnyContent] = Action.async { implicit request =>
+  def analysisResult(customerId: String): Action[AnyContent] = Action.async {
+    (patientManager ? GetPatientByCustomerId(customerId)).mapTo[Either[String, Patient]].map {
+      case Right(patient) =>
+        if (patient.analysis_image_name.isDefined) {
+          Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
+        } else {
+          logger.error("Error while getting analysis file name")
+          BadRequest("So'ralgan bemor tekshirinuv natijasi topilmadi!")
+        }
+      case Left(e) => BadRequest(e)
+    }.recover {
+      case e =>
+        logger.error("Error while getting patient", e)
+        BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+    }
+  }
+
+  def analysisResultWithStats(customerId: String): Action[AnyContent] = Action.async { implicit request =>
     (patientManager ? GetPatientByCustomerId(customerId)).mapTo[Either[String, Patient]].map {
       case Right(patient) =>
         if (patient.analysis_image_name.isDefined) {
