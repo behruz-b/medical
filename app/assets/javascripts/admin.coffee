@@ -94,7 +94,7 @@ $ ->
         $thankYou.modal('show')
 
   vm.translate = (fieldName) -> ko.computed () ->
-    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
+    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4
     vm.labels[fieldName][index]
 
   vm.labels =
@@ -102,56 +102,73 @@ $ ->
       "Admin Panel"
       "Панель администратора"
       "Admin boshqaruvi"
+      "Aдмин бошқаруви"
     ]
     login: [
       "Login"
       "Логин"
       "Login"
+      "Логин"
     ]
     password: [
       "Password"
       "Пароль"
       "Parol"
+      "Парол"
     ]
     registrationForm: [
       "Registration Form"
       "Форма регистрации"
       "Ro'yxatdan o'tish shakli"
+      "Рўйхатдан ўтиш шакли"
     ]
     register: [
       "Register"
       "Регистрация"
       "Ro'yxatdan o'tish"
+      "Рўйхатдан ўтиш"
     ]
     firstName: [
       "First name"
       "Имя"
       "Ism"
+      "Исм"
     ]
     lastName: [
       "Last name"
       "Фамилия"
       "Familiya"
+      "Фамилия"
     ]
     email: [
       "Email"
       "Эл. адрес"
       "Email"
+      "Емаил"
     ]
     phoneNumber: [
       "Phone number"
       "Телефонный номер"
       "Telefon raqami"
+      "Телефон рақами"
+    ]
+    selectRole: [
+      "Select role"
+      "Выберите роль"
+      "Rolni tanlang"
+      "Ролни танланг"
     ]
     thankYou: [
       "Thank you!"
       "Спасибо!"
       "Rahmat! Siz ro'yxatdan o'tdingiz!"
+      "Раҳмат! Сиз рўйхатдан ўтдингиз!"
     ]
     closeModal: [
       "Close"
       "Закрыть"
       "Yopish"
+      "Ёпиш"
     ]
 
   ko.applyBindings {vm}

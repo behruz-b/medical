@@ -1,6 +1,6 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(isAuthorized: Boolean, isManager: Boolean, lang: String = "uz")(implicit flash: Flash)
-  @addAnalysisResult.main("Add Analysis Result", webJarsUtil) {
+@(isAuthorized: Boolean, isManager: Boolean, lang: String = "cy")(implicit flash: Flash)
+  @addAnalysisResult.main("Tahlil natijasini qo'shish", webJarsUtil) {
     <script>
             @flash.get("error").map { response =>
             toastr.error("@response")
