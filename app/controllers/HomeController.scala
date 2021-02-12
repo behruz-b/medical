@@ -1,11 +1,12 @@
 package controllers
 
-import akka.actor.{ActorRef, ActorSelection, ActorSystem}
+import actors.MonitoringNotifier
+import akka.actor.{ActorRef, ActorSelection, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.data.EitherT
 import cats.implicits._
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
@@ -39,7 +40,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                statsActionTemp: statisticTemplete,
                                getPatientsTemp: patients.patientsTable,
                                @Named("patient-manager") val patientManager: ActorRef,
-                               //                               @Named("monitoring-notifier") val monitoring: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
@@ -50,11 +50,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
   val adminPassword: String = configuration.get[String]("admin.password")
-
-  val actorConfig: Config = configuration.get[Configuration]("monitoring-actor").underlying
-  val monitoringActorSystemPath: String = configuration.get[String]("monitoring-notifier")
-  lazy val actorSystem: ActorSystem = ActorSystem("medical", actorConfig)
-  lazy val notifierManager: ActorSelection = actorSystem.actorSelection(monitoringActorSystemPath)
 
   private def isAuthorized(implicit request: RequestHeader): Boolean = request.session.get(LoginSessionKey).isDefined
 
@@ -75,9 +70,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def authByDashboard(hasAccess: Boolean, lang: String = "uz")(result: => Result)
                      (implicit request: RequestHeader): Result = {
     val res = authByRole(hasAccess)(result)
-        logger.debug(s"monitoring: $notifierManager")
-    notifierManager ! NotifyMessage(s"errorText")
-
     if (res.header.status == UNAUTHORIZED) {
       Ok(loginPage(lang))
     } else {
@@ -253,14 +245,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               } yield {
                 val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
                 statsManager ! AddStatsAction(statsAction)
-                (userManager ? SendSmsToDoctor(customerId)).mapTo[Either[String, String]].recover { e =>
-                  logger.error("Unexpected error happened", e)
-                  BadRequest("Something went wrong")
+                (userManager ? SendSmsToDoctor(customerId)).mapTo[Either[String, String]].recover {
+                  case e: Throwable =>
+                    logger.error("Unexpected error happened", e)
+                    BadRequest("Something went wrong")
                 }
                 "File is uploaded"
-              }).value.recover { e =>
-                logger.error("Unexpected error happened", e)
-                Left("Something went wrong")
+              }).value.recover {
+                case e =>
+                  logger.error("Unexpected error happened", e)
+                  Left("Something went wrong")
               }
             case None =>
               logger.error("Customer ID not found")
@@ -316,11 +310,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   private def createPatientInDB(patient: Patient): Future[Result] = {
     (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].flatMap {
       case Right(_) =>
-        (patientManager ? SendIdToPatientViaSms(patient.customer_id)).mapTo[Either[String, String]].recover { e =>
-          logger.error("Unexpected error happened", e)
-          BadRequest("Something went wrong")
-        }.map { _ =>
+        (patientManager ? SendIdToPatientViaSms(patient.customer_id)).mapTo[Either[String, String]].map { _ =>
           Ok(Json.toJson(patient.customer_id))
+        }.recover {
+          case e =>
+            logger.error("Unexpected error happened", e)
+            BadRequest("Something went wrong")
         }
       case Left(e) => Future.successful(BadRequest(e))
     }.recover {

@@ -73,6 +73,7 @@ object Dependencies {
       "com.typesafe.akka" %% "akka-actor" % Versions.akka,
       "com.typesafe.akka" %% "akka-remote" % Versions.akka,
       "com.typesafe.akka" %% "akka-persistence" % Versions.akka,
+      "com.typesafe.akka" %% "akka-serialization-jackson" % Versions.akka,
       "com.typesafe.akka" %% "akka-testkit" % Versions.akka % Test
     )
     val doobieLibs = Seq(

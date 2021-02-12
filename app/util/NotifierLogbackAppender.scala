@@ -8,7 +8,7 @@ class NotifierLogbackAppender[T] extends LogbackAppender[T] {
   val actorConfig: Config = config.getConfig("monitoring-actor")
   val monitoringActorSystemPath: String = config.getString("monitoring-notifier")
 
-  override lazy val actorSystem: ActorSystem = ActorSystem("MonitoringNotifierSystem", actorConfig)
+  override lazy val actorSystem: ActorSystem = ActorSystem("MonitoringActor", actorConfig)
   override lazy val notifierManager: ActorSelection = actorSystem.actorSelection(monitoringActorSystemPath)
 
   override val loggingPrefix = "[medical]"

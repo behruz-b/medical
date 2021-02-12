@@ -33,7 +33,6 @@ $ ->
     else
       toastr.error('Something went wrong! Please try again.')
 
-  $(document).ready ->
   $('#show_hide_password a').on 'click', (event) ->
     event.preventDefault()
     if $('#show_hide_password input').attr('type') == 'text'
