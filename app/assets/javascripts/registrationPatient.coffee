@@ -122,6 +122,7 @@ $ ->
           vm.selectedMskt()
         else if vm.patient.analysisType() is "UZI"
           vm.selectedUzi()
+      my.blockUI()
       $.post(apiUrl.registerUrl, JSON.stringify(data))
       .fail handleError
       .done (response) ->
@@ -130,7 +131,7 @@ $ ->
         $thankYou.modal('show')
 
   vm.translate = (fieldName) -> ko.computed () ->
-    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
+    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4
     vm.labels[fieldName][index]
 
   vm.labels =
@@ -138,86 +139,103 @@ $ ->
       "Welcome to Smart Medical!"
       "Добро пожаловать в Smart Medical!"
       "Smart Medical-ga xush kelibsiz!"
+      "Smart Medical-га хуш келибсиз!"
     ]
     closeModal: [
       "Close"
       "Закрыть"
       "Yopish"
+      "Ёпиш"
     ]
     registrationForm: [
       "Registration Form"
       "Форма регистрации"
       "Ro'yxatdan o'tish shakli"
+      "Рўйхатдан ўтиш шакли"
     ]
     register: [
       "Register"
       "Регистрация"
       "Ro'yxatdan o'tish"
+      "Рўйхатдан ўтиш"
     ]
     firstName: [
       "First name"
       "Имя"
       "Ism"
+      "Исм"
     ]
     lastName: [
       "Last name"
       "Фамилия"
       "Familiya"
+      "Фамилия"
     ]
     phoneNumber: [
       "Phone number"
       "Телефонный номер"
       "Telefon raqami"
+      "Телефон рақами"
     ]
     docFullName: [
       "Doctor's full name"
       "ФИО врача"
       "Shifokorning to'liq ismi"
+      "Шифокорнинг тўлиқ исми"
     ]
     docPhone: [
       "Doctor's phone number"
       "Телефон врача"
       "Shifokorning telefon raqami"
+      "Шифокорнинг телефон рақами"
     ]
     dateOfBirth: [
       "Date of birth (day/month/year)"
       "Дата рождения (den/mesets/god)"
       "Tug'ilgan yili (kun/oy/yil)"
+      "Туғилган йили (кун/ой/йил)"
     ]
     address: [
       "Address"
       "Адрес"
       "Manzil"
+      "Манзил"
     ]
     analysisType: [
       "Analysis type"
       "Тип анализа"
       "Tahlil turi"
+      "Таҳлил тури"
     ]
     mrtType: [
       "MRT type"
       "Тип МРТ"
       "MRT turi"
+      "МРТ тури"
     ]
     msktType: [
       "MSKT type"
       "Тип МСКТ"
       "MSKT turi"
+      "МСКТ тури"
     ]
     uziType: [
       "Ultrasound type"
       "Узи типа"
       "UZI turi"
+      "УЗИ тури"
     ]
     thankYou: [
       "Thank you!"
       "Спасибо!"
       "Rahmat! Siz ro'yxatdan o'tdingiz!"
+      "Раҳмат! Сиз рўйхатдан ўтдингиз!"
     ]
     yourID: [
       "You are registered on ID:"
       "Вы зарегистрированы по ID:"
       "Sizning ID:"
+      "Сизнинг ID:"
     ]
 
   ko.applyBindings {vm}

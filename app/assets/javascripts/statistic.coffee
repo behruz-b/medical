@@ -31,7 +31,7 @@ $ ->
   getStats()
 
   vm.translate = (fieldName) -> ko.computed () ->
-    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
+    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4
     vm.labels[fieldName][index]
 
   vm.labels =
@@ -39,33 +39,40 @@ $ ->
       "Statistics"
       "Статистика"
       "Statistikalar"
+      "Статистикалар"
     ]
     createdAt: [
       "Created at"
       "Время регистрации"
       "Ro'yhatdan o'tgan vaqti"
+      "Рўйҳатдан ўтган вақти"
     ]
     companyCode: [
       "Company code"
       "Код компании"
       "Kompaniya kodi"
+      "Компания коди"
     ]
     action: [
       "Action"
       "Действие"
       "Amal"
+      "Aмал"
     ]
     login: [
       "Login"
       "Логин"
       "Login"
+      "Логин"
     ]
     ipAddress: [
       "IP Address"
       "IP адрес"
       "IP manzil"
+      "IP адрес"
     ]
     userAgent: [
+      "User Agent"
       "User Agent"
       "User Agent"
       "User Agent"

@@ -64,10 +64,6 @@ $ ->
       toastr.success(result)
       vm.enableSubmitButton(no)
 
-  vm.translate = (fieldName) -> ko.computed () ->
-    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else 3
-    vm.labels[fieldName][index]
-
   vm.onSubmit = ->
     toastr.clear()
     if !vm.patient.id()
@@ -81,21 +77,28 @@ $ ->
       vm.enableSubmitButton(no)
       formData.submit()
 
+  vm.translate = (fieldName) -> ko.computed () ->
+    index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4
+    vm.labels[fieldName][index]
+
   vm.labels =
     addAnalysisResult: [
       "Add Analysis Result"
       "Добавить результат анализа"
       "Tahlil natijasini qo'shish"
+      "Таҳлил натижасини қўшиш"
     ]
     file: [
       "File"
       "Файл"
       "Fayl"
+      "Файл"
     ]
     submit: [
       "Submit"
       "Отправить"
       "Jo'natish"
+      "Жўнатиш"
     ]
 
   ko.applyBindings {vm}

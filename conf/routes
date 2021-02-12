@@ -1,19 +1,18 @@
 # An example controller showing a sample home page
 GET     /                                                       @controllers.HomeController.index(language = "uz")
 GET     /dashboard                                              @controllers.HomeController.dashboard(language = "uz")
-GET     /index                                                  @controllers.HomeController.index(language = "uz")
 POST    /login                                                  @controllers.AuthorizationController.loginPost
 GET     /logout                                                 @controllers.AuthorizationController.logout
 
-GET     /reg/                                                   @controllers.HomeController.registerPage(language = "uz")
-GET     /admin/                                                 @controllers.HomeController.admin(language = "uz")
+GET     /reg/                                                   @controllers.HomeController.registerPage(language = "cy")
+GET     /admin/                                                 @controllers.HomeController.admin(language = "cy")
 GET     /admin/get-roles                                        @controllers.HomeController.getRoleTypes
 
-GET     /doc/                                                   @controllers.HomeController.addAnalysisResult(language = "uz")
+GET     /doc/                                                   @controllers.HomeController.addAnalysisResult(language = "cy")
 POST    /doc/upload-analyze-result                              @controllers.HomeController.uploadAnalysisResult
 POST    /doc/add-doctor                                         @controllers.HomeController.createDoctor
 
-GET     /patient/                                               @controllers.HomeController.getPatientsTemplate(language = "uz")
+GET     /patient/                                               @controllers.HomeController.getPatientsTemplate(language = "cy")
 GET     /patient/get-patients                                   @controllers.HomeController.getPatients
 GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType
 POST    /patient/add-patient                                    @controllers.HomeController.createPatient
@@ -21,12 +20,13 @@ GET     /patient/get-mrt-type                                   @controllers.Hom
 GET     /patient/get-mskt-type                                  @controllers.HomeController.getMsktType()
 GET     /patient/get-uzi-type                                   @controllers.HomeController.getUziType()
 
-GET     /stats/                                                 @controllers.HomeController.getStatisticTemplate(language = "uz")
+GET     /stats/                                                 @controllers.HomeController.getStatisticTemplate(language = "cy")
 GET     /stats/get-stats                                        @controllers.HomeController.getStats
 
 POST    /stub-sms                                               @controllers.HomeController.stubSmsRequest
 POST    /stub-sms/status                                        @controllers.HomeController.stubSmsDeliveryStatus
-GET     /r/:customerId                                          @controllers.HomeController.analysisResult(customerId)
+GET     /r/:customerId                                          @controllers.HomeController.analysisResultWithStats(customerId)
+GET     /analyse-result/:customerId                             @controllers.HomeController.analysisResult(customerId)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                           @controllers.Assets.versioned(path="/public", file: Asset)

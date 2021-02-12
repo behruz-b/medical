@@ -1,7 +1,7 @@
 @import views.html.statistic.main
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(isAuthorized: Boolean, lang: String = "uz")(implicit flash: Flash)
-@statistic.main("Stats", webJarsUtil) {
+@(isAuthorized: Boolean, lang: String = "cy")(implicit flash: Flash)
+@statistic.main("Statistikalar", webJarsUtil) {
     <script>
             @flash.get("error").map { response =>
             toastr.error("@response")
