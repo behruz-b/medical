@@ -52,9 +52,6 @@ trait LogbackAppender[T] extends AppenderBase[T] with LazyLogging {
   }
 
   private def sendNotification(errorText: String): Unit = {
-    logger.info(s"error: $errorText")
-    logger.warn(s"error: $errorText")
-    logger.debug(s"error: $errorText")
     notifierManager ! NotifyMessage(s"$loggingPrefix $errorText")
   }
 }

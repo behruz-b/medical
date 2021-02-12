@@ -34,7 +34,6 @@ class MonitoringNotifier @Inject()(val configuration: Configuration,
 
   override def receive: Receive = {
     case NotifyMessage(message) =>
-      logger.debug(message)
       sendEmail(message)
   }
 
