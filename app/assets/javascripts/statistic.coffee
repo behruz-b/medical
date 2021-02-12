@@ -20,7 +20,7 @@ $ ->
       toastr.error('Something went wrong! Please try again.')
 
   vm.convertStringToDate = (stringDate) ->
-    moment(stringDate).format('DD/MM/YYYY HH:MM')
+    moment(stringDate).format('DD/MM/YYYY HH:mm')
 
   getStats = ->
     $.get(apiUrl.statsUrl)
