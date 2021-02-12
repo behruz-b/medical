@@ -32,6 +32,8 @@ $ ->
     selectedMrt: ''
     selectedMskt: ''
     selectedUzi: ''
+    analysisType: [{name: 'MRT', value: 'MRT'}, {name: 'MSKT', value: 'MSKT'},
+      {name: 'UZI', value: 'UZI'}]
 
   handleError = (error) ->
     $.unblockUI()

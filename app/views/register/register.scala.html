@@ -47,8 +47,16 @@
           <label for="address" class="label"><span data-bind="text: vm.translate('address')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="analysisType" data-bind="options: vm.getAnalysisTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.patient.analysisType, optionsCaption: vm.translate('analysisType')" autocomplete="off"></select>
+          <select multiple id="analysisType" class="custom-select selectpicker "
+          data-bind="selectPicker: vm.analysisType,
+              selectPickerOptions: {optionsArray: vm.patient.analysisType},
+               optionsValue: 'value', optionsText: 'name', optionsCaption: vm.translate('analysisType')" data-show-subtext="true">
+          </select>
+@*          <select multiple id="analysisType"  class="form-control" data-bind="selectPicker: vm.analysisType,*@
+@*                   selectPickerOptions: {optionsArray: vm.patient.analysisType}, optionsValue: 'value', optionsText: 'name', optionsCaption: vm.translate('analysisType')"></option>*@
+@*          </select>*@
+@*          <select multiple class=" custom-select selectpicker" id="analysisType" data-bind="options: vm.analysisType,*@
+@*           optionsText: 'name', optionsValue: 'value', value: vm.patient.analysisType, optionsCaption: vm.translate('analysisType')" autocomplete="off"></select>*@
         </div>
           <!-- ko if: vm.patient.analysisType() == 'MRT' -->
         <div class="form-group col-sm-6 col-12">
