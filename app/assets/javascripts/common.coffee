@@ -87,6 +87,9 @@ root.my =
 #  isDigits: (s, digitsCount) ->
 #    (new RegExp('^\\d{' + digitsCount + '}$')).test s
 
+  passValidation: (password) ->
+    /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,20}$/.test(password)
+
   isValidPhone: (phoneNumber) ->
     /^\d{9}$/.test phoneNumber
 

@@ -138,6 +138,11 @@ object MessageSQL extends CommonSQL  {
           WHERE customer_id=$customerId""".update
   }
 
+  def changePassword(login: String, newPass: String): Update0 = {
+    sql"""UPDATE "Users" SET password=$newPass
+          WHERE login=$login""".update
+  }
+
   def getByCustomerId(customerId: String): Query0[Patient] = {
     val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone, sms_link_click, analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
     querySql.query[Patient]

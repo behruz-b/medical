@@ -15,7 +15,7 @@ import play.api.mvc.{request, _}
 import protocols.AppProtocol.NotifyMessage
 import protocols.Authentication.{LoginSessionKey, LoginWithSession}
 import protocols.PatientProtocol._
-import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
+import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User, ChangePassword}
 import views.html._
 import views.html.statistic._
 import java.nio.file.Paths
@@ -36,6 +36,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                regTemplate: views.html.register.register,
                                patientsDocTemplate: views.html.patientsDoc.patientsDoc,
                                adminTemplate: views.html.admin.adminPage,
+                               passTemplate: views.html.changePassword.changePassword,
                                loginPage: views.html.admin.login,
                                configuration: Configuration,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
@@ -62,6 +63,26 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def dashboard(language: String): Action[AnyContent] = Action { implicit request =>
     Ok(dashboardTemp(isAuthorized, isManager, language))
+  }
+
+  def changePass(language: String): Action[AnyContent] = Action { implicit request =>
+    Ok(passTemplate(isAuthorized, isDoctor,language))
+  }
+
+  def changePassword: Action[ChangePassword] = Action.async(parse.json[ChangePassword]) { implicit request =>
+    authByRole(isDoctor || isAdmin) {
+      val body = request.body
+      (userManager ? ChangePassword(body.login,body.newPass)).mapTo[Either[String, String]].map {
+        case Right(string) =>
+          Redirect("changePassword").flashing("success" -> string)
+        case Left(error) =>
+          BadRequest(error)
+      }.recover {
+        case e: Throwable =>
+          logger.error("Error while creating doctor", e)
+          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+      }
+    }
   }
 
   def registerPage(language: String): Action[AnyContent] = Action { implicit request =>

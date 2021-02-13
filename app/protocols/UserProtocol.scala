@@ -3,6 +3,7 @@ package protocols
 import play.api.libs.json._
 
 import java.time.LocalDateTime
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
 
 object UserProtocol {
 
@@ -19,6 +20,13 @@ object UserProtocol {
     def id: Option[Int] = None
   }
   implicit val userFormat: OFormat[User] = Json.format[User]
+
+  case class ChangePassword(login: String, newPass: String)
+
+  implicit val doctorFormReads: Reads[ChangePassword] = (
+      (__ \ "login").read[String] and
+      (__ \ "newPass").read[String]
+    ) (ChangePassword)
 
   case class CheckUserByLogin(login: String, password: String)
   case class CreateUser(user: User)
