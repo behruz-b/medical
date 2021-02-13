@@ -12,6 +12,7 @@ trait CommonSQL {
   def create(patient: Patient): ConnectionIO[Int]
   def createUser(user: User): ConnectionIO[Int]
   def addStatsAction(statsAction: StatsAction): ConnectionIO[Int]
+  def addPatientsDoc(patientsDoc: PatientsDoc): ConnectionIO[Int]
   def addAnalysisResult(customerId: String, analysisFileName: String): Update0
   def addDeliveryStatus(customerId: String, deliveryStatus: String): Update0
   def addSmsLinkClick(customerId: String, smsLinkClick: String): Update0
@@ -20,6 +21,7 @@ trait CommonSQL {
   def getUserByLogin(login: String): Query0[User]
   def getPatients: ConnectionIO[List[Patient]]
   def getStats: ConnectionIO[List[StatsAction]]
+  def getPatientsDoc: ConnectionIO[List[PatientsDoc]]
   def getRoles: ConnectionIO[List[Roles]]
 
 }
@@ -37,6 +39,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   }
   override def addStatsAction(statsAction: StatsAction): F[Int] = {
     commonSql.addStatsAction(statsAction).transact(xa)
+  }
+  override def addPatientsDoc(patientsDoc: PatientsDoc): F[Int] = {
+    commonSql.addPatientsDoc(patientsDoc).transact(xa)
   }
   override def addAnalysisResult(customerId: String, analysisFileName: String): F[Int] = {
     commonSql.addAnalysisResult(customerId, analysisFileName).run.transact(xa)
@@ -61,6 +66,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   }
   override def getStats: F[List[StatsAction]] = {
     commonSql.getStats.transact(xa)
+  }
+  override def getPatientsDoc: F[List[PatientsDoc]] = {
+    commonSql.getPatientsDoc.transact(xa)
   }
   override def getRoles: F[List[Roles]] = {
     commonSql.getRoles.transact(xa)

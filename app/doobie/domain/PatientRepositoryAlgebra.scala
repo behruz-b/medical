@@ -8,6 +8,7 @@ trait PatientRepositoryAlgebra[F[_]] {
   def create(patient: Patient): F[Int]
   def createUser(user: User): F[Int]
   def addStatsAction(statsAction: StatsAction): F[Int]
+  def addPatientsDoc(patientsDoc: PatientsDoc): F[Int]
   def addAnalysisResult(customerId: String, analysisFileName: String): F[Int]
   def addDeliveryStatus(customerId: String, deliveryStatus: String): F[Int]
   def addSmsLinkClick(customerId: String, smsLinkClick: String): F[Int]
@@ -16,6 +17,7 @@ trait PatientRepositoryAlgebra[F[_]] {
   def getUserByLogin(login: String):fs2.Stream[F,User]
   def getPatients: F[List[Patient]]
   def getStats: F[List[StatsAction]]
+  def getPatientsDoc: F[List[PatientsDoc]]
   def getRoles: F[List[Roles]]
 
 }

@@ -1,0 +1,83 @@
+@import "utils/style.css";
+@import url('https://fonts.googleapis.com/css?family=Rubik:400,500,700');
+
+html {
+  height: 100%;
+}
+
+table{
+  overflow-y: scroll;
+}
+
+body {
+  font-family: 'Rubik', sans-serif;
+  font-size: 0.875rem;
+  color: #666;
+  background-color: #013244;
+  background-image: url("../images/background-register.jpg");
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  overflow: hidden;
+  height: 100%;
+}
+
+.box-align-center {
+  top: 20% !important;
+  position: sticky;
+}
+
+.input-box {
+  border: none;
+  border-bottom: 1px solid white;
+  background: transparent;
+  color: white !important;
+}
+
+.select {
+  background-color: #013244;
+}
+
+.select option {
+  background-color: #1b1e21;
+}
+.input-box:hover, .input-box:focus {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  border-bottom: 1px solid green;
+}
+
+.input-box:-webkit-autofill,
+.input-box:-webkit-autofill:hover,
+.input-box:-webkit-autofill:focus,
+.input-box:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.form-group {
+  margin-top: 2em;
+}
+
+.form-group input:focus + label,
+.form-group input:not([value=""]) + label {
+  transform: translateY(-25px);
+  font-size: 14px;
+  color: greenyellow;
+}
+
+.move-top {
+  transform: translateY(-25px);
+  font-size: 14px;
+  color: greenyellow !important;
+}
+
+.label {
+  color: gray;
+  position: absolute;
+  bottom: 0;
+  font-size: 15px;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}

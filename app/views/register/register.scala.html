@@ -2,21 +2,6 @@
 @(isAuthorized: Boolean, isManager: Boolean, lang: String = "cy")
 @register.main("Ro'yxatdan o'tish", webJarsUtil) {
   <script>
-          function autotab(el) {
-            if (el.value.length === +el.getAttribute("maxlength")) {
-              $("#p_number").focus()
-            }
-          }
-
-
-          function autoBack(el) {
-            $('html').keydown(function (event) {
-              if (el.value.length === 0 && event.keyCode === 8) {
-                $("#p_series").focus()
-              }
-            })
-          }
-
           var Glob = {
             language: '@lang'
           };

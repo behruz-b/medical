@@ -1,0 +1,30 @@
+@import controllers.routes
+@(title: String, webJarsUtil: org.webjars.play.WebJarsUtil)(content: Html)
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>@title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    @webJarsUtil.locate("css/bootstrap.min.css").css()
+    @webJarsUtil.locate("css/all.css").css()
+    @webJarsUtil.locate("toastr.css").css()
+    <link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/patientsDoc.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    @webJarsUtil.locate("jquery.js").script()
+    @webJarsUtil.locate("js/bootstrap.min.js").script()
+    @webJarsUtil.locate("jquery.blockUI.js").script()
+    @webJarsUtil.locate("knockout.js").script()
+    @webJarsUtil.locate("knockout.mapping.js").script()
+    @webJarsUtil.locate("dist/jquery.mask.min.js").script()
+    @webJarsUtil.locate("jquery.blockUI.js").script()
+    @webJarsUtil.locate("toastr.js").script()
+    <script src="@routes.Assets.versioned("javascripts/ko.mask-input.js")"></script>
+    <script src="@routes.Assets.versioned("javascripts/common.js")"></script>
+    <script src="@routes.Assets.versioned("javascripts/patientsDoc.js")"></script>
+  </head>
+  <body>
+    @content
+  </body>
+</html>

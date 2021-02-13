@@ -65,6 +65,11 @@ object MessageSQL extends CommonSQL  {
       case (created_at, company_code, action, login, ip_address, user_agent) =>
         StatsAction(created_at.toLocalDateTime, company_code, action, login, ip_address, user_agent)
     }
+  implicit val patientsDocRead: Read[PatientsDoc] =
+    Read[(String, String)].map {
+      case (fullname, phone) =>
+        PatientsDoc(fullname, phone)
+    }
 
   private def javaLdTime2JavaSqlTimestamp(ldTime: LocalDateTime): Timestamp = {
     Timestamp.valueOf(ldTime)
@@ -114,6 +119,13 @@ object MessageSQL extends CommonSQL  {
           VALUES $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 
+  def addPatientsDoc(patientsDoc: PatientsDoc): doobie.ConnectionIO[Int] = {
+    val values = fr"(${patientsDoc.fullname}, ${patientsDoc.phone})"
+
+    sql"""INSERT INTO "Patients_doc" (fullname, phone)
+          VALUES $values""".update.withUniqueGeneratedKeys[Int]("id")
+  }
+
   def createUser(user: User): doobie.ConnectionIO[Int] = {
     val values = fr"(${javaLdTime2JavaSqlTimestamp(user.created_at)},${user.firstname}, ${user.lastname}, ${user.phone}, ${user.role}, ${user.company_code}, ${user.login}, ${user.password})"
 
@@ -152,6 +164,11 @@ object MessageSQL extends CommonSQL  {
   def getStats: ConnectionIO[List[StatsAction]] = {
     val querySql = fr"""SELECT created_at, company_code, action, ip_address, login, user_agent FROM "Stats" ORDER BY created_at """
     querySql.query[StatsAction].to[List]
+  }
+
+  def getPatientsDoc: ConnectionIO[List[PatientsDoc]] = {
+    val querySql = fr"""SELECT fullname, phone FROM "Patients_doc" ORDER BY id """
+    querySql.query[PatientsDoc].to[List]
   }
 
   def getRoles: ConnectionIO[List[Roles]] = {

@@ -1,6 +1,6 @@
 package controllers
 
-import actors.MonitoringNotifier
+import actors.{MonitoringNotifier, PatientsDocManager}
 import akka.actor.{ActorRef, ActorSelection, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
@@ -18,12 +18,13 @@ import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
 import views.html._
 import views.html.statistic._
-
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.time._
 import java.util.Date
+
 import javax.inject._
+
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -33,6 +34,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                val dashboardTemp: views.html.dashboard.dashboard,
                                indexTemplate: views.html.index,
                                regTemplate: views.html.register.register,
+                               patientsDocTemplate: views.html.patientsDoc.patientsDoc,
                                adminTemplate: views.html.admin.adminPage,
                                loginPage: views.html.admin.login,
                                configuration: Configuration,
@@ -41,7 +43,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                getPatientsTemp: patients.patientsTable,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
-                               @Named("stats-manager") val statsManager: ActorRef)
+                               @Named("stats-manager") val statsManager: ActorRef,
+                               @Named("patientsDoc-manager") val patientsDocManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
   extends BaseController with CommonMethods with Auth {
 
@@ -64,6 +67,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def registerPage(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isRegister || isManager, language) {
       Ok(regTemplate(isAuthorized, isManager, language))
+    }
+  }
+
+  def patientsDocPage(language: String): Action[AnyContent] = Action { implicit request =>
+    authByDashboard(isRegister || isManager, language) {
+      Ok(patientsDocTemplate(isAuthorized, isManager, language))
     }
   }
 
@@ -140,6 +149,24 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def addPatientsDoc: Action[PatientsDocForm] = Action.async(parse.json[PatientsDocForm]) { implicit request =>
+    authByRole(isRegister || isManager) {
+      val body = request.body
+      val phone = "998" + clearPhone(body.phone)
+      val patientsDoc = PatientsDoc(body.fullName, phone)
+      (patientsDocManager ? AddPatientsDoc(patientsDoc)).mapTo[Either[String, String]].map {
+        case Right(_) =>
+          Ok(Json.toJson("Successfully added"))
+        case Left(error) =>
+          BadRequest(error)
+      }.recover {
+        case e: Throwable =>
+          logger.error("Error while creating doctor", e)
+          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+      }
+    }
+  }
+
   def createPatient: Action[PatientForm] = Action.async(parse.json[PatientForm]) { implicit request =>
     authByRole(isRegister || isManager) {
       val body = request.body
@@ -180,6 +207,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     authByRole(isAdmin) {
       (statsManager ? GetStats).mapTo[List[StatsAction]].map { stats =>
         Ok(Json.toJson(stats))
+      }
+    }
+  }
+
+  def getPatientsDoc: Action[AnyContent] = Action.async { implicit request =>
+    authByRole(isAdmin) {
+      (patientsDocManager ? GetPatientsDoc).mapTo[List[PatientsDoc]].map { patientsDoc =>
+        Ok(Json.toJson(patientsDoc))
       }
     }
   }

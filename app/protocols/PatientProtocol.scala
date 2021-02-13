@@ -58,6 +58,14 @@ object PatientProtocol {
       (__ \ "company_code").read[String]
     ) (DoctorForm)
 
+  case class PatientsDocForm(fullName: String,
+                        phone: String)
+
+  implicit val patientsDocFormReads: Reads[PatientsDocForm] = (
+      (__ \ "fullName").read[String] and
+      (__ \ "phone").read[String]
+    ) (PatientsDocForm)
+
   case class Patient(created_at: LocalDateTime,
                      firstname: String,
                      lastname: String,
@@ -88,9 +96,16 @@ object PatientProtocol {
 
   implicit val StatsActionFormat: OFormat[StatsAction] = Json.format[StatsAction]
 
+  case class PatientsDoc(fullname: String,
+                         phone: String)
+
+  implicit val PatientsDocFormat: OFormat[PatientsDoc] = Json.format[PatientsDoc]
+
   case class CreatePatient(patient: Patient)
 
   case class AddStatsAction(statsAction: StatsAction)
+
+  case class AddPatientsDoc(patientsDoc: PatientsDoc)
 
   case class AddAnalysisResult(customerId: String, analysisFileName: String)
 
@@ -103,6 +118,8 @@ object PatientProtocol {
   case object GetPatients
 
   case object GetStats
+
+  case object GetPatientsDoc
 
   case class SendSmsToCustomer(customerId: String)
 

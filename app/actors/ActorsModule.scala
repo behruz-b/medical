@@ -8,6 +8,7 @@ class ActorsModule extends AbstractModule with AkkaGuiceSupport {
     bindActor[PatientManager]("patient-manager")
     bindActor[UserManager]("user-manager")
     bindActor[StatsManager]("stats-manager")
+    bindActor[PatientsDocManager]("patientsDoc-manager")
     bindActor[EmailSender]("email-sender")
     bindActor[MonitoringNotifier]("monitoring-notifier")
 
