@@ -14,7 +14,7 @@ POST    /doc/upload-analyze-result                              @controllers.Hom
 POST    /doc/add-doctor                                         @controllers.HomeController.createDoctor
 
 GET     /changePassword                                         @controllers.HomeController.changePass(language = "uz")
-POST    /doctor/add-password                                       @controllers.HomeController.changePassword
+POST    /doctor/add-password                                    @controllers.HomeController.changePassword
 
 GET     /patient/                                               @controllers.HomeController.getPatientsTemplate(language = "cy")
 GET     /patient/get-patients                                   @controllers.HomeController.getPatients

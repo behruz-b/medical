@@ -66,15 +66,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def changePass(language: String): Action[AnyContent] = Action { implicit request =>
-    Ok(passTemplate(isAuthorized, isDoctor,language))
+    authByDashboard(isRegister || isAdmin || isDoctor || isManager) {
+      Ok(passTemplate(isAuthorized, isManager,language))
+    }
   }
 
   def changePassword: Action[ChangePassword] = Action.async(parse.json[ChangePassword]) { implicit request =>
-    authByRole(isDoctor || isAdmin) {
+    authByRole(isDoctor || isRegister || isAdmin) {
       val body = request.body
       (userManager ? ChangePassword(body.login,body.newPass)).mapTo[Either[String, String]].map {
-        case Right(string) =>
-          Redirect("changePassword").flashing("success" -> string)
+        case Right(_) =>
+          Ok(Json.toJson("Successfully updated"))
         case Left(error) =>
           BadRequest(error)
       }.recover {

@@ -4,7 +4,7 @@ $ ->
   Glob = window.Glob || {}
 
   apiUrl =
-    addPassword: '/doctor/add-password'
+    changePassword: '/doctor/add-password'
 
   defaultDoctor =
     login: ''
@@ -37,6 +37,7 @@ $ ->
 
   vm.newPassword = ->
     toastr.clear()
+    my.blockUI()
     if !vm.doctor.login()
       toastr.error("Iltimos loginni kiriting!")
       return no
@@ -52,14 +53,15 @@ $ ->
     else if !my.passValidation(vm.doctor.repeatPass())
       toastr.error("Iltimos yangi parolda kamida 1 ta raqam, 1 ta katta kichik harf va belgi bulishi kerak!")
     else
-      doctor =
+      data =
         login: vm.doctor.login()
         newPass: vm.doctor.newPass()
-      $.post(apiUrl.addPassword, JSON.stringify(doctor))
+      $.post(apiUrl.changePassword, JSON.stringify(data))
       .fail handleError
-      .done (response) ->
-        toastr.success("Muvaffaqiyatli yakunlandi")
+      .done () ->
+        toastr.success("Muvaffaqiyatli yakunlandi!")
         ko.mapping.fromJS(defaultDoctor, {}, vm.doctor)
+        $.unblockUI()
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4
