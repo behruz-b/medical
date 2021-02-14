@@ -10,6 +10,7 @@ trait PatientRepositoryAlgebra[F[_]] {
   def addStatsAction(statsAction: StatsAction): F[Int]
   def addPatientsDoc(patientsDoc: PatientsDoc): F[Int]
   def addAnalysisResult(customerId: String, analysisFileName: String): F[Int]
+  def changePassword(login: String, newPass: String): F[Int]
   def addDeliveryStatus(customerId: String, deliveryStatus: String): F[Int]
   def addSmsLinkClick(customerId: String, smsLinkClick: String): F[Int]
   def getByCustomerId(customerId: String): fs2.Stream[F,Patient]
