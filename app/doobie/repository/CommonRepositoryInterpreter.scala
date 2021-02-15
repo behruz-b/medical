@@ -22,7 +22,7 @@ trait CommonSQL {
   def getUserByLogin(login: String): Query0[User]
   def   getPatients(analyseType: Option[String]): ConnectionIO[List[Patient]]
   def getStats: ConnectionIO[List[StatsAction]]
-  def getPatientsDoc: ConnectionIO[List[PatientsDoc]]
+  def getPatientsDoc: ConnectionIO[List[GetPatientsDocById]]
   def getRoles: ConnectionIO[List[Roles]]
 
 }
@@ -71,7 +71,7 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def getStats: F[List[StatsAction]] = {
     commonSql.getStats.transact(xa)
   }
-  override def getPatientsDoc: F[List[PatientsDoc]] = {
+  override def getPatientsDoc: F[List[GetPatientsDocById]] = {
     commonSql.getPatientsDoc.transact(xa)
   }
   override def getRoles: F[List[Roles]] = {

@@ -9,6 +9,7 @@ $ ->
     getMrtType: '/patient/get-mrt-type'
     getMsktType: '/patient/get-mskt-type'
     getUziType: '/patient/get-uzi-type'
+    getPatientsDoc: '/patient/get-patients-doc'
 
   defaultPatient =
     firstName: ''
@@ -18,6 +19,7 @@ $ ->
     address: ''
     docFullName: ''
     docPhone: ''
+    docId: ''
     analysisType: ''
     analysisGroup: ''
 
@@ -28,6 +30,7 @@ $ ->
     getMrtTypeList: []
     getMsktTypeList: []
     getUziTypeList: []
+    getPatientsDocList: []
     language: Glob.language
     selectedMrt: ''
     selectedMskt: ''
@@ -46,6 +49,13 @@ $ ->
 
   vm.convertIntToDate = (intDate) ->
     moment(+intDate).format('DD/MM/YYYY')
+
+  getPatientsDoc = ->
+    $.get(apiUrl.getPatientsDoc)
+    .fail handleError
+    .done (response) ->
+      vm.getPatientsDocList(response)
+  getPatientsDoc()
 
   getAnalysisType = ->
     $.get(apiUrl.getAnalysisType)
@@ -122,6 +132,9 @@ $ ->
           vm.selectedMskt()
         else if vm.patient.analysisType() is "UZI"
           vm.selectedUzi()
+      docInfo = vm.getPatientsDocList().filter (x) -> x.id == data.docId
+      data.docFullName = docInfo[0].fullname
+      data.docPhone = docInfo[0].phone
       my.blockUI()
       $.post(apiUrl.registerUrl, JSON.stringify(data))
       .fail handleError
@@ -176,6 +189,12 @@ $ ->
       "Телефонный номер"
       "Telefon raqami"
       "Телефон рақами"
+    ]
+    selectDoctor: [
+      "Select doctor"
+      "Выберите врача"
+      "Shifokorni tanlang"
+      "Шифокорни танланг"
     ]
     docFullName: [
       "Doctor's full name"

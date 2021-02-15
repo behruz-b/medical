@@ -1,18 +1,21 @@
 package controllers
 
-import actors.{MonitoringNotifier, PatientsDocManager}
-import akka.actor.{ActorRef, ActorSelection, ActorSystem, Props}
+import java.nio.file.Paths
+import java.text.SimpleDateFormat
+import java.time._
+import java.util.Date
+
+import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.data.EitherT
 import cats.implicits._
-import com.typesafe.config.{Config, ConfigFactory}
+import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{request, _}
-import protocols.AppProtocol.NotifyMessage
+import play.api.mvc._
 import protocols.Authentication.{LoginSessionKey, LoginWithSession}
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{ChangePassword, CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
@@ -44,7 +47,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef,
-                               @Named("patientsDoc-manager") val patientsDocManager: ActorRef)
+                               @Named("patients-doc-manager") val patientsDocManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
   extends BaseController with CommonMethods with Auth {
 
@@ -193,11 +196,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     authByRole(isRegister || isManager) {
       val body = request.body
       val prefixPhone = "998"
-      val docPhoneWithPrefix = body.docPhone.map(p => prefixPhone + p)
       val phoneWithPrefix = prefixPhone + body.phone
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
-        body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup, body.docFullName, docPhoneWithPrefix)
+        body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup,
+        body.docFullName, body.docPhone, docId = body.docId)
       getUniqueCustomerId(1, patient)
 //      val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
 //        request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
@@ -242,7 +245,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def getPatientsDoc: Action[AnyContent] = Action.async { implicit request =>
     authByRole(isAdmin) {
-      (patientsDocManager ? GetPatientsDoc).mapTo[List[PatientsDoc]].map { patientsDoc =>
+      (patientsDocManager ? GetPatientsDoc).mapTo[List[GetPatientsDocById]].map { patientsDoc =>
         Ok(Json.toJson(patientsDoc))
       }
     }

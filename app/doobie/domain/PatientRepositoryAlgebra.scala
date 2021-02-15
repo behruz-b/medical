@@ -18,7 +18,7 @@ trait PatientRepositoryAlgebra[F[_]] {
   def getUserByLogin(login: String):fs2.Stream[F,User]
   def getPatients(analyseType: Option[String]): F[List[Patient]]
   def getStats: F[List[StatsAction]]
-  def getPatientsDoc: F[List[PatientsDoc]]
+  def getPatientsDoc: F[List[GetPatientsDocById]]
   def getRoles: F[List[Roles]]
 
 }

@@ -38,7 +38,7 @@ class PatientsDocManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def getPatientsDoc: Future[List[PatientsDoc]] = {
+  private def getPatientsDoc: Future[List[GetPatientsDocById]] = {
     DoobieModule.repo.getPatientsDoc.unsafeToFuture()
   }
 }

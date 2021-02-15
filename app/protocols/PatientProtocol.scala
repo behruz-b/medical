@@ -17,6 +17,11 @@ object PatientProtocol {
       if (s.exists(StringUtils.isNotBlank)) s else None
     }
 
+  implicit def optIntRead(fieldName: String): Reads[Option[Int]] =
+    (__ \ fieldName).readNullable[Int].map { s =>
+      if (s.isDefined) s else None
+    }
+
   case class PatientForm(firstName: String,
                          lastName: String,
                          phone: String,
@@ -26,8 +31,8 @@ object PatientProtocol {
                          analyseGroup: String,
                          docFullName: Option[String] = None,
                          docPhone: Option[String] = None,
-                         companyCode: String)
-
+                         companyCode: String,
+                         docId: Option[Int] = None)
 
   implicit val patientFormReads: Reads[PatientForm] = (
       (__ \ "firstName").read[String] and
@@ -39,7 +44,8 @@ object PatientProtocol {
       (__ \ "analysisGroup").read[String] and
       optStringRead("docFullName") and
       optStringRead("docPhone") and
-      (__ \ "companyCode").read[String]
+      (__ \ "companyCode").read[String] and
+      optIntRead("docId")
     )(PatientForm)
 
   case class DoctorForm(firstName: String,
@@ -81,7 +87,8 @@ object PatientProtocol {
                      docFullName: Option[String] = None,
                      docPhone: Option[String] = None,
                      smsLinkClick: Option[String] = None,
-                     analysis_image_name: Option[String] = None) {
+                     analysis_image_name: Option[String] = None,
+                     docId: Option[Int] = None) {
     def id: Option[Int] = None
   }
 
@@ -100,6 +107,9 @@ object PatientProtocol {
                          phone: String)
 
   implicit val PatientsDocFormat: OFormat[PatientsDoc] = Json.format[PatientsDoc]
+
+  case class GetPatientsDocById(id: Int, fullname: String, phone: String)
+  implicit val formatPatientsDocByIdFormat: OFormat[GetPatientsDocById] = Json.format[GetPatientsDocById]
 
   case class CreatePatient(patient: Patient)
 

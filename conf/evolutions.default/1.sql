@@ -25,6 +25,6 @@ CREATE TABLE "Patients"
 ALTER TABLE "Patients" ADD COLUMN sms_link_click VARCHAR NULL;
 ALTER TABLE "Patients" ADD COLUMN analysis_group VARCHAR NOT NULL DEFAULT '-';
 ALTER TABLE "Patients" ADD CONSTRAINT customer_id_unique UNIQUE (customer_id);
-ALTER TABLE "Patients" ADD COLUMN patients_doc_id INT NULL CONSTRAINT "PatientsFkPatientsId" REFERENCES "Patients_doc" ("id") ON UPDATE CASCADE ON DELETE CASCADE
+ALTER TABLE "Patients" ADD COLUMN patients_doc_id INT NULL CONSTRAINT "PatientsFkPatientsId" REFERENCES "Patients_doc" ("id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 DROP TABLE "Patients";
