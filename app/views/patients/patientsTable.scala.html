@@ -15,7 +15,14 @@
     </script>
     @navbar(isAuthorized, isManager)
     <div class="container bg-secondary">
-        <h2 class="text-white mt-3"><span data-bind="text: vm.translate('patients')"></span></h2>
+        <div class="col-sm-3 col-12 m-4">
+            <select class="select form-control bg-white text-center" id="analysisType" autocomplete="off" data-bind="value: vm.analyseType">
+                <option>MRT</option>
+                <option>MSKT</option>
+                <option>UZI</option>
+            </select>
+        </div>
+        <h2 class="text-white m-4"><span data-bind="text: vm.translate('patients')"></span></h2>
         <div class="row">
             <div class="table-responsive col-lg-12">
                 <table class="table table-bordered table-striped table-hover table-active bg-white overflow-auto">

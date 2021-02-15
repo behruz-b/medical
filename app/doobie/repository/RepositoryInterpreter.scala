@@ -158,11 +158,14 @@ object MessageSQL extends CommonSQL  {
       querySql.query[User]
   }
 
-  def getPatients: ConnectionIO[List[Patient]] = {
+  def getPatients(analyseType: Option[String]): ConnectionIO[List[Patient]] = {
+    val withFilter = if (analyseType.isDefined) {
+      fr"WHERE analysis_type = ${analyseType.get}"
+    } else {
+      fr""
+    }
     val querySql =
-      sql"""
-        SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,sms_link_click,analysis_image_name FROM "Patients" ORDER BY created_at
-      """
+      fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,sms_link_click,analysis_image_name FROM "Patients"""" ++ withFilter
     querySql.query[Patient].to[List]
   }
 

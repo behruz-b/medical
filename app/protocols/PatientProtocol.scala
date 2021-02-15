@@ -115,7 +115,7 @@ object PatientProtocol {
 
   case class GetPatientByLogin(login: String, password: String)
 
-  case object GetPatients
+  case class GetPatientsForm(analyseType: Option[String] = None)
 
   case object GetStats
 

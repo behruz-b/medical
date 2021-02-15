@@ -9,6 +9,7 @@ $ ->
   vm = ko.mapping.fromJS
     language: Glob.language
     patients: []
+    analyseType: ''
     customerId: ''
 
   handleError = (error) ->
@@ -32,8 +33,13 @@ $ ->
     console.log('customerId: ', vm.customerId())
     $('#analysisImage').modal('show')
 
+  vm.analyseType.subscribe () ->
+    getPatients()
+
   getPatients = ->
-    $.get(apiUrl.patientsUrl)
+    patient =
+      analyseType: vm.analyseType()
+    $.post(apiUrl.patientsUrl, JSON.stringify(patient))
     .fail handleError
     .done (response) ->
       vm.patients(response)

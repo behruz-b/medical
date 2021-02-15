@@ -10,21 +10,20 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{request, _}
 import protocols.AppProtocol.NotifyMessage
 import protocols.Authentication.{LoginSessionKey, LoginWithSession}
 import protocols.PatientProtocol._
-import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User, ChangePassword}
+import protocols.UserProtocol.{ChangePassword, CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
 import views.html._
 import views.html.statistic._
+
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.time._
 import java.util.Date
-
 import javax.inject._
-
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -212,10 +211,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getPatients: Action[AnyContent] = Action.async { implicit request =>
+  def getPatients: Action[JsValue] = Action.async(parse.json) { implicit request =>
     authByRole(isAdmin || isManager || isDoctor) {
-      (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
-        Ok(Json.toJson(patients))
+      val analyseType = (request.body \ "analyseType").asOpt[String].flatMap(v => if (v.trim.isBlank) None else v.some)
+      logger.debug(s"analyseType: $analyseType")
+      (patientManager ? GetPatientsForm(analyseType)).mapTo[Either[String, List[Patient]]].map {
+        case Right(p) => Ok(Json.toJson(p))
+        case Left(r) => BadRequest(r.toString)
+      }.recover {
+        case e =>
+          logger.error("Error occurred", e)
+          BadRequest("Error while requesting Patients")
       }
     }
   }
