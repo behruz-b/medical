@@ -167,7 +167,7 @@ $ ->
       "Welcome to Smart Medical!"
       "Добро пожаловать в Smart Medical!"
       "Smart Medical-ga xush kelibsiz!"
-      "Smart Medical-га хуш келибсиз!"
+      "Smart Medical-га ҳуш келибсиз!"
     ]
     closeModal: [
       "Close"
@@ -179,13 +179,13 @@ $ ->
       "Registration Form"
       "Форма регистрации"
       "Ro'yxatdan o'tish shakli"
-      "Рўйхатдан ўтиш шакли"
+      "Рўйҳатдан ўтиш шакли"
     ]
     register: [
       "Register"
       "Регистрация"
       "Ro'yxatdan o'tish"
-      "Рўйхатдан ўтиш"
+      "Рўйҳатдан ўтиш"
     ]
     firstName: [
       "First name"
@@ -269,7 +269,7 @@ $ ->
       "Thank you!"
       "Спасибо!"
       "Rahmat! Siz ro'yxatdan o'tdingiz!"
-      "Раҳмат! Сиз рўйхатдан ўтдингиз!"
+      "Раҳмат! Сиз рўйҳатдан ўтдингиз!"
     ]
     yourID: [
       "You are registered on ID:"

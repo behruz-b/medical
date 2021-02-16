@@ -119,13 +119,13 @@ $ ->
       "Registration Form"
       "Форма регистрации"
       "Ro'yxatdan o'tish shakli"
-      "Рўйхатдан ўтиш шакли"
+      "Рўйҳатдан ўтиш шакли"
     ]
     register: [
       "Register"
       "Регистрация"
       "Ro'yxatdan o'tish"
-      "Рўйхатдан ўтиш"
+      "Рўйҳатдан ўтиш"
     ]
     firstName: [
       "First name"
@@ -161,7 +161,7 @@ $ ->
       "Thank you!"
       "Спасибо!"
       "Rahmat! Siz ro'yxatdan o'tdingiz!"
-      "Раҳмат! Сиз рўйхатдан ўтдингиз!"
+      "Раҳмат! Сиз рўйҳатдан ўтдингиз!"
     ]
     closeModal: [
       "Close"

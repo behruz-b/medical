@@ -51,7 +51,7 @@ $ ->
       "Company code"
       "Код компании"
       "Kompaniya kodi"
-      "Компания коди"
+      "Компания қоди"
     ]
     action: [
       "Action"

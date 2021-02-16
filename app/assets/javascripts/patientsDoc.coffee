@@ -64,13 +64,13 @@ $ ->
       "List of doctors"
       "Список врачей"
       "Shifokorlar ro'yxati"
-      "Шифокорлар рўйхати"
+      "Шифокорлар рўйҳати"
     ]
     registrationForm: [
       "Registration"
       "Форма регистрации"
       "Ro'yxatdan o'tkazish"
-      "Рўйхатдан ўтказиш"
+      "Рўйҳатдан ўтказиш"
     ]
     send: [
       "Send"
