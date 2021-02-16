@@ -217,7 +217,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def getPatients: Action[JsValue] = Action.async(parse.json) { implicit request =>
     authByRole(isAdmin || isManager || isDoctor) {
       val analyseType = (request.body \ "analyseType").asOpt[String].flatMap(v => if (v.trim.isBlank) None else v.some)
-      logger.debug(s"analyseType: $analyseType")
       (patientManager ? GetPatientsForm(analyseType)).mapTo[Either[String, List[Patient]]].map {
         case Right(p) => Ok(Json.toJson(p))
         case Left(r) => BadRequest(r.toString)
