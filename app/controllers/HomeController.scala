@@ -280,6 +280,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def getLabType: Action[AnyContent] = Action { implicit request =>
+    authByRole(isRegister || isManager) {
+      Ok(Json.toJson(laboratoryType))
+    }
+  }
+
   def getRoleTypes: Action[AnyContent] = Action.async { implicit request =>
     authByRole(isAdmin) {
       (userManager ? GetRoles).mapTo[List[Roles]].map { results =>

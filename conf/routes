@@ -25,6 +25,7 @@ POST    /patient/add-patients-doc                               @controllers.Hom
 GET     /patient/get-mrt-type                                   @controllers.HomeController.getMrtType()
 GET     /patient/get-mskt-type                                  @controllers.HomeController.getMsktType()
 GET     /patient/get-uzi-type                                   @controllers.HomeController.getUziType()
+GET     /patient/get-lab-type                                   @controllers.HomeController.getLabType
 
 GET     /stats/                                                 @controllers.HomeController.getStatisticTemplate(language = "cy")
 GET     /stats/get-stats                                        @controllers.HomeController.getStats

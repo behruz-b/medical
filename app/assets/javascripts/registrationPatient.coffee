@@ -9,6 +9,7 @@ $ ->
     getMrtType: '/patient/get-mrt-type'
     getMsktType: '/patient/get-mskt-type'
     getUziType: '/patient/get-uzi-type'
+    getLabType: '/patient/get-lab-type'
     getPatientsDoc: '/patient/get-patients-doc'
 
   defaultPatient =
@@ -30,11 +31,13 @@ $ ->
     getMrtTypeList: []
     getMsktTypeList: []
     getUziTypeList: []
+    getLabTypeList: []
     getPatientsDocList: []
     language: Glob.language
     selectedMrt: ''
     selectedMskt: ''
     selectedUzi: ''
+    selectedLaboratory: ''
 
   handleError = (error) ->
     $.unblockUI()
@@ -85,6 +88,13 @@ $ ->
       vm.getUziTypeList(response)
   getUziType()
 
+  getLabType = ->
+    $.get(apiUrl.getLabType)
+    .fail handleError
+    .done (response) ->
+      vm.getLabTypeList(response)
+  getLabType()
+
   vm.onSubmit = ->
     toastr.clear()
     clearedPhone = my.clearPhone(vm.patient.phone())
@@ -120,6 +130,9 @@ $ ->
     else if vm.patient.analysisType() is "UZI" and !vm.selectedUzi()
       toastr.error("Iltimos tahlil turini kiriting!")
       return no
+    else if vm.patient.analysisType() is "Laboratoriya" and !vm.selectedLaboratory()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
     else
       data = ko.mapping.toJS vm.patient
       data.phone = clearedPhone
@@ -132,6 +145,8 @@ $ ->
           vm.selectedMskt()
         else if vm.patient.analysisType() is "UZI"
           vm.selectedUzi()
+        else if vm.patient.analysisType() is "Laboratoriya"
+          vm.selectedLaboratory()
       docInfo = vm.getPatientsDocList().filter (x) -> x.id == data.docId
       data.docFullName = docInfo[0].fullname
       data.docPhone = docInfo[0].phone
@@ -243,6 +258,12 @@ $ ->
       "Узи типа"
       "UZI turi"
       "УЗИ тури"
+    ]
+    labType: [
+      "Laboratory type"
+      "Тип лаборатории"
+      "Laboratoriya turi"
+      "Лаборатория тури"
     ]
     thankYou: [
       "Thank you!"

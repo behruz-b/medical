@@ -53,6 +53,12 @@
            optionsText: $data, optionsValue: $data, value: vm.selectedUzi, optionsCaption: vm.translate('uziType')" autocomplete="off"></select>
         </div>
           <!-- /ko -->
+          <!-- ko if: vm.patient.analysisType() == 'Laboratoriya' -->
+        <div class="form-group col-sm-6 col-12">
+          <select class="select form-control bg-white" id="labType" data-bind="options: vm.getLabTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.selectedLaboratory, optionsCaption: vm.translate('labType')" autocomplete="off"></select>
+        </div>
+          <!-- /ko -->
         <div class="form-group col-sm-6 col-12">
           <select class="select form-control bg-white" id="patientsDoc" data-bind="options: vm.getPatientsDocList,
            optionsText: 'fullname', optionsValue: 'id', value: vm.patient.docId, optionsCaption: vm.translate('selectDoctor')" autocomplete="off"></select>

@@ -142,8 +142,8 @@ object PatientProtocol {
   val analysisType = List(
     "MRT",
     "MSKT",
-    "UZI"
-//    "Lobaratoriya"
+    "UZI",
+    "Laboratoriya"
   )
 
   val mrtType = List(
@@ -192,6 +192,26 @@ object PatientProtocol {
     "Qorin bo'shligi, Jigar, Taloq, O't pufagi qo'llari, Oshqozon osti bezi, Buyraklar",
     "Buyraklar, Siydik yo'llari, Siydik pufagi",
     "Kuks orligi a'zolari (Qizil ungach)"
+  )
+  val laboratoryType = List(
+    "Общий анализ крови ОАК",
+    "Время свертываемости крови ВСК",
+    "Протромбиновое время ПТИ МНО",
+    "АЧТВ",
+    "Протромбиновое время, соотношение",
+    "ПТН",
+    "Протромбиновое время",
+    "HBsAg (Гепатит В)",
+    "HCV (Гепатит С)",
+    "Антистрептолизин-О (АСЛО)",
+    "С-реактивный белок (СРБ)",
+    "Ревматоидный фактор (РФ)",
+    "Общий белок",
+    "Билирубин (общий, прямой, непрямой)",
+    "Аланиноминотрансфераза (АЛТ)",
+    "Аспартатаминотрансфераза (АСТ)",
+    "Креатинин",
+    "Мочевина"
   )
 
   /**
