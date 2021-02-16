@@ -44,7 +44,6 @@ $ ->
     .done (response) ->
       vm.patients(response)
       console.log(vm.patients())
-  getPatients()
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4

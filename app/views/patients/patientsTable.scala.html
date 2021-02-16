@@ -59,8 +59,9 @@
                             <td data-bind="text: $data.smsLinkClick"></td>
                             <td>
                                     <!-- ko if: $data.analysis_image_name -->
-                                <img width="50" height="50" data-bind="attr: {src: '/analyse-result/' + $data.customer_id},
-                                 click: $root.vm.showFullImage($data.customer_id)">
+                                <span width="50" height="50" data-bind="click: $root.vm.showFullImage($data.customer_id)">
+                                    <i class="fas fa-image text-primary fa-4x ml-2"></i>
+                                </span>
                                     <!-- /ko -->
                             </td>
                         </tr>
