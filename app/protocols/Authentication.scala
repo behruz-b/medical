@@ -47,6 +47,6 @@ object Authentication extends CommonMethods {
       Login("/doc/", routes.HomeController.addAnalysisResult(), createSessionAttr(Set(DoctorRole, ManagerRole, AdminRole))),
       Login("/patient/", routes.HomeController.getPatientsTemplate(), createSessionAttr(Set(ManagerRole, AdminRole))),
       Login("/stats/", routes.HomeController.getStatisticTemplate(), createSessionAttr(Set(AdminRole))),
-      Login("/doctors/", routes.HomeController.patientsDocPage(), createSessionAttr(Set(RegRole, ManagerRole)))
+      Login("/doctors/", routes.HomeController.patientsDocPage(), createSessionAttr(Set(RegRole, ManagerRole, AdminRole)))
     ).map(l => l.rootPath -> l).toMap
 }

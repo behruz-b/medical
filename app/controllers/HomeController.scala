@@ -243,7 +243,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatientsDoc: Action[AnyContent] = Action.async { implicit request =>
-    authByRole(isAdmin) {
+    authByRole(isRegister || isManager) {
       (patientsDocManager ? GetPatientsDoc).mapTo[List[GetPatientsDocById]].map { patientsDoc =>
         Ok(Json.toJson(patientsDoc))
       }
