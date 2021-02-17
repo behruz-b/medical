@@ -16,3 +16,9 @@ dist
 /.settings
 conf/application_local.conf
 .bsp
+# For VSCode
+project/metals.sbt
+project/.bloop
+/.bloop
+/.vscode
+/.metals

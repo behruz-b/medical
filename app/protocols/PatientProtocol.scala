@@ -17,6 +17,11 @@ object PatientProtocol {
       if (s.exists(StringUtils.isNotBlank)) s else None
     }
 
+  implicit def optIntRead(fieldName: String): Reads[Option[Int]] =
+    (__ \ fieldName).readNullable[Int].map { s =>
+      if (s.isDefined) s else None
+    }
+
   case class PatientForm(firstName: String,
                          lastName: String,
                          phone: String,
@@ -26,8 +31,8 @@ object PatientProtocol {
                          analyseGroup: String,
                          docFullName: Option[String] = None,
                          docPhone: Option[String] = None,
-                         companyCode: String)
-
+                         companyCode: String,
+                         docId: Option[Int] = None)
 
   implicit val patientFormReads: Reads[PatientForm] = (
       (__ \ "firstName").read[String] and
@@ -39,7 +44,8 @@ object PatientProtocol {
       (__ \ "analysisGroup").read[String] and
       optStringRead("docFullName") and
       optStringRead("docPhone") and
-      (__ \ "companyCode").read[String]
+      (__ \ "companyCode").read[String] and
+      optIntRead("docId")
     )(PatientForm)
 
   case class DoctorForm(firstName: String,
@@ -58,6 +64,14 @@ object PatientProtocol {
       (__ \ "company_code").read[String]
     ) (DoctorForm)
 
+  case class PatientsDocForm(fullName: String,
+                        phone: String)
+
+  implicit val patientsDocFormReads: Reads[PatientsDocForm] = (
+      (__ \ "fullName").read[String] and
+      (__ \ "phone").read[String]
+    ) (PatientsDocForm)
+
   case class Patient(created_at: LocalDateTime,
                      firstname: String,
                      lastname: String,
@@ -73,7 +87,8 @@ object PatientProtocol {
                      docFullName: Option[String] = None,
                      docPhone: Option[String] = None,
                      smsLinkClick: Option[String] = None,
-                     analysis_image_name: Option[String] = None) {
+                     analysis_image_name: Option[String] = None,
+                     docId: Option[Int] = None) {
     def id: Option[Int] = None
   }
 
@@ -88,9 +103,19 @@ object PatientProtocol {
 
   implicit val StatsActionFormat: OFormat[StatsAction] = Json.format[StatsAction]
 
+  case class PatientsDoc(fullname: String,
+                         phone: String)
+
+  implicit val PatientsDocFormat: OFormat[PatientsDoc] = Json.format[PatientsDoc]
+
+  case class GetPatientsDocById(id: Int, fullname: String, phone: String)
+  implicit val formatPatientsDocByIdFormat: OFormat[GetPatientsDocById] = Json.format[GetPatientsDocById]
+
   case class CreatePatient(patient: Patient)
 
   case class AddStatsAction(statsAction: StatsAction)
+
+  case class AddPatientsDoc(patientsDoc: PatientsDoc)
 
   case class AddAnalysisResult(customerId: String, analysisFileName: String)
 
@@ -100,9 +125,11 @@ object PatientProtocol {
 
   case class GetPatientByLogin(login: String, password: String)
 
-  case object GetPatients
+  case class GetPatientsForm(analyseType: Option[String] = None)
 
   case object GetStats
+
+  case object GetPatientsDoc
 
   case class SendSmsToCustomer(customerId: String)
 
@@ -115,8 +142,8 @@ object PatientProtocol {
   val analysisType = List(
     "MRT",
     "MSKT",
-    "UZI"
-//    "Lobaratoriya"
+    "UZI",
+    "Laboratoriya"
   )
 
   val mrtType = List(
@@ -165,6 +192,26 @@ object PatientProtocol {
     "Qorin bo'shligi, Jigar, Taloq, O't pufagi qo'llari, Oshqozon osti bezi, Buyraklar",
     "Buyraklar, Siydik yo'llari, Siydik pufagi",
     "Kuks orligi a'zolari (Qizil ungach)"
+  )
+  val laboratoryType = List(
+    "Общий анализ крови ОАК",
+    "Время свертываемости крови ВСК",
+    "Протромбиновое время ПТИ МНО",
+    "АЧТВ",
+    "Протромбиновое время, соотношение",
+    "ПТН",
+    "Протромбиновое время",
+    "HBsAg (Гепатит В)",
+    "HCV (Гепатит С)",
+    "Антистрептолизин-О (АСЛО)",
+    "С-реактивный белок (СРБ)",
+    "Ревматоидный фактор (РФ)",
+    "Общий белок",
+    "Билирубин (общий, прямой, непрямой)",
+    "Аланиноминотрансфераза (АЛТ)",
+    "Аспартатаминотрансфераза (АСТ)",
+    "Креатинин",
+    "Мочевина"
   )
 
   /**

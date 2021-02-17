@@ -24,23 +24,28 @@
           }
         </ul>
         <ul class="navbar-nav my-2 my-lg-0">
-         @if(isAuthorized) {
-            <li class="nav-item">
-              <a class="nav-link" href="@routes.AuthorizationController.logout()">
-                <button class="btn btn-success" type="button"><i class="fa fa-sign-out-alt"></i> Chiqish</button>
-              </a>
-            </li>
-          } else {
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-sign-in-alt"></i> Login
-              </a>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="@routes.HomeController.registerPage()">Register Patient</a>
-                <a class="dropdown-item" href="@routes.HomeController.addAnalysisResult()">Doctor Page</a>
-              </div>
-            </li>
-          }
+        @if(isAuthorized) {
+          <li class="nav-item mr-3">
+            <a href="@routes.HomeController.changePass()">
+              <button class="btn btn-success" type="button"><i class="fa fa-key m-1"></i>Parolni o'zgartirish</button>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="" href="@routes.AuthorizationController.logout()">
+              <button class="btn btn-success" type="button"><i class="fa fa-sign-out-alt"></i> Chiqish</button>
+            </a>
+          </li>
+        } else {
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Login
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="@routes.HomeController.registerPage()">Register Patient</a>
+              <a class="dropdown-item" href="@routes.HomeController.addAnalysisResult()">Doctor Page</a>
+            </div>
+          </li>
+        }
         </ul>
       </div>
     </nav>

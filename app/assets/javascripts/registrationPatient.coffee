@@ -9,6 +9,8 @@ $ ->
     getMrtType: '/patient/get-mrt-type'
     getMsktType: '/patient/get-mskt-type'
     getUziType: '/patient/get-uzi-type'
+    getLabType: '/patient/get-lab-type'
+    getPatientsDoc: '/patient/get-patients-doc'
 
   defaultPatient =
     firstName: ''
@@ -18,6 +20,7 @@ $ ->
     address: ''
     docFullName: ''
     docPhone: ''
+    docId: ''
     analysisType: ''
     analysisGroup: ''
 
@@ -28,10 +31,13 @@ $ ->
     getMrtTypeList: []
     getMsktTypeList: []
     getUziTypeList: []
+    getLabTypeList: []
+    getPatientsDocList: []
     language: Glob.language
     selectedMrt: ''
     selectedMskt: ''
     selectedUzi: ''
+    selectedLaboratory: ''
 
   handleError = (error) ->
     $.unblockUI()
@@ -46,6 +52,13 @@ $ ->
 
   vm.convertIntToDate = (intDate) ->
     moment(+intDate).format('DD/MM/YYYY')
+
+  getPatientsDoc = ->
+    $.get(apiUrl.getPatientsDoc)
+    .fail handleError
+    .done (response) ->
+      vm.getPatientsDocList(response)
+  getPatientsDoc()
 
   getAnalysisType = ->
     $.get(apiUrl.getAnalysisType)
@@ -74,6 +87,13 @@ $ ->
     .done (response) ->
       vm.getUziTypeList(response)
   getUziType()
+
+  getLabType = ->
+    $.get(apiUrl.getLabType)
+    .fail handleError
+    .done (response) ->
+      vm.getLabTypeList(response)
+  getLabType()
 
   vm.onSubmit = ->
     toastr.clear()
@@ -110,6 +130,9 @@ $ ->
     else if vm.patient.analysisType() is "UZI" and !vm.selectedUzi()
       toastr.error("Iltimos tahlil turini kiriting!")
       return no
+    else if vm.patient.analysisType() is "Laboratoriya" and !vm.selectedLaboratory()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
     else
       data = ko.mapping.toJS vm.patient
       data.phone = clearedPhone
@@ -122,6 +145,11 @@ $ ->
           vm.selectedMskt()
         else if vm.patient.analysisType() is "UZI"
           vm.selectedUzi()
+        else if vm.patient.analysisType() is "Laboratoriya"
+          vm.selectedLaboratory()
+      docInfo = vm.getPatientsDocList().filter (x) -> x.id == data.docId
+      data.docFullName = docInfo[0].fullname
+      data.docPhone = docInfo[0].phone
       my.blockUI()
       $.post(apiUrl.registerUrl, JSON.stringify(data))
       .fail handleError
@@ -139,7 +167,7 @@ $ ->
       "Welcome to Smart Medical!"
       "Добро пожаловать в Smart Medical!"
       "Smart Medical-ga xush kelibsiz!"
-      "Smart Medical-га хуш келибсиз!"
+      "Smart Medical-га ҳуш келибсиз!"
     ]
     closeModal: [
       "Close"
@@ -151,13 +179,13 @@ $ ->
       "Registration Form"
       "Форма регистрации"
       "Ro'yxatdan o'tish shakli"
-      "Рўйхатдан ўтиш шакли"
+      "Рўйҳатдан ўтиш шакли"
     ]
     register: [
       "Register"
       "Регистрация"
       "Ro'yxatdan o'tish"
-      "Рўйхатдан ўтиш"
+      "Рўйҳатдан ўтиш"
     ]
     firstName: [
       "First name"
@@ -176,6 +204,12 @@ $ ->
       "Телефонный номер"
       "Telefon raqami"
       "Телефон рақами"
+    ]
+    selectDoctor: [
+      "Select doctor"
+      "Выберите врача"
+      "Shifokorni tanlang"
+      "Шифокорни танланг"
     ]
     docFullName: [
       "Doctor's full name"
@@ -225,11 +259,17 @@ $ ->
       "UZI turi"
       "УЗИ тури"
     ]
+    labType: [
+      "Laboratory type"
+      "Тип лаборатории"
+      "Laboratoriya turi"
+      "Лаборатория тури"
+    ]
     thankYou: [
       "Thank you!"
       "Спасибо!"
       "Rahmat! Siz ro'yxatdan o'tdingiz!"
-      "Раҳмат! Сиз рўйхатдан ўтдингиз!"
+      "Раҳмат! Сиз рўйҳатдан ўтдингиз!"
     ]
     yourID: [
       "You are registered on ID:"

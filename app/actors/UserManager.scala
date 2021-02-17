@@ -9,7 +9,8 @@ import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
 import protocols.PatientProtocol.{AddStatsAction, Patient, StatsAction}
 import protocols.SecurityUtils.md5
-import protocols.UserProtocol.{CheckSmsDeliveryStatusDoc, CheckUserByLogin, CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, SmsTextDoc, User, getSmsTextForUserCreation}
+import protocols.UserProtocol.{CheckSmsDeliveryStatusDoc, CheckUserByLogin, CheckUserByLoginAndCreate, GetRoles, Roles,
+  SendSmsToDoctor, SmsTextDoc, User, getSmsTextForUserCreation, ChangePassword}
 import util.StringUtil
 
 import java.time.LocalDateTime
@@ -48,6 +49,22 @@ class UserManager @Inject()(val configuration: Configuration,
     case SendSmsToDoctor(customerId) =>
       sendSMSToDoctor(customerId).pipeTo(sender())
 
+    case ChangePassword(login,newPass) =>
+      changePassword(login,newPass).pipeTo(sender())
+  }
+
+  private def changePassword(login: String, newPass: String): Future[Either[String, String]] = {
+    DoobieModule.repo.changePassword(login,newPass).unsafeToFuture().map { result =>
+      if (result == 1) {
+        Right("Successfully updated")
+      } else {
+        Left("Error while adding user password to DB")
+      }
+    }.recover {
+      case e: Throwable =>
+        logger.error("Error", e)
+        Left("Error happened while requesting Login or Password")
+    }
   }
 
   private def checkUserByLoginAndPassword(login: String, password: String): Future[Either[String, String]] = {

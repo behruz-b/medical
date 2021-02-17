@@ -52,8 +52,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     case GetPatientByLogin(login, password) =>
       getPatientByLogin(login, password).pipeTo(sender())
 
-    case GetPatients =>
-      getPatients.pipeTo(sender())
+    case GetPatientsForm(analyseType) =>
+      getPatients(analyseType).pipeTo(sender())
 
     case SendSmsToCustomer(customerId) =>
       sendSMS(customerId).pipeTo(sender())
@@ -81,7 +81,11 @@ class PatientManager @Inject()(val configuration: Configuration,
 
   private def getPatientByCustomerId(customerId: String): Future[Either[String, Patient]] = {
     DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
-      Right(patient.get)
+      if (patient.isDefined) {
+        Right(patient.get)
+      } else {
+        Left("Error happened while requesting patient")
+    }
     }.recover {
       case error: Throwable =>
         logger.error("Error occurred while get patient by customer id", error)
@@ -91,7 +95,11 @@ class PatientManager @Inject()(val configuration: Configuration,
 
   private def checkCustomerId(customerId: String): Future[Either[String, Patient]] = {
     DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
-      Right(patient.get)
+      if (patient.isDefined) {
+        Right(patient.get)
+      } else {
+        Left("Error happened while requesting patient")
+      }
     }.recover {
       case error: Throwable =>
         logger.error("Error occurred while get patient by customer id", error)
@@ -141,8 +149,14 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def getPatients: Future[List[Patient]] = {
-    DoobieModule.repo.getPatients.unsafeToFuture()
+  private def getPatients(analyseType: Option[String]): Future[Either[String,List[Patient]]] = {
+    DoobieModule.repo.getPatients(analyseType).unsafeToFuture().map{ patient =>
+      Right(patient)
+    }.recover {
+      case error: Throwable =>
+        logger.error("Error occurred while get patient by customer id", error)
+        Left("Error happened while requesting patient")
+    }
   }
 
   private def sendSMS(customerId: String): Future[Either[String, String]] = {

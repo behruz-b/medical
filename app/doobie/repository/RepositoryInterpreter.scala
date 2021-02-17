@@ -15,8 +15,8 @@ object MessageSQL extends CommonSQL  {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
-    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, String, Option[String], Option[String], Option[String], Option[String])].map {
-      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analysis_type, analysis_group, doc_full_name, doc_phone, sms_link_click, lab_image) =>
+    Read[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, String, Option[String], Option[String], Option[String], Option[String], Option[Int])].map {
+      case (created_at, firstname, lastname, phone, customer_id, company_code, login, password, address, date_of_birth, analysis_type, analysis_group, doc_full_name, doc_phone, sms_link_click, lab_image, patients_doc_id) =>
         Patient(
           created_at.toLocalDateTime,
           firstname = firstname,
@@ -33,7 +33,8 @@ object MessageSQL extends CommonSQL  {
           docFullName = doc_full_name,
           docPhone = doc_phone,
           smsLinkClick = sms_link_click,
-          analysis_image_name = lab_image
+          analysis_image_name = lab_image,
+          docId = patients_doc_id
         )
     }
 
@@ -65,6 +66,11 @@ object MessageSQL extends CommonSQL  {
       case (created_at, company_code, action, login, ip_address, user_agent) =>
         StatsAction(created_at.toLocalDateTime, company_code, action, login, ip_address, user_agent)
     }
+  implicit val patientsDocRead: Read[PatientsDoc] =
+    Read[(String, String)].map {
+      case (fullname, phone) =>
+        PatientsDoc(fullname, phone)
+    }
 
   private def javaLdTime2JavaSqlTimestamp(ldTime: LocalDateTime): Timestamp = {
     Timestamp.valueOf(ldTime)
@@ -84,14 +90,14 @@ object MessageSQL extends CommonSQL  {
         ${javaLdTime2JavaSqlTimestamp(patient.created_at)},${patient.firstname}, ${patient.lastname},
         ${patient.phone}, ${patient.customer_id}, ${patient.company_code}, ${patient.login}, ${patient.password},
         ${patient.address}, ${javaLd2JavaSqlTimestamp(patient.dateOfBirth)}, ${patient.analyseType},
-        ${patient.analyseGroup}, ${patient.docFullName}, ${patient.docPhone}
+        ${patient.analyseGroup}, ${patient.docFullName}, ${patient.docPhone}, ${patient.docId}
       )"""
     }
 
     val fieldsName =
       fr"""
         insert into "Patients" (created_at, firstname, lastname, phone, customer_id, company_code, login, password,
-         address, date_of_birth, analysis_type, analysis_group, doc_full_name, doc_phone)
+         address, date_of_birth, analysis_type, analysis_group, doc_full_name, doc_phone, patients_doc_id)
         """
 
     updateQueryWithUniqueId(fieldsName ++ values)
@@ -114,6 +120,13 @@ object MessageSQL extends CommonSQL  {
           VALUES $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 
+  def addPatientsDoc(patientsDoc: PatientsDoc): doobie.ConnectionIO[Int] = {
+    val values = fr"(${patientsDoc.fullname}, ${patientsDoc.phone})"
+
+    sql"""INSERT INTO "Patients_doc" (fullname, phone)
+          VALUES $values""".update.withUniqueGeneratedKeys[Int]("id")
+  }
+
   def createUser(user: User): doobie.ConnectionIO[Int] = {
     val values = fr"(${javaLdTime2JavaSqlTimestamp(user.created_at)},${user.firstname}, ${user.lastname}, ${user.phone}, ${user.role}, ${user.company_code}, ${user.login}, ${user.password})"
 
@@ -126,13 +139,18 @@ object MessageSQL extends CommonSQL  {
           WHERE customer_id=$customerId""".update
   }
 
+  def changePassword(login: String, newPass: String): Update0 = {
+    sql"""UPDATE "Users" SET password=$newPass
+          WHERE login=$login""".update
+  }
+
   def getByCustomerId(customerId: String): Query0[Patient] = {
-    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone, sms_link_click, analysis_image_name FROM "Patients" WHERE customer_id = $customerId"""
+    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone, sms_link_click, analysis_image_name, patients_doc_id FROM "Patients" WHERE customer_id = $customerId"""
     querySql.query[Patient]
   }
 
   def getPatientByLogin(login: String): doobie.Query0[Patient] = {
-    val querySql = fr"""select created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone, sms_link_click, analysis_image_name from "Patients" WHERE login = $login"""
+    val querySql = fr"""select created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone, sms_link_click, analysis_image_name, patients_doc_id FROM "Patients" WHERE login = $login"""
       querySql.query[Patient]
   }
 
@@ -141,17 +159,25 @@ object MessageSQL extends CommonSQL  {
       querySql.query[User]
   }
 
-  def getPatients: ConnectionIO[List[Patient]] = {
+  def getPatients(analyseType: Option[String]): ConnectionIO[List[Patient]] = {
+    val withFilter = if (analyseType.isDefined) {
+      fr"WHERE analysis_type = ${analyseType.get}"
+    } else {
+      fr""
+    }
     val querySql =
-      sql"""
-        SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,sms_link_click,analysis_image_name FROM "Patients" ORDER BY created_at
-      """
+      fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,sms_link_click,analysis_image_name, patients_doc_id FROM "Patients"""" ++ withFilter
     querySql.query[Patient].to[List]
   }
 
   def getStats: ConnectionIO[List[StatsAction]] = {
     val querySql = fr"""SELECT created_at, company_code, action, ip_address, login, user_agent FROM "Stats" ORDER BY created_at """
     querySql.query[StatsAction].to[List]
+  }
+
+  def getPatientsDoc: ConnectionIO[List[GetPatientsDocById]] = {
+    val querySql = fr"""SELECT id, fullname, phone FROM "Patients_doc" ORDER BY id """
+    querySql.query[GetPatientsDocById].to[List]
   }
 
   def getRoles: ConnectionIO[List[Roles]] = {

@@ -15,10 +15,23 @@
     </script>
     @navbar(isAuthorized, isManager)
     <div class="container bg-secondary">
-        <h2 class="text-white mt-3"><span data-bind="text: vm.translate('patients')"></span></h2>
+        <h2 class="text-white m-4"><span data-bind="text: vm.translate('patients')"></span></h2>
         <div class="row">
-            <div class="table-responsive col-lg-12">
-                <table class="table table-bordered table-striped table-hover table-active bg-white overflow-auto">
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-3 col-12 mb-4 mr-4">
+                <label for="analysisType"></label>
+                <select class="select form-control bg-white text-center" id="analysisType" autocomplete="off" data-bind="value: vm.analyseType">
+                    <option>MRT</option>
+                    <option>MSKT</option>
+                    <option>UZI</option>
+                    <option>Laboratoriya</option>
+                </select>
+            </div>
+            <div class="col-lg-12">
+                <table class="table table-bordered table-striped table-hover table-responsive  table-active bg-white overflow-auto">
                     <thead class="thead-dark">
                         <tr>
                             <th><span data-bind="text: vm.translate('createdAt')"></span></th>
@@ -46,8 +59,9 @@
                             <td data-bind="text: $data.smsLinkClick"></td>
                             <td>
                                     <!-- ko if: $data.analysis_image_name -->
-                                <img width="50" height="50" data-bind="attr: {src: '/analyse-result/' + $data.customer_id},
-                                 click: $root.vm.showFullImage($data.customer_id)">
+                                <span width="50" height="50" data-bind="click: $root.vm.showFullImage($data.customer_id)">
+                                    <i class="fas fa-image text-primary fa-4x ml-2"></i>
+                                </span>
                                     <!-- /ko -->
                             </td>
                         </tr>

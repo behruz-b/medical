@@ -1,18 +1,24 @@
 package controllers
 
+import java.nio.file.Paths
+import java.text.SimpleDateFormat
+import java.time._
+import java.util.Date
+
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.data.EitherT
 import cats.implicits._
+import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
-import play.api.libs.json.Json
-import play.api.mvc.{request, _}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc._
 import protocols.Authentication.{LoginSessionKey, LoginWithSession}
 import protocols.PatientProtocol._
-import protocols.UserProtocol.{CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
+import protocols.UserProtocol.{ChangePassword, CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
 import views.html._
 import views.html.statistic._
 
@@ -30,7 +36,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                val dashboardTemp: views.html.dashboard.dashboard,
                                indexTemplate: views.html.index,
                                regTemplate: views.html.register.register,
+                               patientsDocTemplate: views.html.patientsDoc.patientsDoc,
                                adminTemplate: views.html.admin.adminPage,
+                               passTemplate: views.html.changePassword.changePassword,
                                loginPage: views.html.admin.login,
                                configuration: Configuration,
                                addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
@@ -38,7 +46,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                getPatientsTemp: patients.patientsTable,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
-                               @Named("stats-manager") val statsManager: ActorRef)
+                               @Named("stats-manager") val statsManager: ActorRef,
+                               @Named("patients-doc-manager") val patientsDocManager: ActorRef)
                               (implicit val webJarsUtil: WebJarsUtil, implicit val ec: ExecutionContext)
   extends BaseController with CommonMethods with Auth {
 
@@ -47,6 +56,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   val tempFolderPath: String = configuration.get[String]("temp_folder")
   val adminLogin: String = configuration.get[String]("admin.login")
   val adminPassword: String = configuration.get[String]("admin.password")
+
   private def isAuthorized(implicit request: RequestHeader): Boolean = request.session.get(LoginSessionKey).isDefined
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
@@ -57,9 +67,37 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok(dashboardTemp(isAuthorized, isManager, language))
   }
 
+  def changePass(language: String): Action[AnyContent] = Action { implicit request =>
+    authByDashboard(isRegister || isAdmin || isDoctor || isManager) {
+      Ok(passTemplate(isAuthorized, isManager,language))
+    }
+  }
+
+  def changePassword: Action[ChangePassword] = Action.async(parse.json[ChangePassword]) { implicit request =>
+    authByRole(isDoctor || isRegister || isAdmin) {
+      val body = request.body
+      (userManager ? ChangePassword(body.login,body.newPass)).mapTo[Either[String, String]].map {
+        case Right(_) =>
+          Ok(Json.toJson("Successfully updated"))
+        case Left(error) =>
+          BadRequest(error)
+      }.recover {
+        case e: Throwable =>
+          logger.error("Error while creating doctor", e)
+          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+      }
+    }
+  }
+
   def registerPage(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isRegister || isManager, language) {
       Ok(regTemplate(isAuthorized, isManager, language))
+    }
+  }
+
+  def patientsDocPage(language: String): Action[AnyContent] = Action { implicit request =>
+    authByDashboard(isRegister || isManager, language) {
+      Ok(patientsDocTemplate(isAuthorized, isManager, language))
     }
   }
 
@@ -136,15 +174,33 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def addPatientsDoc: Action[PatientsDocForm] = Action.async(parse.json[PatientsDocForm]) { implicit request =>
+    authByRole(isRegister || isManager) {
+      val body = request.body
+      val phone = "998" + clearPhone(body.phone)
+      val patientsDoc = PatientsDoc(body.fullName, phone)
+      (patientsDocManager ? AddPatientsDoc(patientsDoc)).mapTo[Either[String, String]].map {
+        case Right(_) =>
+          Ok(Json.toJson("Successfully added"))
+        case Left(error) =>
+          BadRequest(error)
+      }.recover {
+        case e: Throwable =>
+          logger.error("Error while creating doctor", e)
+          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+      }
+    }
+  }
+
   def createPatient: Action[PatientForm] = Action.async(parse.json[PatientForm]) { implicit request =>
     authByRole(isRegister || isManager) {
       val body = request.body
       val prefixPhone = "998"
-      val docPhoneWithPrefix = body.docPhone.map(p => prefixPhone + p)
       val phoneWithPrefix = prefixPhone + body.phone
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
-        body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup, body.docFullName, docPhoneWithPrefix)
+        body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup,
+        body.docFullName, body.docPhone, docId = body.docId)
       getUniqueCustomerId(1, patient)
 //      val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
 //        request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
@@ -158,10 +214,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getPatients: Action[AnyContent] = Action.async { implicit request =>
+  def getPatients: Action[JsValue] = Action.async(parse.json) { implicit request =>
     authByRole(isAdmin || isManager || isDoctor) {
-      (patientManager ? GetPatients).mapTo[List[Patient]].map { patients =>
-        Ok(Json.toJson(patients))
+      val analyseType = (request.body \ "analyseType").asOpt[String].flatMap(v => if (v.trim.isBlank) None else v.some)
+      (patientManager ? GetPatientsForm(analyseType)).mapTo[Either[String, List[Patient]]].map {
+        case Right(p) => Ok(Json.toJson(p))
+        case Left(r) => BadRequest(r.toString)
+      }.recover {
+        case e =>
+          logger.error("Error occurred", e)
+          BadRequest("Error while requesting Patients")
       }
     }
   }
@@ -176,6 +238,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     authByRole(isAdmin) {
       (statsManager ? GetStats).mapTo[List[StatsAction]].map { stats =>
         Ok(Json.toJson(stats))
+      }
+    }
+  }
+
+  def getPatientsDoc: Action[AnyContent] = Action.async { implicit request =>
+    authByRole(isRegister || isManager) {
+      (patientsDocManager ? GetPatientsDoc).mapTo[List[GetPatientsDocById]].map { patientsDoc =>
+        Ok(Json.toJson(patientsDoc))
       }
     }
   }
@@ -210,6 +280,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def getLabType: Action[AnyContent] = Action { implicit request =>
+    authByRole(isRegister || isManager) {
+      Ok(Json.toJson(laboratoryType))
+    }
+  }
+
   def getRoleTypes: Action[AnyContent] = Action.async { implicit request =>
     authByRole(isAdmin) {
       (userManager ? GetRoles).mapTo[List[Roles]].map { results =>
@@ -241,14 +317,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
               } yield {
                 val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
                 statsManager ! AddStatsAction(statsAction)
-                (userManager ? SendSmsToDoctor(customerId)).mapTo[Either[String, String]].recover { e =>
-                  logger.error("Unexpected error happened", e)
-                  BadRequest("Something went wrong")
+                (userManager ? SendSmsToDoctor(customerId)).mapTo[Either[String, String]].recover {
+                  case e: Throwable =>
+                    logger.error("Unexpected error happened", e)
+                    BadRequest("Something went wrong")
                 }
                 "File is uploaded"
-              }).value.recover { e =>
-                logger.error("Unexpected error happened", e)
-                Left("Something went wrong")
+              }).value.recover {
+                case e =>
+                  logger.error("Unexpected error happened", e)
+                  Left("Something went wrong")
               }
             case None =>
               logger.error("Customer ID not found")
@@ -304,11 +382,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   private def createPatientInDB(patient: Patient): Future[Result] = {
     (patientManager ? CreatePatient(patient)).mapTo[Either[String, String]].flatMap {
       case Right(_) =>
-        (patientManager ? SendIdToPatientViaSms(patient.customer_id)).mapTo[Either[String, String]].recover { e =>
-          logger.error("Unexpected error happened", e)
-          BadRequest("Something went wrong")
-        }.map { _ =>
+        (patientManager ? SendIdToPatientViaSms(patient.customer_id)).mapTo[Either[String, String]].map { _ =>
           Ok(Json.toJson(patient.customer_id))
+        }.recover {
+          case e =>
+            logger.error("Unexpected error happened", e)
+            BadRequest("Something went wrong")
         }
       case Left(e) => Future.successful(BadRequest(e))
     }.recover {
@@ -317,6 +396,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
     }
   }
+
+  //  def getImage(path: String) = {
+  //    val fileBytes = java.nio.file.Files.readAllBytes(Paths.get(tempFilesPath).resolve(patient.analysis_image_name.get))
+  //    val directoryPath = new java.io.File("public/images")
+  //    directoryPath.mkdirs()
+  //    val tempFile = java.io.File.createTempFile("elegant_analysis_", ".jpg", directoryPath)
+  //    val fos = new java.io.FileOutputStream(tempFile)
+  //    fos.write(fileBytes)
+  //  }
 
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
 

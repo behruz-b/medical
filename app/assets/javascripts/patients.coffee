@@ -9,6 +9,7 @@ $ ->
   vm = ko.mapping.fromJS
     language: Glob.language
     patients: []
+    analyseType: ''
     customerId: ''
 
   handleError = (error) ->
@@ -21,7 +22,7 @@ $ ->
       toastr.error('Something went wrong! Please try again.')
 
   vm.convertStringToDate = (stringDate) ->
-    moment(stringDate).format('DD/MM/YYYY HH:MM')
+    moment(stringDate).format('DD/MM/YYYY HH:mm:ss')
 
   vm.convertMonthToDayDate = (date) ->
     moment(date).format('DD/MM/YYYY')
@@ -32,13 +33,17 @@ $ ->
     console.log('customerId: ', vm.customerId())
     $('#analysisImage').modal('show')
 
+  vm.analyseType.subscribe () ->
+    getPatients()
+
   getPatients = ->
-    $.get(apiUrl.patientsUrl)
+    patient =
+      analyseType: vm.analyseType()
+    $.post(apiUrl.patientsUrl, JSON.stringify(patient))
     .fail handleError
     .done (response) ->
       vm.patients(response)
       console.log(vm.patients())
-  getPatients()
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4

@@ -5,6 +5,7 @@ POST    /login                                                  @controllers.Aut
 GET     /logout                                                 @controllers.AuthorizationController.logout
 
 GET     /reg/                                                   @controllers.HomeController.registerPage(language = "cy")
+GET     /doctors/                                               @controllers.HomeController.patientsDocPage(language = "cy")
 GET     /admin/                                                 @controllers.HomeController.admin(language = "cy")
 GET     /admin/get-roles                                        @controllers.HomeController.getRoleTypes
 
@@ -12,13 +13,19 @@ GET     /doc/                                                   @controllers.Hom
 POST    /doc/upload-analyze-result                              @controllers.HomeController.uploadAnalysisResult
 POST    /doc/add-doctor                                         @controllers.HomeController.createDoctor
 
+GET     /changePassword                                         @controllers.HomeController.changePass(language = "uz")
+POST    /doctor/add-password                                    @controllers.HomeController.changePassword
+
 GET     /patient/                                               @controllers.HomeController.getPatientsTemplate(language = "cy")
-GET     /patient/get-patients                                   @controllers.HomeController.getPatients
+POST    /patient/get-patients                                   @controllers.HomeController.getPatients
+GET     /patient/get-patients-doc                               @controllers.HomeController.getPatientsDoc
 GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType
 POST    /patient/add-patient                                    @controllers.HomeController.createPatient
+POST    /patient/add-patients-doc                               @controllers.HomeController.addPatientsDoc
 GET     /patient/get-mrt-type                                   @controllers.HomeController.getMrtType()
 GET     /patient/get-mskt-type                                  @controllers.HomeController.getMsktType()
 GET     /patient/get-uzi-type                                   @controllers.HomeController.getUziType()
+GET     /patient/get-lab-type                                   @controllers.HomeController.getLabType
 
 GET     /stats/                                                 @controllers.HomeController.getStatisticTemplate(language = "cy")
 GET     /stats/get-stats                                        @controllers.HomeController.getStats

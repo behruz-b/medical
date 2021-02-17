@@ -1,0 +1,62 @@
+@this(webJarsUtil: org.webjars.play.WebJarsUtil)
+@(isAuthorized: Boolean, isManager: Boolean, lang: String = "cy")
+@patientsDoc.main("Ro'yxatdan o'tish", webJarsUtil) {
+  <script>
+          var Glob = {
+            language: '@lang'
+          };
+  </script>
+  @navbar(isAuthorized, isManager)
+  <div class="container">
+    <div class="row box-align-center">
+
+      <div class="col-lg-5 col-sm-5 p-4">
+        <h2 class="text-white"><span data-bind="text: vm.translate('registrationForm')"></span></h2>
+        <form name="register_form" class="row">
+          <div class="form-group col-sm-12 col-12">
+            <input class="form-control input-box" type="text" id="docFullName" data-bind="value: vm.patientsDoc.fullName" name="fullName" value="" onchange="this.setAttribute('value', this.value);">
+            <label for="docFullName" class="label"><span data-bind="text: vm.translate('docFullName')"></span></label>
+          </div>
+          <div class="form-group col-sm-12 col-12">
+            <input class="form-control input-box" type="text" id="docPhone" name="phone" data-bind="masked: vm.patientsDoc.phone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
+            <label for="docPhone" class="label"><span data-bind="text: vm.translate('docPhone')"></span></label>
+          </div>
+          <div class="col-12">
+            <div class="text-center">
+              <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit"><span data-bind="text: vm.translate('send')"></span></button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-lg-7 col-sm-7 p-4">
+        <h2 class="text-white"><span data-bind="text: vm.translate('patientsDocTable')"></span></h2>
+        <div class="row">
+          <div class="table-responsive col-lg-12">
+            <table class="table table-bordered table-striped table-hover table-active bg-white">
+              <thead class="thead-dark">
+                <tr>
+                  <th><span data-bind="text: vm.translate('docFullName')"></span></th>
+                  <th><span data-bind="text: vm.translate('docPhone')"></span></th>
+                </tr>
+              </thead>
+              <tbody data-bind="foreach: vm.getPatientsDocList">
+                <tr>
+                  <td data-bind="text: $data.fullname"></td>
+                  <td data-bind="text: $data.phone"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  @for(_ <- 0 to 100) {
+    <div class="circle-container">
+      <div class="circle"></div>
+    </div>
+  }
+}

@@ -2,21 +2,6 @@
 @(isAuthorized: Boolean, isManager: Boolean, lang: String = "cy")
 @register.main("Ro'yxatdan o'tish", webJarsUtil) {
   <script>
-          function autotab(el) {
-            if (el.value.length === +el.getAttribute("maxlength")) {
-              $("#p_number").focus()
-            }
-          }
-
-
-          function autoBack(el) {
-            $('html').keydown(function (event) {
-              if (el.value.length === 0 && event.keyCode === 8) {
-                $("#p_series").focus()
-              }
-            })
-          }
-
           var Glob = {
             language: '@lang'
           };
@@ -68,13 +53,15 @@
            optionsText: $data, optionsValue: $data, value: vm.selectedUzi, optionsCaption: vm.translate('uziType')" autocomplete="off"></select>
         </div>
           <!-- /ko -->
+          <!-- ko if: vm.patient.analysisType() == 'Laboratoriya' -->
         <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="docFullName" data-bind="value: vm.patient.docFullName" name="docFullName" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="docFullName" class="label"><span data-bind="text: vm.translate('docFullName')"></span></label>
+          <select class="select form-control bg-white" id="labType" data-bind="options: vm.getLabTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.selectedLaboratory, optionsCaption: vm.translate('labType')" autocomplete="off"></select>
         </div>
+          <!-- /ko -->
         <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="docPhone" name="phone" data-bind="masked: vm.patient.docPhone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
-          <label for="docPhone" class="label"><span data-bind="text: vm.translate('docPhone')"></span></label>
+          <select class="select form-control bg-white" id="patientsDoc" data-bind="options: vm.getPatientsDocList,
+           optionsText: 'fullname', optionsValue: 'id', value: vm.patient.docId, optionsCaption: vm.translate('selectDoctor')" autocomplete="off"></select>
         </div>
         <div class="col-12">
           <div class="text-center">
