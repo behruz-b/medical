@@ -237,7 +237,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def getStats: Action[AnyContent] = Action.async { implicit request =>
     authByRole(isAdmin) {
       (statsManager ? GetStats).mapTo[List[StatsAction]].map { stats =>
-        Ok(Json.toJson(stats))
+        Ok(Json.toJson(stats.reverse))
       }
     }
   }
