@@ -1,4 +1,4 @@
-@(isAuthorized: Boolean, isManager: Boolean)
+@(isAuthorized: Boolean, isManager: Boolean, isAdmin: Boolean)
 <div class="row">
   <div class="col-sm-12">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -12,15 +12,27 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          @if(isManager) {
-
-          }
           @if(isAuthorized) {
             <li class="nav-item">
               <a class="nav-link" href="@routes.HomeController.getPatientsTemplate()">
                 <i class="fas fa-id-card"></i> Patients
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="@routes.HomeController.patientsDocPage()">
+                <i class="fas fa-id-card"></i> Partner physicians
+              </a>
+            </li>
+          }
+          @if(isAdmin) {
+            <li class="nav-item">
+              <a class="nav-link" href="@routes.HomeController.getStatisticTemplate()">
+                <i class="fas fa-chart-bar"></i> Statistics
+              </a>
+            </li>
+          }
+          @if(isManager) {
+
           }
         </ul>
         <ul class="navbar-nav my-2 my-lg-0">

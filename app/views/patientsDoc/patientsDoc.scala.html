@@ -1,12 +1,12 @@
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
-@(isAuthorized: Boolean, isManager: Boolean, lang: String = "cy")
+@(isAuthorized: Boolean, isManager: Boolean, isAdmin: Boolean, lang: String = "cy")
 @patientsDoc.main("Ro'yxatdan o'tish", webJarsUtil) {
   <script>
           var Glob = {
             language: '@lang'
           };
   </script>
-  @navbar(isAuthorized, isManager)
+  @navbar(isAuthorized, isManager, isAdmin)
   <div class="container">
     <div class="row box-align-center">
 

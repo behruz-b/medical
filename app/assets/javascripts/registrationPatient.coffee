@@ -148,8 +148,8 @@ $ ->
         else if vm.patient.analysisType() is "Laboratoriya"
           vm.selectedLaboratory()
       docInfo = vm.getPatientsDocList().filter (x) -> x.id == data.docId
-      data.docFullName = docInfo[0].fullname
-      data.docPhone = docInfo[0].phone
+      data.docFullName = docInfo[0]?.fullname
+      data.docPhone = docInfo[0]?.phone
       my.blockUI()
       $.post(apiUrl.registerUrl, JSON.stringify(data))
       .fail handleError

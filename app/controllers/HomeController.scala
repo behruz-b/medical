@@ -60,16 +60,16 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   private def isAuthorized(implicit request: RequestHeader): Boolean = request.session.get(LoginSessionKey).isDefined
 
   def index(language: String): Action[AnyContent] = Action { implicit request =>
-    Ok(indexTemplate(isAuthorized, isManager, language))
+    Ok(indexTemplate(isAuthorized, isManager, isAdmin, language))
   }
 
   def dashboard(language: String): Action[AnyContent] = Action { implicit request =>
-    Ok(dashboardTemp(isAuthorized, isManager, language))
+    Ok(dashboardTemp(isAuthorized, isManager, isAdmin, language))
   }
 
   def changePass(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isRegister || isAdmin || isDoctor || isManager) {
-      Ok(passTemplate(isAuthorized, isManager,language))
+      Ok(passTemplate(isAuthorized, isManager, isAdmin, language))
     }
   }
 
@@ -91,13 +91,13 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def registerPage(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isRegister || isManager, language) {
-      Ok(regTemplate(isAuthorized, isManager, language))
+      Ok(regTemplate(isAuthorized, isManager, isAdmin, language))
     }
   }
 
   def patientsDocPage(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isRegister || isManager, language) {
-      Ok(patientsDocTemplate(isAuthorized, isManager, language))
+      Ok(patientsDocTemplate(isAuthorized, isManager, isAdmin, language))
     }
   }
 
@@ -210,7 +210,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def addAnalysisResult(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isDoctor || isManager, language) {
-      Ok(addAnalysisResultPageTemp(isAuthorized, isManager, language))
+      Ok(addAnalysisResultPageTemp(isAuthorized, isManager, isAdmin, language))
     }
   }
 
@@ -230,7 +230,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def getPatientsTemplate(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isAdmin || isManager || isDoctor, language) {
-      Ok(getPatientsTemp(isAuthorized, isAdmin, language))
+      Ok(getPatientsTemp(isAuthorized, isManager, isAdmin, language))
     }
   }
 
