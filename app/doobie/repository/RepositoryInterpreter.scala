@@ -1,17 +1,21 @@
 package doobie.repository
+
 import cats.effect.Bracket
+import com.typesafe.scalalogging.LazyLogging
 import doobie._
 import doobie.domain.PatientRepositoryAlgebra
 import doobie.implicits._
-import protocols.PatientProtocol._
+import doobie.repository.SQLPagination.paginate
 import doobie.implicits.javasql._
 import doobie.util.Read
+import protocols.AppProtocol.Paging.{PageReq, PageRes}
+import protocols.PatientProtocol._
 import protocols.UserProtocol.{Roles, User}
 
 import java.sql.Timestamp
 import java.time.{LocalDate, LocalDateTime}
 
-object MessageSQL extends CommonSQL  {
+object MessageSQL extends CommonSQL with LazyLogging {
 
   implicit val han: LogHandler = LogHandler.jdkLogHandler
   implicit val patientRead: Read[Patient] =
@@ -38,26 +42,26 @@ object MessageSQL extends CommonSQL  {
         )
     }
 
-//  implicit val writePatient: Write[Patient] =
-//    Write[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String])].contramap { f =>
-//        (
-//          javaLdTime2JavaSqlTimestamp(f.created_at),
-//          f.firstname,
-//          f.lastname,
-//          f.phone,
-//          f.customer_id,
-//          f.company_code,
-//          f.login,
-//          f.password,
-//          f.address,
-//          javaLd2JavaSqlTimestamp(f.dateOfBirth),
-//          f.analyseType,
-//          f.docFullName
-//        )
-//    }
+  //  implicit val writePatient: Write[Patient] =
+  //    Write[(Timestamp, String, String, String, String, String, String, String, String, Timestamp, String, Option[String])].contramap { f =>
+  //        (
+  //          javaLdTime2JavaSqlTimestamp(f.created_at),
+  //          f.firstname,
+  //          f.lastname,
+  //          f.phone,
+  //          f.customer_id,
+  //          f.company_code,
+  //          f.login,
+  //          f.password,
+  //          f.address,
+  //          javaLd2JavaSqlTimestamp(f.dateOfBirth),
+  //          f.analyseType,
+  //          f.docFullName
+  //        )
+  //    }
 
   implicit val userRead: Read[User] =
-    Read[(Timestamp, String, String, String, String, String, String,String)].map {
+    Read[(Timestamp, String, String, String, String, String, String, String)].map {
       case (created_at, firstname, lastname, phone, role, company_code, login, password) =>
         User(created_at.toLocalDateTime, firstname, lastname, phone, role, company_code, login, password)
     }
@@ -83,6 +87,8 @@ object MessageSQL extends CommonSQL  {
   private def updateQueryWithUniqueId(fr: Fragment): doobie.ConnectionIO[Int] = {
     fr.update.withUniqueGeneratedKeys[Int]("id")
   }
+
+  def count(table: String): doobie.ConnectionIO[Int] = (fr"select count(*) from" ++ Fragment.const(table)).query[Int].unique
 
   def create(patient: Patient): doobie.ConnectionIO[Int] = {
     val values = {
@@ -151,23 +157,23 @@ object MessageSQL extends CommonSQL  {
 
   def getPatientByLogin(login: String): doobie.Query0[Patient] = {
     val querySql = fr"""select created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone, sms_link_click, analysis_image_name, patients_doc_id FROM "Patients" WHERE login = $login"""
-      querySql.query[Patient]
+    querySql.query[Patient]
   }
 
   def getUserByLogin(login: String): doobie.Query0[User] = {
     val querySql = fr"""select created_at,firstname,lastname,phone,role,company_code,login,password from "Users" WHERE login = $login"""
-      querySql.query[User]
+    querySql.query[User]
   }
 
-  def getPatients(analyseType: Option[String]): ConnectionIO[List[Patient]] = {
-    val withFilter = if (analyseType.isDefined) {
-      fr"WHERE analysis_type = ${analyseType.get}"
-    } else {
-      fr""
+  def getPatients(analyseType: String, pageReq: PageReq): ConnectionIO[PageRes[Patient]] = {
+    val filter = fr"WHERE analysis_type = $analyseType"
+    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,sms_link_click,analysis_image_name, patients_doc_id FROM "Patients" """ ++ filter
+    for {
+      total <- sql"""select count(*) from "Patients"""".query[Int].unique
+      patients <- paginate[Patient](pageReq.size, pageReq.page)(querySql).to[List]
+    } yield {
+      PageRes(patients, total)
     }
-    val querySql =
-      fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,sms_link_click,analysis_image_name, patients_doc_id FROM "Patients"""" ++ withFilter
-    querySql.query[Patient].to[List]
   }
 
   def getStats: ConnectionIO[List[StatsAction]] = {
@@ -186,14 +192,14 @@ object MessageSQL extends CommonSQL  {
   }
 }
 
-class RepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](override val xa: Transactor[F])
+class RepositoryInterpreter[F[_] : Bracket[*[_], Throwable]](override val xa: Transactor[F])
   extends CommonRepositoryInterpreter[F](xa) with PatientRepositoryAlgebra[F] {
 
   override val commonSql: CommonSQL = MessageSQL
 
 }
 
-object RepositoryInterpreter  {
-  def apply[F[_]: Bracket[*[_], Throwable]](xa: Transactor[F]): RepositoryInterpreter[F] =
+object RepositoryInterpreter {
+  def apply[F[_] : Bracket[*[_], Throwable]](xa: Transactor[F]): RepositoryInterpreter[F] =
     new RepositoryInterpreter(xa)
 }

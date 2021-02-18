@@ -5,9 +5,11 @@ import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
+import doobie.repository.MessageSQL.logger
 import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
+import protocols.AppProtocol.Paging.{PageReq, PageRes}
 import protocols.PatientProtocol._
 import protocols.SecurityUtils.md5
 import util.StringUtil
@@ -52,8 +54,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     case GetPatientByLogin(login, password) =>
       getPatientByLogin(login, password).pipeTo(sender())
 
-    case GetPatientsForm(analyseType) =>
-      getPatients(analyseType).pipeTo(sender())
+    case GetPatients(analyseType, pageReq) =>
+      getPatients(analyseType, pageReq).pipeTo(sender())
 
     case SendSmsToCustomer(customerId) =>
       sendSMS(customerId).pipeTo(sender())
@@ -149,8 +151,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def getPatients(analyseType: Option[String]): Future[Either[String,List[Patient]]] = {
-    DoobieModule.repo.getPatients(analyseType).unsafeToFuture().map{ patient =>
+  private def getPatients(analyseType: String, pageReq: PageReq): Future[Either[String,PageRes[Patient]]] = {
+    DoobieModule.repo.getPatients(analyseType, pageReq).unsafeToFuture().map{ patient =>
       Right(patient)
     }.recover {
       case error: Throwable =>

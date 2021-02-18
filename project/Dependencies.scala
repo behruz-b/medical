@@ -31,6 +31,7 @@ object Dependencies {
     val pureConfig = "0.13.0"
     val compass = "0.12.7"
     val popperJS = "1.12.9-1"
+    val pagination = "1.4.1"
   }
 
   object Libraries {
@@ -55,9 +56,7 @@ object Dependencies {
       "io.circe" %% "circe-generic" % Versions.CirceVersion,
       "io.circe" %% "circe-literal" % Versions.CirceVersion,
       "io.circe" %% "circe-generic-extras" % Versions.CirceVersion,
-      "io.circe" %% "circe-parser" % Versions.CirceVersion,
-      "io.circe" %% "circe-java8" % Versions.CirceVersion,
-      "io.circe" %% "circe-config" % Versions.CirceVersion
+      "io.circe" %% "circe-parser" % Versions.CirceVersion
     )
     val logLibs = Seq(
       "org.slf4j" % "log4j-over-slf4j" % Versions.logOver,
@@ -100,7 +99,8 @@ object Dependencies {
       "org.webjars" % "jquery-file-upload" % Versions.jQueryFileUpload,
       "org.webjars.bower" % "jquery-mask-plugin" % Versions.jQueryMask,
       "org.webjars" % "jquery-blockui" % Versions.jQueryBlockUI,
-      "org.webjars" % "popper.js" % Versions.popperJS
+      "org.webjars" % "popper.js" % Versions.popperJS,
+      "org.webjars.bower" % "twbs-pagination" % "1.4.1" exclude("org.webjars.bower", "jquery"),
     )
   }
   val rootDependencies: Seq[ModuleID] = Seq(
@@ -120,5 +120,6 @@ object Dependencies {
     Libraries.akka ++
     Libraries.doobieLibs ++
     Libraries.pureConfig ++
-    Libraries.webjarsLibs
+    Libraries.webjarsLibs ++
+    Libraries.circeLibs
 }

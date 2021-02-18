@@ -17,14 +17,14 @@ GET     /changePassword                                         @controllers.Hom
 POST    /doctor/add-password                                    @controllers.HomeController.changePassword
 
 GET     /patient/                                               @controllers.HomeController.getPatientsTemplate(language = "cy")
-POST    /patient/get-patients                                   @controllers.HomeController.getPatients
+POST    /patient/get-patients                                   @controllers.HomeController.getPatients(page: Int ?= 1, pageSize: Int ?= 30)
 GET     /patient/get-patients-doc                               @controllers.HomeController.getPatientsDoc
 GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType
 POST    /patient/add-patient                                    @controllers.HomeController.createPatient
 POST    /patient/add-patients-doc                               @controllers.HomeController.addPatientsDoc
-GET     /patient/get-mrt-type                                   @controllers.HomeController.getMrtType()
-GET     /patient/get-mskt-type                                  @controllers.HomeController.getMsktType()
-GET     /patient/get-uzi-type                                   @controllers.HomeController.getUziType()
+GET     /patient/get-mrt-type                                   @controllers.HomeController.getMrtType
+GET     /patient/get-mskt-type                                  @controllers.HomeController.getMsktType
+GET     /patient/get-uzi-type                                   @controllers.HomeController.getUziType
 GET     /patient/get-lab-type                                   @controllers.HomeController.getLabType
 
 GET     /stats/                                                 @controllers.HomeController.getStatisticTemplate(language = "cy")

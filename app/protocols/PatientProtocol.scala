@@ -3,6 +3,7 @@ package protocols
 import org.apache.commons.lang3.StringUtils
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
+import protocols.AppProtocol.Paging.PageReq
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
@@ -125,7 +126,7 @@ object PatientProtocol {
 
   case class GetPatientByLogin(login: String, password: String)
 
-  case class GetPatientsForm(analyseType: Option[String] = None)
+  case class GetPatients(analyseType: String = "MRT", pageReq: PageReq)
 
   case object GetStats
 

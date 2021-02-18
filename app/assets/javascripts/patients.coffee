@@ -12,6 +12,26 @@ $ ->
     analyseType: ''
     customerId: ''
 
+  pageSize = 30
+  currentPage = 1
+  $pagination = {}
+  $paginationEl = $('#pagination')
+
+  initPagination = (total, startPage = 1) ->
+    totalPages = Math.ceil(total / pageSize)
+    if totalPages < 1
+      return no
+    $paginationEl.show()
+    $paginationEl.twbsPagination(
+      startPage: Math.min(startPage, totalPages)
+      totalPages: totalPages
+      visiblePages: 5
+      onPageClick: (event, page) ->
+        if currentPage isnt page
+          getPatients(page)
+    )
+    $pagination = $paginationEl.data('twbsPagination')
+
   handleError = (error) ->
     $.unblockUI()
     if error.status is 401
@@ -33,17 +53,20 @@ $ ->
     console.log('customerId: ', vm.customerId())
     $('#analysisImage').modal('show')
 
-  vm.analyseType.subscribe () ->
+  vm.analyseType.subscribe ->
     getPatients()
 
-  getPatients = ->
-    patient =
-      analyseType: vm.analyseType()
-    $.post(apiUrl.patientsUrl, JSON.stringify(patient))
+  getPatients = (page) ->
+    pageParam = "pageSize=#{pageSize}"
+    if page
+      pageParam += "&page=#{page}"
+    reqUrl = "#{apiUrl.patientsUrl}?#{pageParam}"
+    $.post(reqUrl, JSON.stringify(analyseType: vm.analyseType()))
     .fail handleError
     .done (response) ->
-      vm.patients(response)
-      console.log(vm.patients())
+      $pagination.destroy?()
+      initPagination(response.total, page)
+      vm.patients(response.items)
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4

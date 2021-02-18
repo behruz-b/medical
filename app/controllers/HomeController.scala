@@ -4,18 +4,19 @@ import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.time._
 import java.util.Date
-
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.data.EitherT
 import cats.implicits._
+
 import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
+import protocols.AppProtocol.Paging.{PageReq, PageRes}
 import protocols.Authentication.{LoginSessionKey, LoginWithSession}
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{ChangePassword, CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
@@ -214,10 +215,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getPatients: Action[JsValue] = Action.async(parse.json) { implicit request =>
+  def getPatients(page: Int, pageSize: Int): Action[JsValue] = Action.async(parse.json) { implicit request =>
     authByRole(isAdmin || isManager || isDoctor) {
-      val analyseType = (request.body \ "analyseType").asOpt[String].flatMap(v => if (v.trim.isBlank) None else v.some)
-      (patientManager ? GetPatientsForm(analyseType)).mapTo[Either[String, List[Patient]]].map {
+      val pageReq = PageReq(page = page, size = pageSize)
+      val analyseType = (request.body \ "analyseType").as[String]
+      (patientManager ? GetPatients(analyseType, pageReq)).mapTo[Either[String, PageRes[Patient]]].map {
         case Right(p) => Ok(Json.toJson(p))
         case Left(r) => BadRequest(r.toString)
       }.recover {
@@ -227,7 +229,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       }
     }
   }
-
   def getPatientsTemplate(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isAdmin || isManager || isDoctor, language) {
       Ok(getPatientsTemp(isAuthorized, isManager, isAdmin, language))
