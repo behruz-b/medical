@@ -20,7 +20,6 @@ object Authentication extends CommonMethods {
   import AppRole._
 
   val LoginSessionKey = "login.session.key"
-  val LoginWithSession = "login"
 
   case class LoginFormWithClientCode(
                                       login: String = "",
@@ -47,6 +46,7 @@ object Authentication extends CommonMethods {
       Login("/doc/", routes.HomeController.addAnalysisResult(), createSessionAttr(Set(DoctorRole, ManagerRole, AdminRole))),
       Login("/patient/", routes.HomeController.getPatientsTemplate(), createSessionAttr(Set(ManagerRole, AdminRole))),
       Login("/stats/", routes.HomeController.getStatisticTemplate(), createSessionAttr(Set(AdminRole))),
-      Login("/doctors/", routes.HomeController.patientsDocPage(), createSessionAttr(Set(RegRole, ManagerRole, AdminRole)))
+      Login("/doctors/", routes.HomeController.patientsDocPage(), createSessionAttr(Set(RegRole, ManagerRole, AdminRole))),
+      Login("/change-password/", routes.HomeController.changePass(), createSessionAttr(Set(RegRole, DoctorRole, ManagerRole, AdminRole)))
     ).map(l => l.rootPath -> l).toMap
 }

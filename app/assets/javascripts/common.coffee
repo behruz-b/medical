@@ -93,6 +93,10 @@ root.my =
   isValidPhone: (phoneNumber) ->
     /^\d{9}$/.test phoneNumber
 
+  isValidDate: (dateStr) ->
+    date = moment(dateStr, 'DD/MM/YYYY', true)
+    date.isValid() and date.isBefore(moment())
+
   isValidEmail: (email) ->
     re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     re.test email

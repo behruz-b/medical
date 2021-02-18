@@ -23,11 +23,6 @@ object UserProtocol {
 
   case class ChangePassword(login: String, newPass: String)
 
-  implicit val doctorFormReads: Reads[ChangePassword] = (
-      (__ \ "login").read[String] and
-      (__ \ "newPass").read[String]
-    ) (ChangePassword)
-
   case class CheckUserByLogin(login: String, password: String)
   case class CreateUser(user: User)
   case class CheckUserByLoginAndCreate(user: User)

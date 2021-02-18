@@ -112,7 +112,7 @@ $ ->
     else if !vm.patient.dateOfBirth()
       toastr.error("Iltimos tug'ilgan yilini kiriting!")
       return no
-    else if vm.patient.dateOfBirth() and vm.patient.dateOfBirth().length isnt 10
+    else if vm.patient.dateOfBirth() and !my.isValidDate(vm.patient.dateOfBirth())
       toastr.error("Iltimos tug'ilgan yilini to'g'ri kiriting!")
       return no
     else if !vm.patient.address()
