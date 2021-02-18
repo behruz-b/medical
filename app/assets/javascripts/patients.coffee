@@ -26,6 +26,7 @@ $ ->
       startPage: Math.min(startPage, totalPages)
       totalPages: totalPages
       visiblePages: 5
+      hideOnlyOnePage: true
       onPageClick: (event, page) ->
         if currentPage isnt page
           getPatients(page)
