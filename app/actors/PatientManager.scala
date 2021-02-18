@@ -5,7 +5,6 @@ import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
-import doobie.repository.MessageSQL.logger
 import play.api.http.Status.OK
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Environment}
@@ -14,7 +13,7 @@ import protocols.PatientProtocol._
 import protocols.SecurityUtils.md5
 import util.StringUtil
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,8 +54,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     case GetPatientByLogin(login, password) =>
       getPatientByLogin(login, password).pipeTo(sender())
 
-    case GetPatients(analyseType,dateRangeStart,dateRangeEnd, pageReq) =>
-      getPatients(analyseType,dateRangeStart,dateRangeEnd, pageReq).pipeTo(sender())
+    case GetPatients(analyseType, startDate, endDate, pageReq) =>
+      getPatients(analyseType, startDate, endDate, pageReq).pipeTo(sender())
 
     case SendSmsToCustomer(customerId) =>
       sendSMS(customerId).pipeTo(sender())
@@ -88,7 +87,7 @@ class PatientManager @Inject()(val configuration: Configuration,
         Right(patient.get)
       } else {
         Left("Error happened while requesting patient")
-    }
+      }
     }.recover {
       case error: Throwable =>
         logger.error("Error occurred while get patient by customer id", error)
@@ -152,8 +151,11 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def getPatients(analyseType: String,dateRangeStart: Option[LocalDate],dateRangeEnd: Option[LocalDate], pageReq: PageReq): Future[Either[String,PageRes[Patient]]] = {
-    DoobieModule.repo.getPatients(analyseType,dateRangeStart,dateRangeEnd, pageReq).unsafeToFuture().map{ patient =>
+  private def getPatients(analyseType: String,
+                          startDate: Option[LocalDateTime],
+                          endDate: Option[LocalDateTime],
+                          pageReq: PageReq): Future[Either[String, PageRes[Patient]]] = {
+    DoobieModule.repo.getPatients(analyseType, startDate, endDate, pageReq).unsafeToFuture().map { patient =>
       Right(patient)
     }.recover {
       case error: Throwable =>
@@ -165,7 +167,7 @@ class PatientManager @Inject()(val configuration: Configuration,
   private def sendSMS(customerId: String): Future[Either[String, String]] = {
     getPatientByCustomerId(customerId).flatMap {
       case Right(p) =>
-        actualSendingSMS(p.phone,SmsText(customerId), customerId)
+        actualSendingSMS(p.phone, SmsText(customerId), customerId)
       case Left(e) =>
         logger.error(s"Error happened", e)
         Future.successful(Left("Error occurred while sending SMS to Customer"))

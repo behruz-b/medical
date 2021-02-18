@@ -209,16 +209,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
-  def getPatients(page: Int, pageSize: Int): Action[JsValue] = Action.async(parse.json) { implicit request =>
+  def getPatients(page: Int, pageSize: Int): Action[PatientsReport] = Action.async(parse.json[PatientsReport]) { implicit request =>
     authByRole(isManager || isDoctor) {
       val pageReq = PageReq(page = page, size = pageSize)
-      val analyseType = (request.body \ "analyseType").as[String]
-      val dateRangeStart = (request.body \ "dateRangeStart").asOpt[String].flatMap(v => if (v.trim.isBlank) None else v.some)
-      val dateRangeEnd = (request.body \ "dateRangeEnd").asOpt[String].flatMap(v => if (v.trim.isBlank) None else v.some)
-      logger.debug(s"saddad: $analyseType")
-      logger.debug(s"saddad: $dateRangeStart")
-      logger.debug(s"saddad $dateRangeEnd")
-      (patientManager ? GetPatients(analyseType,parseStringToDateTime(dateRangeStart), parseStringToDateTime(dateRangeEnd),pageReq)).mapTo[Either[String, PageRes[Patient]]].map {
+      val body = request.body
+      logger.debug(s"startDate: ${body.startDate}")
+      logger.debug(s"endDate: ${body.endDate}")
+      (patientManager ? GetPatients(body.analyseType, body.startDate, body.endDate, pageReq))
+        .mapTo[Either[String, PageRes[Patient]]].map {
         case Right(p) => Ok(Json.toJson(p))
         case Left(r) => BadRequest(r)
       }.recover {

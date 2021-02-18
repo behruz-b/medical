@@ -166,15 +166,15 @@ object MessageSQL extends CommonSQL with LazyLogging {
     querySql.query[User]
   }
 
-  private val dateFilterFrWithWhere: (Option[LocalDate], Option[LocalDate]) => Fragment = {
+  private val dateFilterFr: (Option[LocalDateTime], Option[LocalDateTime]) => Fragment = {
     case (Some(sDate), Some(eDate)) => fr" AND created_at >= $sDate AND created_at <= $eDate "
     case (Some(sDate), None) => fr" AND created_at >= $sDate "
     case (None, Some(eDate)) => fr" AND created_at <= $eDate "
     case _ => fr""
   }
 
-  def getPatients(analyseType: String,dateRangeStart: Option[LocalDate],dateRangeEnd: Option[LocalDate], pageReq: PageReq): ConnectionIO[PageRes[Patient]] = {
-    val dateFilter = dateFilterFrWithWhere(dateRangeStart, dateRangeEnd)
+  def getPatients(analyseType: String,dateRangeStart: Option[LocalDateTime],dateRangeEnd: Option[LocalDateTime], pageReq: PageReq): ConnectionIO[PageRes[Patient]] = {
+    val dateFilter = dateFilterFr(dateRangeStart, dateRangeEnd)
     val filter = fr"WHERE analysis_type = $analyseType"
     val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone,sms_link_click,analysis_image_name, patients_doc_id FROM "Patients" """ ++ filter ++ dateFilter
     for {

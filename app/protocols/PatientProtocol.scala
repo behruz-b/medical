@@ -1,5 +1,6 @@
 package protocols
 
+import cats.implicits.{catsSyntaxOptionId, none}
 import org.apache.commons.lang3.StringUtils
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
@@ -12,6 +13,12 @@ import java.time.{LocalDate, LocalDateTime}
 object PatientProtocol {
   implicit def localDateFormat(fieldName: String, dateFormat: String = "dd/MM/yyyy"): Reads[LocalDate] =
     (__ \ fieldName).read[String].map(s => LocalDate.parse(s, DateTimeFormatter.ofPattern(dateFormat)))
+
+  implicit def optLdtRead(fieldName: String, dateFormat: String = "yyyy-MM-dd HH:mm:ss"): Reads[Option[LocalDateTime]] = {
+    (__ \ fieldName).readNullable[String].map { optStr =>
+      optStr.fold(none[LocalDateTime])(s => LocalDateTime.parse(s, DateTimeFormatter.ofPattern(dateFormat)).some)
+    }
+  }
 
   def optStringRead(fieldName: String): Reads[Option[String]] =
     (__ \ fieldName).readNullable[String].map { s =>
@@ -73,6 +80,16 @@ object PatientProtocol {
       (__ \ "phone").read[String]
     ) (PatientsDocForm)
 
+  case class PatientsReport(startDate: Option[LocalDateTime] = None,
+                            endDate: Option[LocalDateTime] = None,
+                            analyseType: String = "MRT")
+
+  implicit val PatientsReportReads: Reads[PatientsReport] = (
+    optLdtRead("startDate") and
+      optLdtRead("endDate") and
+      (__ \ "analyseType").read[String]
+    ) (PatientsReport)
+
   case class Patient(created_at: LocalDateTime,
                      firstname: String,
                      lastname: String,
@@ -127,8 +144,8 @@ object PatientProtocol {
   case class GetPatientByLogin(login: String, password: String)
 
   case class GetPatients(analyseType: String = "MRT",
-                         dateRangeStart: Option[LocalDate],
-                         dateRangeEnd: Option[LocalDate],
+                         dateRangeStart: Option[LocalDateTime],
+                         dateRangeEnd: Option[LocalDateTime],
                          pageReq: PageReq)
 
   case object GetStats
