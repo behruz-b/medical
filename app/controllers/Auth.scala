@@ -6,7 +6,7 @@ import play.api.mvc.Results.Unauthorized
 import play.api.mvc._
 import protocols.Authentication
 import protocols.Authentication.AppRole._
-import protocols.Authentication.{LoginSessionKey, loginPatterns}
+import protocols.Authentication.{LoginSessionKey, Login, loginPatterns}
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,7 +18,9 @@ trait Auth extends LazyLogging {
   def expiresAtSessionAttrName: String => String = _ + ".exp"
 
   private def loginParam: String => Option[Authentication.Login] = loginPatterns.get
-
+  def getUserLogin(implicit request: RequestHeader): String = request.session.get("login").getOrElse("")
+  def getUserAgent(implicit request: RequestHeader): String = request.headers.get("User-Agent").getOrElse("")
+  def getRemoteAddress(implicit request: RequestHeader): String = request.headers.get("Remote-Address").getOrElse("")
   object ErrorText {
     val SessionExpired = "Session expired. Please log in."
     val Unauthorized = "Unauthorized. Please log in."
@@ -42,7 +44,7 @@ trait Auth extends LazyLogging {
 
   private def baseUriExtractor(implicit request: RequestHeader): String = {
     val path = request.path
-    List("stats/", "patient/", "doc/", "admin/", "reg/")
+    List("stats/", "patient/", "doc/", "admin/", "reg/", "change-password/")
       .map(keyword => (path.indexOf(keyword), keyword.length))
       .find(_._1 != -1) match {
       case Some(t) => path.substring(0, t._1 + t._2)

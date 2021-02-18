@@ -7,7 +7,6 @@ $ ->
     changePassword: '/doctor/add-password'
 
   defaultDoctor =
-    login: ''
     newPass: ''
     repeatPass: ''
 
@@ -18,6 +17,7 @@ $ ->
   handleError = (error) ->
     $.unblockUI()
     if error.status is 401
+      toastr.error(error.responseText)
       my.logout()
     else if error.status is 500 or (error.status is 400 and error.responseText)
       toastr.error(error.responseText)
@@ -37,11 +37,7 @@ $ ->
 
   vm.newPassword = ->
     toastr.clear()
-    my.blockUI()
-    if !vm.doctor.login()
-      toastr.error("Iltimos loginni kiriting!")
-      return no
-    else if !vm.doctor.newPass()
+    if !vm.doctor.newPass()
       toastr.error("Iltimos yangi parolni kiriting!")
       return no
     else if !vm.doctor.repeatPass()
@@ -53,14 +49,13 @@ $ ->
     else if !my.passValidation(vm.doctor.repeatPass())
       toastr.error("Iltimos yangi parolda kamida 1 ta raqam, 1 ta katta kichik harf va belgi bulishi kerak!")
     else
-      data =
-        login: vm.doctor.login()
-        newPass: vm.doctor.newPass()
-      $.post(apiUrl.changePassword, JSON.stringify(data))
+      my.blockUI()
+      $.post(apiUrl.changePassword, JSON.stringify(newPass: vm.doctor.newPass()))
       .fail handleError
       .done () ->
         toastr.success("Muvaffaqiyatli yakunlandi!")
         ko.mapping.fromJS(defaultDoctor, {}, vm.doctor)
+        my.logout()
         $.unblockUI()
 
   vm.translate = (fieldName) -> ko.computed () ->

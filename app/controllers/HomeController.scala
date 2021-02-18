@@ -1,23 +1,17 @@
 package controllers
 
-import java.nio.file.Paths
-import java.text.SimpleDateFormat
-import java.time._
-import java.util.Date
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.data.EitherT
 import cats.implicits._
-
-import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.AppProtocol.Paging.{PageReq, PageRes}
-import protocols.Authentication.{LoginSessionKey, LoginWithSession}
+import protocols.Authentication.LoginSessionKey
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{ChangePassword, CheckUserByLoginAndCreate, GetRoles, Roles, SendSmsToDoctor, User}
 import views.html._
@@ -69,15 +63,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def changePass(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(isRegister || isAdmin || isDoctor || isManager) {
+    authByDashboard(isRegister || isDoctor || isManager) {
       Ok(passTemplate(isAuthorized, isManager, isAdmin, language))
     }
   }
 
-  def changePassword: Action[ChangePassword] = Action.async(parse.json[ChangePassword]) { implicit request =>
-    authByRole(isDoctor || isRegister || isAdmin) {
-      val body = request.body
-      (userManager ? ChangePassword(body.login,body.newPass)).mapTo[Either[String, String]].map {
+  def changePassword: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    authByRole(isDoctor || isRegister || isManager) {
+      val newPass = (request.body \ "newPass").as[String]
+      (userManager ? ChangePassword(getUserLogin, newPass)).mapTo[Either[String, String]].map {
         case Right(_) =>
           Ok(Json.toJson("Successfully updated"))
         case Left(error) =>
@@ -139,8 +133,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     (patientManager ? GetPatientByCustomerId(customerId)).mapTo[Either[String, Patient]].map {
       case Right(patient) =>
         if (patient.analysis_image_name.isDefined) {
-          val stats = StatsAction(LocalDateTime.now, request.host, action = "result_sms_click", request.headers.get("Remote-Address").get,
-            login = patient.customer_id, request.headers.get("User-Agent").get)
+          val stats = StatsAction(LocalDateTime.now, request.host, "result_sms_click", getRemoteAddress,
+            login = patient.customer_id, getUserAgent)
           statsManager ! AddStatsAction(stats)
           val patientStats = AddSmsLinkClick(customerId = patient.customer_id, smsLinkClick = "click")
           patientManager ! patientStats
@@ -203,9 +197,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup,
         body.docFullName, body.docPhone, docId = body.docId)
       getUniqueCustomerId(1, patient)
-//      val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
-//        request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
-//      statsManager ! AddStatsAction(stats)
+      //      val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
+      //        request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
+      //      statsManager ! AddStatsAction(stats)
     }
   }
 
@@ -216,12 +210,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getPatients(page: Int, pageSize: Int): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    authByRole(isAdmin || isManager || isDoctor) {
+    authByRole(isManager || isDoctor) {
       val pageReq = PageReq(page = page, size = pageSize)
       val analyseType = (request.body \ "analyseType").as[String]
       (patientManager ? GetPatients(analyseType, pageReq)).mapTo[Either[String, PageRes[Patient]]].map {
         case Right(p) => Ok(Json.toJson(p))
-        case Left(r) => BadRequest(r.toString)
+        case Left(r) => BadRequest(r)
       }.recover {
         case e =>
           logger.error("Error occurred", e)
@@ -229,8 +223,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       }
     }
   }
+
   def getPatientsTemplate(language: String): Action[AnyContent] = Action { implicit request =>
-    authByDashboard(isAdmin || isManager || isDoctor, language) {
+    authByDashboard(isManager || isDoctor, language) {
       Ok(getPatientsTemp(isAuthorized, isManager, isAdmin, language))
     }
   }
@@ -316,7 +311,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                 _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
                 _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
               } yield {
-                val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", request.headers.get("Remote-Address").get, request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
+                val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", getRemoteAddress, getUserLogin, getUserAgent)
                 statsManager ! AddStatsAction(statsAction)
                 (userManager ? SendSmsToDoctor(customerId)).mapTo[Either[String, String]].recover {
                   case e: Throwable =>

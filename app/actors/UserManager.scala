@@ -54,7 +54,7 @@ class UserManager @Inject()(val configuration: Configuration,
   }
 
   private def changePassword(login: String, newPass: String): Future[Either[String, String]] = {
-    DoobieModule.repo.changePassword(login,newPass).unsafeToFuture().map { result =>
+    DoobieModule.repo.changePassword(login, md5(newPass)).unsafeToFuture().map { result =>
       if (result == 1) {
         Right("Successfully updated")
       } else {
