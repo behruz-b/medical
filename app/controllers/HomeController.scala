@@ -219,7 +219,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     authByRole(isAdmin || isManager || isDoctor) {
       val pageReq = PageReq(page = page, size = pageSize)
       val analyseType = (request.body \ "analyseType").as[String]
-      (patientManager ? GetPatients(analyseType, pageReq)).mapTo[Either[String, PageRes[Patient]]].map {
+      val dateRangeStart = (request.body \ "dateRangeStart").asOpt[String].flatMap(v => if (v.trim.isBlank) None else v.some)
+      val dateRangeEnd = (request.body \ "dateRangeEnd").asOpt[String].flatMap(v => if (v.trim.isBlank) None else v.some)
+      logger.debug(s"saddad: $analyseType")
+      logger.debug(s"saddad: $dateRangeStart")
+      logger.debug(s"saddad $dateRangeEnd")
+      (patientManager ? GetPatients(analyseType,parseStringToDateTime(dateRangeStart), parseStringToDateTime(dateRangeEnd),pageReq)).mapTo[Either[String, PageRes[Patient]]].map {
         case Right(p) => Ok(Json.toJson(p))
         case Left(r) => BadRequest(r.toString)
       }.recover {
@@ -229,6 +234,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       }
     }
   }
+
   def getPatientsTemplate(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isAdmin || isManager || isDoctor, language) {
       Ok(getPatientsTemp(isAuthorized, isManager, isAdmin, language))

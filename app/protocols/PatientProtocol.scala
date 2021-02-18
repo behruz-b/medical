@@ -126,7 +126,10 @@ object PatientProtocol {
 
   case class GetPatientByLogin(login: String, password: String)
 
-  case class GetPatients(analyseType: String = "MRT", pageReq: PageReq)
+  case class GetPatients(analyseType: String = "MRT",
+                         dateRangeStart: Option[LocalDate],
+                         dateRangeEnd: Option[LocalDate],
+                         pageReq: PageReq)
 
   case object GetStats
 

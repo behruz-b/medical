@@ -4,6 +4,8 @@ import protocols.AppProtocol.Paging.{PageReq, PageRes}
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{Roles, User}
 
+import java.time.LocalDate
+
 trait PatientRepositoryAlgebra[F[_]] {
 
   def create(patient: Patient): F[Int]
@@ -17,7 +19,7 @@ trait PatientRepositoryAlgebra[F[_]] {
   def getByCustomerId(customerId: String): fs2.Stream[F,Patient]
   def getPatientByLogin(login: String):fs2.Stream[F,Patient]
   def getUserByLogin(login: String):fs2.Stream[F,User]
-  def getPatients(analyseType: String, pageReq: PageReq): F[PageRes[Patient]]
+  def getPatients(analyseType: String,dateRangeStart: Option[LocalDate],dateRangeEnd: Option[LocalDate],pageReq: PageReq): F[PageRes[Patient]]
   def getStats: F[List[StatsAction]]
   def getPatientsDoc: F[List[GetPatientsDocById]]
   def getRoles: F[List[Roles]]

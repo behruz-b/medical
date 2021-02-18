@@ -3,7 +3,7 @@ package controllers
 import protocols.Authentication.{LoginSessionKey, SessionAttr}
 
 import java.security.SecureRandom
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import scala.util.Random
 
@@ -44,6 +44,13 @@ trait CommonMethods {
 
   def parseDate(dateStr: String, dateFormat: String = "dd/MM/yyyy"): LocalDate =
     LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(dateFormat))
+
+  def parseStringToDateTime(dateStrOpt: Option[String]): Option[LocalDate] = {
+    dateStrOpt.map { dateStr =>
+      val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+      LocalDate.parse(dateStr, formatter)
+    }
+  }
 
   def clearPhone: String => String = "[(|)|-]".r.replaceAllIn(_, "")
 }

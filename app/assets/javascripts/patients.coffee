@@ -6,11 +6,16 @@ $ ->
   apiUrl =
     patientsUrl: '/patient/get-patients'
 
+  defaultPatientFilter =
+    dateRangeFrom: ''
+    dateRangeTo: ''
+    analyseType: ''
+
   vm = ko.mapping.fromJS
     language: Glob.language
-    patients: []
-    analyseType: ''
+    patientsList: []
     customerId: ''
+    patientsFilter: defaultPatientFilter
 
   pageSize = 30
   currentPage = 1
@@ -53,7 +58,9 @@ $ ->
     console.log('customerId: ', vm.customerId())
     $('#analysisImage').modal('show')
 
-  vm.analyseType.subscribe ->
+  $('#datetimepicker1').datetimepicker()
+
+  vm.patientsFilter.analyseType.subscribe () ->
     getPatients()
 
   getPatients = (page) ->
@@ -61,12 +68,18 @@ $ ->
     if page
       pageParam += "&page=#{page}"
     reqUrl = "#{apiUrl.patientsUrl}?#{pageParam}"
-    $.post(reqUrl, JSON.stringify(analyseType: vm.analyseType()))
+    patient =
+      analyseType: vm.patientsFilter.analyseType()
+      dateRangeStart: vm.patientsFilter.dateRangeFrom()
+      dateRangeEnd: vm.patientsFilter.dateRangeTo()
+    console.log(patient)
+    $.post(reqUrl, JSON.stringify(patient))
     .fail handleError
     .done (response) ->
       $pagination.destroy?()
       initPagination(response.total, page)
-      vm.patients(response.items)
+      vm.patientsList(response.items)
+      console.log(vm.patientsList())
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4

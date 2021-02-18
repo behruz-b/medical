@@ -14,6 +14,7 @@ import protocols.PatientProtocol._
 import protocols.SecurityUtils.md5
 import util.StringUtil
 
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -54,8 +55,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     case GetPatientByLogin(login, password) =>
       getPatientByLogin(login, password).pipeTo(sender())
 
-    case GetPatients(analyseType, pageReq) =>
-      getPatients(analyseType, pageReq).pipeTo(sender())
+    case GetPatients(analyseType,dateRangeStart,dateRangeEnd, pageReq) =>
+      getPatients(analyseType,dateRangeStart,dateRangeEnd, pageReq).pipeTo(sender())
 
     case SendSmsToCustomer(customerId) =>
       sendSMS(customerId).pipeTo(sender())
@@ -151,8 +152,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def getPatients(analyseType: String, pageReq: PageReq): Future[Either[String,PageRes[Patient]]] = {
-    DoobieModule.repo.getPatients(analyseType, pageReq).unsafeToFuture().map{ patient =>
+  private def getPatients(analyseType: String,dateRangeStart: Option[LocalDate],dateRangeEnd: Option[LocalDate], pageReq: PageReq): Future[Either[String,PageRes[Patient]]] = {
+    DoobieModule.repo.getPatients(analyseType,dateRangeStart,dateRangeEnd, pageReq).unsafeToFuture().map{ patient =>
       Right(patient)
     }.recover {
       case error: Throwable =>

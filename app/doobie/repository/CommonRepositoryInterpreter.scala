@@ -8,6 +8,8 @@ import protocols.AppProtocol.Paging.{PageReq, PageRes}
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{Roles, User}
 
+import java.time.{LocalDate, LocalDateTime}
+
 trait CommonSQL {
 
   def create(patient: Patient): ConnectionIO[Int]
@@ -21,7 +23,7 @@ trait CommonSQL {
   def getByCustomerId(customerId: String): Query0[Patient]
   def getPatientByLogin(login: String): Query0[Patient]
   def getUserByLogin(login: String): Query0[User]
-  def getPatients(analyseType: String, pageReq: PageReq): ConnectionIO[PageRes[Patient]]
+  def getPatients(analyseType: String,dateRangeStart: Option[LocalDate],dateRangeEnd: Option[LocalDate], pageReq: PageReq): ConnectionIO[PageRes[Patient]]
   def getStats: ConnectionIO[List[StatsAction]]
   def getPatientsDoc: ConnectionIO[List[GetPatientsDocById]]
   def getRoles: ConnectionIO[List[Roles]]
@@ -66,8 +68,8 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def getUserByLogin(login: String): fs2.Stream[F,User] = {
     commonSql.getUserByLogin(login).stream.transact(xa)
   }
-  override def getPatients(analyseType: String, pageReq: PageReq): F[PageRes[Patient]] = {
-    commonSql.getPatients(analyseType, pageReq).transact(xa)
+  override def getPatients(analyseType: String,dateRangeStart: Option[LocalDate],dateRangeEnd: Option[LocalDate], pageReq: PageReq): F[PageRes[Patient]] = {
+    commonSql.getPatients(analyseType,dateRangeStart,dateRangeEnd, pageReq).transact(xa)
   }
   override def getStats: F[List[StatsAction]] = {
     commonSql.getStats.transact(xa)
