@@ -17,6 +17,7 @@ object Dependencies {
     val jQueryFileUpload = "9.10.1"
     val jQueryBlockUI = "2.70"
     val bootstrap = "4.5.0"
+    val datePicker = "2.4.4"
     val koMapping = "2.4.1"
     val knockout = "3.3.0"
     val toastr = "2.1.2"
@@ -89,6 +90,7 @@ object Dependencies {
       "org.webjars" %% "webjars-play" % Versions.playWebjars,
       "org.webjars" % "jquery" % Versions.jquery,
       "org.webjars" % "bootstrap" % Versions.bootstrap,
+      "org.webjars" % "bootstrap-datetimepicker" % Versions.datePicker,
       "org.webjars.bower" % "knockout-mapping" % Versions.koMapping,
       "org.webjars.bower" % "compass-mixins" % Versions.compass,
       "org.webjars" % "knockout" % Versions.knockout,
@@ -100,7 +102,8 @@ object Dependencies {
       "org.webjars" % "jquery-file-upload" % Versions.jQueryFileUpload,
       "org.webjars.bower" % "jquery-mask-plugin" % Versions.jQueryMask,
       "org.webjars" % "jquery-blockui" % Versions.jQueryBlockUI,
-      "org.webjars" % "popper.js" % Versions.popperJS
+      "org.webjars" % "popper.js" % Versions.popperJS,
+      "org.webjars.bower" % "twbs-pagination" % Versions.pagination exclude("org.webjars.bower", "jquery")
     )
   }
   val rootDependencies: Seq[ModuleID] = Seq(
