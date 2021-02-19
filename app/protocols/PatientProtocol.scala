@@ -15,8 +15,9 @@ object PatientProtocol {
     (__ \ fieldName).read[String].map(s => LocalDate.parse(s, DateTimeFormatter.ofPattern(dateFormat)))
 
   implicit def optLdtRead(fieldName: String, dateFormat: String = "yyyy-MM-dd HH:mm:ss"): Reads[Option[LocalDateTime]] = {
-    (__ \ fieldName).readNullable[String].map { optStr =>
-      optStr.fold(none[LocalDateTime])(s => LocalDateTime.parse(s, DateTimeFormatter.ofPattern(dateFormat)).some)
+    (__ \ fieldName).readNullable[String] map {
+      case Some(s) if StringUtils.isNotBlank(s) => LocalDateTime.parse(s, DateTimeFormatter.ofPattern(dateFormat)).some
+      case _ => None
     }
   }
 
