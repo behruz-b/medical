@@ -7,8 +7,8 @@ $ ->
     patientsUrl: '/patient/get-patients'
 
   defaultPatientFilter =
-    dateRangeFrom: ''
-    dateRangeTo: ''
+    startDate: ''
+    endDate: ''
     analyseType: ''
 
   vm = ko.mapping.fromJS
@@ -34,7 +34,7 @@ $ ->
       hideOnlyOnePage: true
       onPageClick: (event, page) ->
         if currentPage isnt page
-          getPatients(page)
+          vm.getPatients(null, page)
     )
     $pagination = $paginationEl.data('twbsPagination')
 
@@ -59,20 +59,27 @@ $ ->
     console.log('customerId: ', vm.customerId())
     $('#analysisImage').modal('show')
 
-  $('#datetimepicker1').datetimepicker()
+  $('#datetimepicker1').datetimepicker
+    format: 'yyyy-mm-dd HH:mm:ss'
+    autoclose: true
+
+  $('#datetimepicker2').datetimepicker
+    format: 'yyyy-mm-dd HH:mm:ss'
+    autoclose: true
 
   vm.patientsFilter.analyseType.subscribe ->
-    getPatients()
+    vm.getPatients(null, 1)
 
-  getPatients = (page) ->
+  vm.getPatients = (page) ->
+    console.log('page', page)
     pageParam = "pageSize=#{pageSize}"
     if page
       pageParam += "&page=#{page}"
     reqUrl = "#{apiUrl.patientsUrl}?#{pageParam}"
     patient =
       analyseType: vm.patientsFilter.analyseType()
-      dateRangeStart: vm.patientsFilter.dateRangeFrom()
-      dateRangeEnd: vm.patientsFilter.dateRangeTo()
+      startDate: vm.patientsFilter.startDate()
+      endDate: vm.patientsFilter.endDate()
     console.log(patient)
     $.post(reqUrl, JSON.stringify(patient))
     .fail handleError

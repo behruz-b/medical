@@ -45,10 +45,10 @@ trait CommonMethods {
   def parseDate(dateStr: String, dateFormat: String = "dd/MM/yyyy"): LocalDate =
     LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(dateFormat))
 
-  def parseStringToDateTime(dateStrOpt: Option[String]): Option[LocalDate] = {
+  def parseStringToDateTime(dateStrOpt: Option[String]): Option[LocalDateTime] = {
     dateStrOpt.map { dateStr =>
       val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-      LocalDate.parse(dateStr, formatter)
+      LocalDateTime.parse(dateStr, formatter)
     }
   }
 

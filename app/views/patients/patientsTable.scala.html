@@ -18,25 +18,31 @@
     <h2 class="text-white m-4"><span data-bind="text: vm.translate('patients')"></span></h2>
     <h4>Date Range</h4>
     <div class="row">
-      <div class="col-sm-3 mr-2">
+      <div class="col-sm-3 mr-4">
         <div class="form-group" >
-          <label class="control-label">From</label>
-          <div class='input-group date' id='datetimepicker1' data-bind="datetimepicker: startDate, dateTimePickerOptions: {format: 'DD/MM/YYYY', pickTime: false}">
-            <input type="date" class="form-control" data-bind="value: vm.patientsFilter.dateRangeFrom"/>
-            <span class="input-group-addon">
-              <span class="glyphicon glyphicon-calendar"></span>
+          <label class="col-sm-3" for="from">From</label>
+          <div class='input-append date form_datetime' id='datetimepicker1'>
+            <input type='text' id="from" value="" class="form-control" readonly data-bind="value: vm.patientsFilter.startDate"/>
+           <span class="add-on">
+              <i class="icon-th"></i>
             </span>
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
           </div>
         </div>
       </div>
       <div class="col-sm-3">
-        <div class="form-group" data-bind="datetimepicker: endDate, dateTimePickerOptions: {format: 'DD/MM/YYYY', pickTime: false}">
+        <div class="form-group">
           <label class="col-sm-3" for="to">To</label>
-          <input id="to" class="form-control" type="date" data-bind="value: vm.patientsFilter.dateRangeTo"/>
+          <div class='input-append date form_datetime' id='datetimepicker2'>
+            <input id="to" class="form-control" readonly value="" type='text' data-bind="value: vm.patientsFilter.endDate"/>
+            <span class="add-on">
+              <i class="icon-th"></i>
+            </span>
+          </div>
         </div>
       </div>
     </div>
-
+    <button type="button" class="btn btn-success" data-bind="click: function(){vm.getPatients()}">Date Range</button>
     <div class="row">
       <div class="col-sm-3 col-12 mb-4 mr-4">
         <label for="analysisType"></label>
