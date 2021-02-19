@@ -61,7 +61,7 @@ $ ->
 
   $('#datetimepicker1').datetimepicker()
 
-  vm.patientsFilter.analyseType.subscribe () ->
+  vm.patientsFilter.analyseType.subscribe ->
     getPatients()
 
   getPatients = (page) ->
