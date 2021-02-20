@@ -20,6 +20,7 @@ trait CommonSQL {
   def changePassword(login: String, newPass: String): Update0
   def addDeliveryStatus(customerId: String, deliveryStatus: String): Update0
   def addSmsLinkClick(customerId: String, smsLinkClick: String): Update0
+  def searchByPatientName(firstname: String): ConnectionIO[List[Patient]]
   def getByCustomerId(customerId: String): Query0[Patient]
   def getPatientByLogin(login: String): Query0[Patient]
   def getUserByLogin(login: String): Query0[User]
@@ -64,6 +65,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   }
   override def getByCustomerId(customerId: String): fs2.Stream[F,Patient] = {
     commonSql.getByCustomerId(customerId).stream.transact(xa)
+  }
+  override def searchByPatientName(firstName: String): F[List[Patient]] = {
+    commonSql.searchByPatientName(firstName).transact(xa)
   }
   override def getPatientByLogin(login: String): fs2.Stream[F,Patient] = {
     commonSql.getPatientByLogin(login).stream.transact(xa)

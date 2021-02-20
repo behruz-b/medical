@@ -156,6 +156,11 @@ object MessageSQL extends CommonSQL with LazyLogging {
     querySql.query[Patient]
   }
 
+  def searchByPatientName(firstname: String): ConnectionIO[List[Patient]] = {
+    val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone, sms_link_click, analysis_image_name, patients_doc_id FROM "Patients" WHERE firstname = $firstname"""
+    querySql.query[Patient].to[List]
+  }
+
   def getPatientByLogin(login: String): doobie.Query0[Patient] = {
     val querySql = fr"""select created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone, sms_link_click, analysis_image_name, patients_doc_id FROM "Patients" WHERE login = $login"""
     querySql.query[Patient]

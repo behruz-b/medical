@@ -69,6 +69,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     case CheckSmsDeliveryStatus(requestId, customerId) =>
       checkSmsDeliveryStatus(requestId, customerId).pipeTo(sender())
 
+    case SearchByPatientName(firstname) =>
+      searchByPatientName(firstname).pipeTo(sender())
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
@@ -240,6 +242,17 @@ class PatientManager @Inject()(val configuration: Configuration,
     }.recover {
       case e =>
         logger.error("Error occurred while sending SMS to sms provider", e)
+    }
+  }
+
+  private def searchByPatientName(firstname: String): Future[Either[String, List[Patient]]] = {
+    DoobieModule.repo.searchByPatientName(firstname).unsafeToFuture()
+      .map { patients =>
+        Right(patients)
+    }.recover {
+      case error: Throwable =>
+        logger.error("Error occurred while get patient by customer id", error)
+        Left("Error happened while requesting patient")
     }
   }
 

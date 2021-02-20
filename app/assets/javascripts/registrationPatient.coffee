@@ -11,6 +11,7 @@ $ ->
     getUziType: '/patient/get-uzi-type'
     getLabType: '/patient/get-lab-type'
     getPatientsDoc: '/patient/get-patients-doc'
+    searchByPatientName: '/patient/search-patient-name'
 
   defaultPatient =
     firstName: ''
@@ -38,6 +39,7 @@ $ ->
     selectedMskt: ''
     selectedUzi: ''
     selectedLaboratory: ''
+    searchByPatientNameReport: []
 
   handleError = (error) ->
     $.unblockUI()
@@ -94,6 +96,13 @@ $ ->
     .done (response) ->
       vm.getLabTypeList(response)
   getLabType()
+
+  vm.patient.firstName.subscribe (e) ->
+    if e
+      $.post('/patient/search-patient-name/' + e)
+      .fail handleError
+      .done (response) ->
+        vm.searchByPatientNameReport(response)
 
   vm.onSubmit = ->
     toastr.clear()
@@ -276,6 +285,12 @@ $ ->
       "Вы зарегистрированы по ID:"
       "Sizning ID:"
       "Сизнинг ID:"
+    ]
+    existingPatients: [
+      "Existing patients"
+      "Существующие пациенты"
+      "Mavjud bemorlar"
+      "Мавжуд беморлар"
     ]
 
   ko.applyBindings {vm}

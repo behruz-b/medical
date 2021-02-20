@@ -8,7 +8,7 @@
   </script>
   @navbar(isAuthorized, isManager, isAdmin)
   <div class="row box-align-center">
-    <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
+    <div class="offset-lg-2 col-lg-5 col-sm-8 p-4">
       <h2 class="text-white"><span data-bind="text: vm.translate('registrationForm')"></span></h2>
       <form name="register_form" class="row">
         <div class="form-group col-sm-6 col-12">
@@ -69,6 +69,18 @@
           </div>
         </div>
       </form>
+    </div>
+
+    <div class="offset-lg-1 col-lg-3 col-sm-4 p-4">
+        <!-- ko if: vm.searchByPatientNameReport().length > 0 -->
+      <h2 class="text-white"><span data-bind="text: vm.translate('existingPatients')"></span></h2>
+        <!-- /ko -->
+      <div class="list-group mt-3" data-bind="foreach: vm.searchByPatientNameReport">
+        <a href="#" class="list-group-item list-group-item-action">
+          <span data-bind="text: $data.firstname"></span>
+          <span data-bind="text: $data.lastname"></span>
+        </a>
+      </div>
     </div>
   </div>
 

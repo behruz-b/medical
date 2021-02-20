@@ -24,6 +24,8 @@ trait PatientRepositoryAlgebra[F[_]] {
 
   def addSmsLinkClick(customerId: String, smsLinkClick: String): F[Int]
 
+  def searchByPatientName(firstname: String): F[List[Patient]]
+
   def getByCustomerId(customerId: String): fs2.Stream[F, Patient]
 
   def getPatientByLogin(login: String): fs2.Stream[F, Patient]

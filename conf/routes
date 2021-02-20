@@ -26,6 +26,7 @@ GET     /patient/get-mrt-type                                   @controllers.Hom
 GET     /patient/get-mskt-type                                  @controllers.HomeController.getMsktType
 GET     /patient/get-uzi-type                                   @controllers.HomeController.getUziType
 GET     /patient/get-lab-type                                   @controllers.HomeController.getLabType
+POST    /patient/search-patient-name/:firstname                 @controllers.PatientController.searchByPatientName(firstname)
 
 GET     /stats/                                                 @controllers.HomeController.getStatisticTemplate(language = "cy")
 GET     /stats/get-stats                                        @controllers.HomeController.getStats

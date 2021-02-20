@@ -161,6 +161,8 @@ object PatientProtocol {
 
   case class CheckSmsDeliveryStatus(requestId: String, customerId: String)
 
+  case class SearchByPatientName(firstname: String)
+
   val analysisType = List(
     "MRT",
     "MSKT",

@@ -262,6 +262,18 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
     }
   }
 
+  def searchByPatientName(firstname: String): Action[AnyContent] = Action.async { _ =>
+    (patientManager ? SearchByPatientName(firstname)).mapTo[Either[String, List[Patient]]].map {
+      case Right(patients) =>
+        Ok(Json.toJson(patients))
+      case Left(e) => BadRequest(e)
+    }.recover {
+      case e =>
+        logger.error("Error while getting patient", e)
+        BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+    }
+  }
+
   private def generateCustomerId = randomStr(1).toUpperCase + "-" + getRandomDigits(3)
 
   private def generatePassword = getRandomPassword(7)
