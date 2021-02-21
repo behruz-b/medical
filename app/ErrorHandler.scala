@@ -76,7 +76,7 @@ class ErrorHandler @Inject()(implicit val webJarsUtil: WebJarsUtil,
 
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
     Future.successful(
-      InternalServerError("")
+      InternalServerError("Something went wrong! Please try again.")
     )
   }
 

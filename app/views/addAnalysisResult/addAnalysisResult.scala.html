@@ -16,7 +16,7 @@
     <div class="row box-align-center">
       <div class="col-lg-4 offset-lg-2 offset-sm-2 col-sm-8 p-4">
         <h2 class="text-white"><span data-bind="text: vm.translate('addAnalysisResult')"></span></h2>
-        <form name="register_form" id="patient-form" class="row" action="@routes.HomeController.uploadAnalysisResult()" method="post" enctype="multipart/form-data">
+        <form name="register_form" id="patient-form" class="row" action="@routes.PatientController.uploadAnalysisResult()" method="post" enctype="multipart/form-data">
           <div class="form-group col-sm-6 col-12">
             <input class="form-control input-box" type="text" id="id" data-bind="value: vm.patient.id" name="id" value="" onchange="this.setAttribute('value', this.value);">
             <label for="id" class="label">ID</label>

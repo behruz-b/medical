@@ -43,10 +43,10 @@ object Authentication extends CommonMethods {
   val loginPatterns: Map[String, Login] = Vector(
       Login("/reg/", routes.HomeController.registerPage(), createSessionAttr(Set(RegRole, ManagerRole, AdminRole))),
       Login("/admin/", routes.HomeController.admin(), createSessionAttr(Set(AdminRole))),
-      Login("/doc/", routes.HomeController.addAnalysisResult(), createSessionAttr(Set(DoctorRole, ManagerRole, AdminRole))),
-      Login("/patient/", routes.HomeController.getPatientsTemplate(), createSessionAttr(Set(ManagerRole, AdminRole))),
+      Login("/doc/", routes.PatientController.addAnalysisResult(), createSessionAttr(Set(DoctorRole, ManagerRole, AdminRole))),
+      Login("/patient/", routes.PatientController.getPatientsTemplate(), createSessionAttr(Set(ManagerRole, AdminRole))),
       Login("/stats/", routes.HomeController.getStatisticTemplate(), createSessionAttr(Set(AdminRole))),
-      Login("/doctors/", routes.HomeController.patientsDocPage(), createSessionAttr(Set(RegRole, ManagerRole, AdminRole))),
+      Login("/doctors/", routes.PatientController.patientsDocPage(), createSessionAttr(Set(RegRole, ManagerRole, AdminRole))),
       Login("/change-password/", routes.HomeController.changePass(), createSessionAttr(Set(RegRole, DoctorRole, ManagerRole, AdminRole)))
     ).map(l => l.rootPath -> l).toMap
 }
