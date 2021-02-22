@@ -68,26 +68,21 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
     }
   }
 
-  def analysisResultWithStats(customerId: String): Action[AnyContent] = Action.async { implicit request =>
-    (patientManager ? GetPatientByCustomerId(customerId)).mapTo[Either[String, Patient]].map {
+  def getAnalysisResultsAndSafeStats(customerId: String): Action[AnyContent] = Action.async { implicit request =>
+    (patientManager ? GetAnalysisResultsByCustomerId(customerId)).mapTo[Either[String, PatientAnalysisResult]].map {
       case Right(patient) =>
-        if (patient.analysis_image_name.isDefined) {
+        logger.debug("sdsad")
           val stats = StatsAction(LocalDateTime.now, request.host, "result_sms_click", getRemoteAddress,
-            login = patient.customer_id, getUserAgent)
+            login = patient.customerId, getUserAgent)
           statsManager ! AddStatsAction(stats)
-          val patientStats = AddSmsLinkClick(customerId = patient.customer_id, smsLinkClick = "click")
+          val patientStats = AddSmsLinkClick(customerId = patient.customerId, smsLinkClick = "click")
           patientManager ! patientStats
-          Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysis_image_name.get))
-        } else {
-          logger.error("Error while getting analysis file name")
-          BadRequest("So'ralgan bemor tekshirinuv natijasi topilmadi!")
-        }
-      case Left(e) => BadRequest(e)
-    }.recover {
-      case e =>
-        logger.error("Error while getting patient", e)
-        BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
-    }
+          Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysisFileName))
+      case Left(e) =>
+        logger.debug("asdas")
+        BadRequest(e)
+    }.recover(handleErrorWithStatus("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!",
+    "Error while getting patient"))
   }
 
   def createDoctor: Action[DoctorForm] = Action.async(parse.json[DoctorForm]) { implicit request =>
@@ -114,7 +109,8 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
           Ok(Json.toJson("Successfully added"))
         case Left(error) =>
           BadRequest(error)
-      }.recover(handleErrorWithStatus("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!", "Error while creating doctor"))
+      }.recover(handleErrorWithStatus("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!",
+        "Error while creating doctor"))
     }
   }
 
@@ -190,7 +186,7 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
                   logger.error("Error while parsing tempFilePath", e)
               }
               (for {
-                _ <- EitherT((patientManager ? AddAnalysisResult(customerId, analysisFileName)).mapTo[Either[String, String]])
+                _ <- EitherT((patientManager ? PatientAnalysisResult(analysisFileName, LocalDateTime.now, customerId)).mapTo[Either[String, String]])
                 _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
               } yield {
                 val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", getRemoteAddress, getUserLogin, getUserAgent)

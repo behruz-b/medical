@@ -42,14 +42,17 @@ class PatientManager @Inject()(val configuration: Configuration,
     case CreatePatient(patient) =>
       createPatient(patient).pipeTo(sender())
 
-    case AddAnalysisResult(customerId, analysisFileName) =>
-      addAnalysisResult(customerId, analysisFileName).pipeTo(sender())
+    case PatientAnalysisResult(analysisFileName, created_at,customerId) =>
+      addAnalysisResult(analysisFileName, created_at,customerId).pipeTo(sender())
 
     case AddSmsLinkClick(customerId, smsLinkClick) =>
       addSmsLinkClick(customerId, smsLinkClick).pipeTo(sender())
 
     case GetPatientByCustomerId(customerId) =>
       getPatientByCustomerId(customerId).pipeTo(sender())
+
+    case GetAnalysisResultsByCustomerId(customerId) =>
+      getAnalysisResultsByCustomerId(customerId).pipeTo(sender())
 
     case GetPatientByLogin(login, password) =>
       getPatientByLogin(login, password).pipeTo(sender())
@@ -97,6 +100,21 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
+  private def getAnalysisResultsByCustomerId(customerId: String): Future[Either[String, PatientAnalysisResult]] = {
+    DoobieModule.repo.getAnalysisResultsByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
+      if (patient.isDefined) {
+        Right(patient.get)
+      } else {
+        logger.debug("asdas")
+        Left("Error happened while requesting patient")
+      }
+    }.recover {
+      case error: Throwable =>
+        logger.error("Error occurred while get patient by customer id", error)
+        Left("Error happened while requesting patient")
+    }
+  }
+
   private def checkCustomerId(customerId: String): Future[Either[String, Patient]] = {
     DoobieModule.repo.getByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
       if (patient.isDefined) {
@@ -125,13 +143,15 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def addAnalysisResult(customerId: String, analysisFileName: String): Future[Either[String, String]] = {
-    DoobieModule.repo.addAnalysisResult(customerId, analysisFileName).unsafeToFuture().map { result =>
-      if (result == 1) {
-        Right("Successfully")
-      } else {
-        Left("Error while adding Analysis File to DB")
-      }
+  private def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String): Future[Either[String, String]] = {
+    getPatientByCustomerId(customerId).flatMap {
+      case Right(patient) =>
+        DoobieModule.repo.addAnalysisResult(analysisFileName, created_at, patient.customer_id).unsafeToFuture().map { _ =>
+          Right("Successfully added")
+        }
+      case Left(e) =>
+        logger.error(s"Error happened", e)
+        Future.successful(Left("Error occurred while sending analyse to DB"))
     }.recover {
       case e: Throwable =>
         logger.error("Error occurred while add analysis result.", e)

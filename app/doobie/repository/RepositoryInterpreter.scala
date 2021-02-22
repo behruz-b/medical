@@ -141,9 +141,11 @@ object MessageSQL extends CommonSQL with LazyLogging {
           values $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 
-  def addAnalysisResult(customerId: String, analysisFileName: String): Update0 = {
-    sql"""UPDATE "Patients" SET analysis_image_name=$analysisFileName
-          WHERE customer_id=$customerId""".update
+  def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String): doobie.ConnectionIO[Int] = {
+    val values = fr"(${analysisFileName},${javaLdTime2JavaSqlTimestamp(created_at)}, ${customerId})"
+
+    sql"""insert into "Analysis_Results" (analysis_image_name, created_at, customer_id)
+          values $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 
   def changePassword(login: String, newPass: String): Update0 = {
@@ -154,6 +156,11 @@ object MessageSQL extends CommonSQL with LazyLogging {
   def getByCustomerId(customerId: String): Query0[Patient] = {
     val querySql = fr"""SELECT created_at,firstname,lastname,phone,customer_id,company_code,login,password,address,date_of_birth,analysis_type,analysis_group,doc_full_name,doc_phone, sms_link_click, analysis_image_name, patients_doc_id FROM "Patients" WHERE customer_id = $customerId"""
     querySql.query[Patient]
+  }
+
+  def getAnalysisResultsByCustomerId(customerId: String): Query0[PatientAnalysisResult] = {
+    val querySql = fr"""SELECT analysis_image_name,created_at,customer_id  FROM "Analysis_Results" WHERE customer_id = $customerId"""
+    querySql.query[PatientAnalysisResult]
   }
 
   def searchByPatientName(firstname: String): ConnectionIO[List[Patient]] = {

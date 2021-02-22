@@ -136,11 +136,16 @@ object PatientProtocol {
 
   case class AddPatientsDoc(patientsDoc: PatientsDoc)
 
-  case class AddAnalysisResult(customerId: String, analysisFileName: String)
+  case class PatientAnalysisResult(analysisFileName: String,
+                               created_at: LocalDateTime,
+                               customerId: String)
+  implicit val formatPatientAnalysisResults: OFormat[PatientAnalysisResult] = Json.format[PatientAnalysisResult]
 
   case class AddSmsLinkClick(customerId: String, smsLinkClick: String)
 
   case class GetPatientByCustomerId(customerId: String)
+
+  case class GetAnalysisResultsByCustomerId(customerId: String)
 
   case class GetPatientByLogin(login: String, password: String)
 

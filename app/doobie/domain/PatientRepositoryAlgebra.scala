@@ -16,7 +16,7 @@ trait PatientRepositoryAlgebra[F[_]] {
 
   def addPatientsDoc(patientsDoc: PatientsDoc): F[Int]
 
-  def addAnalysisResult(customerId: String, analysisFileName: String): F[Int]
+  def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String): F[Int]
 
   def changePassword(login: String, newPass: String): F[Int]
 
@@ -27,6 +27,8 @@ trait PatientRepositoryAlgebra[F[_]] {
   def searchByPatientName(firstname: String): F[List[Patient]]
 
   def getByCustomerId(customerId: String): fs2.Stream[F, Patient]
+
+  def getAnalysisResultsByCustomerId(customerId: String): fs2.Stream[F, PatientAnalysisResult]
 
   def getPatientByLogin(login: String): fs2.Stream[F, Patient]
 
