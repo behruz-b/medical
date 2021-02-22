@@ -59,6 +59,9 @@ $ ->
     console.log('customerId: ', vm.customerId())
     $('#analysisImage').modal('show')
 
+  $(document).on 'click', '.customer-info-by-customer-id', (e) ->
+    $('.customer-info').modal('show')
+
   $('#datetimepicker1').datetimepicker
     format: 'yyyy-mm-dd HH:mm:ss'
     autoclose: true
