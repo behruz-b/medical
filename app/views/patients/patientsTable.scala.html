@@ -70,7 +70,7 @@
                         </tr>
                     </thead>
                     <tbody data-bind="foreach: vm.patientsList()">
-                        <tr>
+                        <tr data-bind="attr: {'data-customer-id': $data.customer_id}">
                             <td class="customer-info-by-customer-id" data-bind="text: $root.vm.convertStringToDate($data.created_at)"></td>
                             <td class="customer-info-by-customer-id" data-bind="text: $data.firstname"></td>
                             <td class="customer-info-by-customer-id" data-bind="text: $data.lastname"></td>
@@ -113,7 +113,7 @@
 
         <div id="orderModal" class="modal fade customer-info" role="dialog" aria-labelledby="orderModal" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content" data-bind="with: vm.selectedPatientsList(), as: $data">
                     <div class="modal-header">
                         <h3>CustomerId: <span data-bind="text: $data.customer_id"></span></h3>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
@@ -122,12 +122,12 @@
                         <table class="table table-bordered table-striped table-hover table-active bg-white overflow-auto">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th><span data-bind="text: vm.translate('createdAt')"></span></th>
-                                    <th><span data-bind="text: vm.translate('analysisType')"></span></th>
-                                    <th><span data-bind="text: vm.translate('analysisResult')"></span></th>
+                                    <th><span data-bind="text: $root.vm.translate('createdAt')"></span></th>
+                                    <th><span data-bind="text: $root.vm.translate('analysisType')"></span></th>
+                                    <th><span data-bind="text: $root.vm.translate('analysisResult')"></span></th>
                                 </tr>
                             </thead>
-                            <tbody data-bind="foreach: vm.patientsList()">
+                            <tbody>
                                 <tr>
                                     <td data-bind="text: $root.vm.convertStringToDate($data.created_at)"></td>
                                     <td data-bind="text: $data.analyseType"></td>

@@ -14,6 +14,7 @@ $ ->
   vm = ko.mapping.fromJS
     language: Glob.language
     patientsList: []
+    selectedPatientsList: []
     customerId: ''
     patientsFilter: defaultPatientFilter
 
@@ -60,6 +61,9 @@ $ ->
     $('#analysisImage').modal('show')
 
   $(document).on 'click', '.customer-info-by-customer-id', (e) ->
+    customerId = $(e.currentTarget).closest('tr').data('customer-id')
+    msg = ko.utils.arrayFirst(vm.patientsList(), (items) -> items.customer_id is customerId)
+    vm.selectedPatientsList(msg)
     $('.customer-info').modal('show')
 
   $('#datetimepicker1').datetimepicker
