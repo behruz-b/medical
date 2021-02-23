@@ -116,7 +116,7 @@ object MessageSQL extends CommonSQL with LazyLogging {
   }
 
   def addSmsLinkClick(customerId: String, smsLinkClick: String): Update0 = {
-    sql"""UPDATE "Patients" SET sms_link_click=$smsLinkClick
+    sql"""UPDATE "Analysis_Results" SET sms_link_click=$smsLinkClick
           WHERE customer_id=$customerId""".update
   }
 
