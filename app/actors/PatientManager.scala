@@ -29,6 +29,7 @@ class PatientManager @Inject()(val configuration: Configuration,
   private val apiStatus = smsConfig.get[String]("api_status")
   private val SmsLogin = smsConfig.get[String]("login")
   private val SmsPassword = smsConfig.get[String]("password")
+  private val HostName = configuration.get[String]("HostName")
 
   // For testing purpose test DB
   //  override def preStart: Unit = {
@@ -162,7 +163,7 @@ class PatientManager @Inject()(val configuration: Configuration,
   private def sendSMS(customerId: String): Future[Either[String, String]] = {
     getPatientByCustomerId(customerId).flatMap {
       case Right(p) =>
-        actualSendingSMS(p.phone,SmsText(customerId), customerId)
+        actualSendingSMS(p.phone,SmsText(customerId, HostName), customerId)
       case Left(e) =>
         logger.error(s"Error happened", e)
         Future.successful(Left("Error occurred while sending SMS to Customer"))
@@ -237,5 +238,4 @@ class PatientManager @Inject()(val configuration: Configuration,
         logger.error("Error occurred while sending SMS to sms provider", e)
     }
   }
-
 }

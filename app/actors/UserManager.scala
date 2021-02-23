@@ -32,6 +32,7 @@ class UserManager @Inject()(val configuration: Configuration,
   private val apiStatus = smsConfig.get[String]("api_status")
   private val SmsLogin = smsConfig.get[String]("login")
   private val SmsPassword = smsConfig.get[String]("password")
+  private val HostName = configuration.get[String]("HostName")
 
   override def receive: Receive = {
     case CheckUserByLogin(login, password) =>
@@ -116,7 +117,7 @@ class UserManager @Inject()(val configuration: Configuration,
         if (p.docPhone.isDefined) {
           val statsAction = StatsAction(LocalDateTime.now, "-", "doc_send_sms", "-", "-", "-")
           statsManager ! AddStatsAction(statsAction)
-          actualSendingSMS(p.docPhone.get, SmsTextDoc(customerId))
+          actualSendingSMS(p.docPhone.get, SmsTextDoc(customerId, HostName))
         } else {
           Future.successful(Right("Message not sent to doctor"))
         }

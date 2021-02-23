@@ -228,10 +228,10 @@ object PatientProtocol {
    * }}}
    */
 
-  val SmsText: String => String = (customerId: String) =>
+  val SmsText: (String, String) => String = (customerId: String, hostName: String) =>
     s"Sizga katta rahmat bizning 'Elegant Farm' Diagnostika Markaziga tashrif buyurganingiz uchun, sizning" +
       s" sog'liqingiz biz uchun juda muhim.\\nTibbiy xulosangizni quyidagi havola orqali olishingiz mumkin:" +
-      s"\\nhttp://elegant-farm.uz/r/$customerId"
+      s"\\nhttp://$hostName.uz/r/$customerId"
 
   val SmsTextForPatientId: String => String = (customerId: String) =>
     s"'Elegant Farm' Diagnostika Markazi\\nSiz ro'yxatdan o'tdingiz sizning ID: $customerId"
