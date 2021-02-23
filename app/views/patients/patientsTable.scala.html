@@ -15,8 +15,7 @@
     </script>
     @navbar(isAuthorized, isManager, isAdmin)
     <div class="container bg-secondary">
-        <h2 class="text-white m-4"><span data-bind="text: vm.translate('patients')"></span></h2>
-        <h4>Date Range</h4>
+        <h2 class="text-white "><span data-bind="text: vm.translate('patients')"></span></h2>
         <div class="row">
             <div class="col-sm-3 mr-4">
                 <div class="form-group" >
@@ -42,7 +41,7 @@
                 </div>
             </div>
         </div>
-        <button type="button" class="btn btn-success" data-bind="click: function(){vm.getPatients()}">Date Range</button>
+        <button type="button" class="btn btn-success" data-bind="click: function(){vm.getPatients()}">Qidirish</button>
         <div class="row">
             <div class="col-sm-3 col-12 mb-4 mr-4">
                 <label for="analysisType"></label>
