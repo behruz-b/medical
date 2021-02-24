@@ -32,33 +32,124 @@
           <label for="address" class="label"><span data-bind="text: vm.translate('address')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="analysisType" data-bind="options: vm.getAnalysisTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.patient.analysisType, optionsCaption: vm.translate('analysisType')" autocomplete="off"></select>
+          <select multiple class="custom-select selectpicker form-control" data-bind="attr: {'data-none-selected-text': vm.translate('analysisType')}, selectPicker: vm.patient.analysisType,
+            selectPickerOptions: {optionsArray: vm.getAnalysisTypeList}, optionsValue: $data, optionsText: $data" data-show-subtext="true">
+          </select>
+          @*<select class="select form-control bg-white" id="analysisType" data-bind="options: vm.getAnalysisTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.patient.analysisType, optionsCaption: vm.translate('analysisType')" autocomplete="off"></select>*@
         </div>
-          <!-- ko if: vm.patient.analysisType() == 'MRT' -->
+        <div data-bind="text: vm.patient.analysisType"></div>
+@*          <!-- ko if: vm.patient.analysisType() == 'MRT' -->*@
+@*        <div class="form-group col-sm-6 col-12">*@
+@*          <select class="select form-control bg-white" id="mrtType" data-bind="options: vm.getMrtTypeList,*@
+@*           optionsText: $data, optionsValue: $data, value: vm.selectedMrt, optionsCaption: vm.translate('mrtType')" autocomplete="off"></select>*@
+@*        </div>*@
+@*          <!-- /ko -->*@
+          <!-- ko if: vm.patient.analysisType() -->
         <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="mrtType" data-bind="options: vm.getMrtTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.selectedMrt, optionsCaption: vm.translate('mrtType')" autocomplete="off"></select>
+          <select class="selectpicker select form-control" data-bind="value: vm.patient.analysisGroup">
+            <optgroup data-bind="attr: {label: vm.translate('mrtType')}, foreach: appNameWithRole.roles">
+              <option data-bind="text: $data.name, value: $data.code"></option>
+            </optgroup>
+          </select>
+
+
+          <select class="selectpicker select form-control" data-bind="value: vm.patient.analysisGroup">
+              <!-- ko if: vm.patient.analysisType().contains('MRT') -->
+            <optgroup data-bind="attr: {'label': vm.translate('mrtType')}">
+              <option>Bosh miya</option>
+              <option>Bosh miya, Ko'z, Quloq, Burun bo'shliqlari, Ginofiz, Qon tomirlari</option>
+              <option>Bo'yin umurtqalari, Orqa miya</option>
+              <option>Bo'yin umurtqalari, Orqa miya, Qon tomirlari</option>
+              <option>Ko'krak umurtqalari, Orqa miya</option>
+              <option>Bel umurtqalari, Orqa miya</option>
+              <option>Qorin bo'shligi, Jigar, Taloq, O't puffagi qo'llari, Oshqozon osti bezi, Buyraklar</option>
+              <option>Buyrak usti bezlari, Tizza</option>
+              <option>Qo'l oyoq bo'g'imlari</option>
+              <option>Chanoq son bo'g'imlari, Tizza</option>
+              <option>Ayollar kichik chanoq a'zolari</option>
+              <option>Erkaklar kichik chanoq a'zolari</option>
+              <option>Bo'yin yumshoq to'qimalari</option>
+              <option>Tana a'zolarini umumiy MRT tekshiruvi</option>
+              <option>MRT kontrasi 'Magnilik</option>
+            </optgroup>
+              <!-- /ko -->
+              <!-- ko if: vm.patient.analysisType().contains('MSKT') -->
+            <optgroup data-bind="attr: {'label': vm.translate('msktType')}">
+              <option>Bosh miya, Ko'z, Quloq, Burun bo'shliqlari</option>
+              <option>Bo'yin umurtqalari</option>
+              <option>Ko'krak umurtqalari</option>
+              <option>Ko'krak qafasi</option>
+              <option>Bel umurtqalari</option>
+              <option>Buyrak usti bezlari</option>
+              <option>Qo'l oyoq bo'g'imlari</option>
+              <option>Chanoq son bo'g'inlari</option>
+              <option>Ayollar kichik chanoq a'zolari</option>
+              <option>Erkaklar kichik chanoq a'zolari</option>
+              <option>Qorin bo'shligi, Jigar, Taloq, O't pufagi qo'llari, Oshqozon osti bezi, Buyraklar</option>
+              <option>Buyraklar, Siydik yo'llari, Siydik pufagi</option>
+              <option>Kuks orligi a'zolari (Qizil ungach)</option>
+            </optgroup>
+              <!-- /ko -->
+              <!-- ko if: vm.patient.analysisType().contains('UZI') -->
+            <optgroup data-bind="attr: {'label': vm.translate('uziType')}">
+              <option>Осмотр печени ж/п селезенки</option>
+              <option>Поджелудочные железы</option>
+              <option>Осмотр мочевого пузырья, придаткой матки в.т.ч</option>
+              <option>Осмотр почек</option>
+              <option>Осмотр простаты</option>
+              <option>Осмотр щитовидной железы</option>
+              <option>Осмотр плевральной полости</option>
+              <option>УЗИ общее(печень, ж/п, селезенка, матка, яичники, м/п, почки)</option>
+              <option>УЗИ общее(печень, ж/п, селезенка, м/п, простата, почки)</option>
+              <option>Вагинальные исследования</option>
+              <option>Узи беременность</option>
+              <option>КУКС</option>
+            </optgroup>
+              <!-- /ko -->
+              <!-- ko if: vm.patient.analysisType().contains('Laboratoriya') -->
+            <optgroup data-bind="attr: {'label': vm.translate('labType')}">
+              <option>Общий анализ крови ОАК</option>
+              <option>Время свертываемости крови ВСК</option>
+              <option>Протромбиновое время ПТИ МНО</option>
+              <option>АЧТВ</option>
+              <option>Протромбиновое время, соотношение</option>
+              <option>ПТН</option>
+              <option>Протромбиновое время</option>
+              <option>HBsAg (Гепатит В)</option>
+              <option>HCV (Гепатит С)</option>
+              <option>Антистрептолизин-О (АСЛО)</option>
+              <option>С-реактивный белок (СРБ)</option>
+              <option>Ревматоидный фактор (РФ)</option>
+              <option>Общий белок</option>
+              <option>Билирубин (общий, прямой, непрямой</option>
+              <option>Аланиноминотрансфераза (АЛТ)</option>
+              <option>Аспартатаминотрансфераза (АСТ)</option>
+              <option>Креатинин</option>
+              <option>Мочевина</option>
+            </optgroup>
+              <!-- /ko -->
+          </select>
         </div>
           <!-- /ko -->
-          <!-- ko if: vm.patient.analysisType() == 'MSKT' -->
-        <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="msktType" data-bind="options: vm.getMsktTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.selectedMskt, optionsCaption: vm.translate('msktType')" autocomplete="off"></select>
-        </div>
-          <!-- /ko -->
-          <!-- ko if: vm.patient.analysisType() == 'UZI' -->
-        <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="uziType" data-bind="options: vm.getUziTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.selectedUzi, optionsCaption: vm.translate('uziType')" autocomplete="off"></select>
-        </div>
-          <!-- /ko -->
-          <!-- ko if: vm.patient.analysisType() == 'Laboratoriya' -->
-        <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="labType" data-bind="options: vm.getLabTypeList,
-           optionsText: $data, optionsValue: $data, value: vm.selectedLaboratory, optionsCaption: vm.translate('labType')" autocomplete="off"></select>
-        </div>
-          <!-- /ko -->
+@*          <!-- ko if: vm.patient.analysisType() == 'MSKT' -->*@
+@*        <div class="form-group col-sm-6 col-12">*@
+@*          <select class="select form-control bg-white" id="msktType" data-bind="options: vm.getMsktTypeList,*@
+@*           optionsText: $data, optionsValue: $data, value: vm.selectedMskt, optionsCaption: vm.translate('msktType')" autocomplete="off"></select>*@
+@*        </div>*@
+@*          <!-- /ko -->*@
+@*          <!-- ko if: vm.patient.analysisType() == 'UZI' -->*@
+@*        <div class="form-group col-sm-6 col-12">*@
+@*          <select class="select form-control bg-white" id="uziType" data-bind="options: vm.getUziTypeList,*@
+@*           optionsText: $data, optionsValue: $data, value: vm.selectedUzi, optionsCaption: vm.translate('uziType')" autocomplete="off"></select>*@
+@*        </div>*@
+@*          <!-- /ko -->*@
+@*          <!-- ko if: vm.patient.analysisType() == 'Laboratoriya' -->*@
+@*        <div class="form-group col-sm-6 col-12">*@
+@*          <select class="select form-control bg-white" id="labType" data-bind="options: vm.getLabTypeList,*@
+@*           optionsText: $data, optionsValue: $data, value: vm.selectedLaboratory, optionsCaption: vm.translate('labType')" autocomplete="off"></select>*@
+@*        </div>*@
+@*          <!-- /ko -->*@
         <div class="form-group col-sm-6 col-12">
           <select class="select form-control bg-white" id="patientsDoc" data-bind="options: vm.getPatientsDocList,
            optionsText: 'fullname', optionsValue: 'id', value: vm.patient.docId, optionsCaption: vm.translate('selectDoctor')" autocomplete="off"></select>

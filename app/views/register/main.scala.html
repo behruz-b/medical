@@ -8,11 +8,14 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     @webJarsUtil.locate("css/bootstrap.min.css").css()
+    @webJarsUtil.locate("css/bootstrap-select.css").css()
     @webJarsUtil.locate("css/all.css").css()
     @webJarsUtil.locate("toastr.css").css()
-    <link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/style.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/style.css")">
+    <link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/select-multiple.css")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
     @webJarsUtil.locate("jquery.js").script()
+    @webJarsUtil.locate("popper.js/1.16.0/umd/popper.min.js").script()
     @webJarsUtil.locate("js/bootstrap.min.js").script()
     @webJarsUtil.locate("jquery.blockUI.js").script()
     @webJarsUtil.locate("knockout.js").script()
@@ -21,8 +24,11 @@
     @webJarsUtil.locate("jquery.blockUI.js").script()
     @webJarsUtil.locate("toastr.js").script()
     @webJarsUtil.locate("min/moment.min.js").script()
+    @webJarsUtil.locate("bootstrap-select.min.js").script()
+    <script src="@routes.Assets.versioned("lib/jquery.select-multiple.js")" type="text/javascript"></script>
     <script src="@routes.Assets.versioned("javascripts/ko.mask-input.js")"></script>
     <script src="@routes.Assets.versioned("javascripts/common.js")"></script>
+    <script src="@routes.Assets.versioned("javascripts/util/ko.select-picker.js")"></script>
     <script src="@routes.Assets.versioned("javascripts/registrationPatient.js")"></script>
   </head>
   <body>

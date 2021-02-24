@@ -22,7 +22,7 @@ $ ->
     docFullName: ''
     docPhone: ''
     docId: ''
-    analysisType: ''
+    analysisType: []
     analysisGroup: ''
 
   vm = ko.mapping.fromJS

@@ -168,6 +168,33 @@ object PatientProtocol {
 
   case class SearchByPatientName(firstname: String)
 
+  sealed trait AnalysisTypeBox
+  sealed case class AnalysisType(name: String, code: String) extends AnalysisTypeBox
+  object MRT extends AnalysisType("MRT", "mrt.type")
+  object MSKT extends AnalysisType("MSKT", "mskt.type")
+  object UZI extends AnalysisType("UZI", "uzi.type")
+  object Laboratoriya extends AnalysisType("Laboratoriya", "laboratoriya.type")
+
+  sealed case class AnalysisGroup(name: String, code: String, analysisType: AnalysisType) extends AnalysisTypeBox
+  object MRT1 extends AnalysisGroup("Bosh miya", "mrt1", MRT)
+  object MRT2 extends AnalysisGroup("Bosh miya, Ko'z, Quloq, Burun bo'shliqlari, Ginofiz, Qon tomirlari", "mrt2", MRT)
+  object MRT3 extends AnalysisGroup("Bo'yin umurtqalari, Orqa miya", "mrt3", MRT)
+  object MRT4 extends AnalysisGroup("Bo'yin umurtqalari, Orqa miya, Qon tomirlari", "mrt4", MRT)
+  object MRT5 extends AnalysisGroup("Ko'krak umurtqalari, Orqa miya", "mrt5", MRT)
+  object MRT6 extends AnalysisGroup("Bel umurtqalari, Orqa miya", "mrt6", MRT)
+  object MRT7 extends AnalysisGroup("Qorin bo'shligi, Jigar, Taloq, O't puffagi qo'llari, Oshqozon osti bezi, Buyraklar", "mrt7", MRT)
+  object MRT8 extends AnalysisGroup("Buyrak usti bezlari, Tizza", "mrt8", MRT)
+  object MRT9 extends AnalysisGroup("Qo'l oyoq bo'g'imlari", "mrt9", MRT)
+  object MRT10 extends AnalysisGroup("Chanoq son bo'g'imlari, Tizza", "mrt10", MRT)
+  object MRT11 extends AnalysisGroup("Ayollar kichik chanoq a'zolari", "mrt11", MRT)
+  object MRT12 extends AnalysisGroup("Erkaklar kichik chanoq a'zolari", "mrt12", MRT)
+  object MRT13 extends AnalysisGroup("Bo'yin yumshoq to'qimalari", "mrt13", MRT)
+  object MRT14 extends AnalysisGroup("Tana a'zolarini umumiy MRT tekshiruvi", "mrt14", MRT)
+  object MRT15 extends AnalysisGroup("MRT kontrasi 'Magnilik", "mrt15", MRT)
+
+  object MSKT1 extends AnalysisGroup("Bosh miya, Ko'z, Quloq, Burun bo'shliqlari", "mskt1", MSKT)
+  object MSKT2 extends AnalysisGroup("Bo'yin umurtqalari", "mskt2", MSKT)
+
   val analysisType = List(
     "MRT",
     "MSKT",
