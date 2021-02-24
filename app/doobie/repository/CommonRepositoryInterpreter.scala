@@ -8,6 +8,7 @@ import protocols.AppProtocol.Paging.{PageReq, PageRes}
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{Roles, User}
 
+import java.sql.Timestamp
 import java.time.{LocalDate, LocalDateTime}
 
 trait CommonSQL {
@@ -31,6 +32,7 @@ trait CommonSQL {
                   pageReq: PageReq): ConnectionIO[PageRes[Patient]]
   def getStats: ConnectionIO[List[StatsAction]]
   def getPatientsDoc: ConnectionIO[List[GetPatientsDocById]]
+  def getPatientsTable: ConnectionIO[List[(LocalDateTime, String, Option[String])]]
   def getRoles: ConnectionIO[List[Roles]]
 
 }
@@ -90,6 +92,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   }
   override def getPatientsDoc: F[List[GetPatientsDocById]] = {
     commonSql.getPatientsDoc.transact(xa)
+  }
+  override def getPatientsTable: F[List[(LocalDateTime, String, Option[String])]] = {
+    commonSql.getPatientsTable.transact(xa)
   }
   override def getRoles: F[List[Roles]] = {
     commonSql.getRoles.transact(xa)

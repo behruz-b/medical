@@ -3,6 +3,7 @@ package actors
 import akka.actor.Actor
 import akka.pattern.pipe
 import akka.util.Timeout
+import cats.effect.IO
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
 import play.api.http.Status.OK
@@ -31,12 +32,17 @@ class PatientManager @Inject()(val configuration: Configuration,
   private val apiStatus = smsConfig.get[String]("api_status")
   private val SmsLogin = smsConfig.get[String]("login")
   private val SmsPassword = smsConfig.get[String]("password")
+  private val dbUpdaters = configuration.get[Configuration]("db-updaters")
+  private val analysisResultUpdaterEnabled = dbUpdaters.get[Boolean]("analyze-result-updater-enabled")
 
   // For testing purpose test DB
-  //  override def preStart: Unit = {
+    override def preStart(): Unit = {
+      if(analysisResultUpdaterEnabled) {
+        updaterPatients()
+      }
   //    self ! AddAnalysisResult("U-668", "Sample Image Name of Analysis")
   //    self ! CheckSmsDeliveryStatus("430349076")
-  //  }
+    }
 
   override def receive: Receive = {
     case CreatePatient(patient) =>
@@ -83,6 +89,34 @@ class PatientManager @Inject()(val configuration: Configuration,
       case error: Throwable =>
         logger.error("Error occurred while create patient.", error)
         Left("Bemorni ro'yhatga olishda xatolik yuz berdi. Iltimos qayta harakat qilib ko'ring!")
+    }
+  }
+
+  private def updaterPatients(): Future[Any] = {
+    DoobieModule.repo.getPatientsTable.unsafeToFuture().map { patient =>
+      val analysisImageName = patient.filter(_._3.nonEmpty)
+      analysisImageName.foldLeft(Future.successful(0)) { case (accF, (createdAt, customerId, imageName)) =>
+        for {
+          acc <- accF
+          res <- addAnalysisResult(imageName.get, createdAt, customerId)
+        } yield res match {
+          case Left(result) =>
+            logger.error(s"customer id: $customerId, Error: $result")
+            acc
+          case Right(_) => acc + 1
+        }
+      }.map { r =>
+        logger.debug(
+          s"""
+             All patient count: ${patient.length}
+             Successfully updated count: $r
+             Unsuccessfully updated count: ${patient.length - r}
+             """.stripMargin)
+        r
+      }
+    }.recover {
+      case err: Throwable =>
+        logger.error(s"error: $err")
     }
   }
 

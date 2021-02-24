@@ -134,6 +134,11 @@ object MessageSQL extends CommonSQL with LazyLogging {
           VALUES $values""".update.withUniqueGeneratedKeys[Int]("id")
   }
 
+  def getPatientsTable: doobie.ConnectionIO[List[(LocalDateTime, String, Option[String])]] = {
+    val querySql = fr"""SELECT  created_at, customer_id, analysis_image_name FROM "Patients""""
+    querySql.query[(Timestamp, String, Option[String])].map(s => s.copy(_1 = s._1.toLocalDateTime)).to[List]
+  }
+
   def createUser(user: User): doobie.ConnectionIO[Int] = {
     val values = fr"(${javaLdTime2JavaSqlTimestamp(user.created_at)},${user.firstname}, ${user.lastname}, ${user.phone}, ${user.role}, ${user.company_code}, ${user.login}, ${user.password})"
 

@@ -43,6 +43,8 @@ trait PatientRepositoryAlgebra[F[_]] {
 
   def getPatientsDoc: F[List[GetPatientsDocById]]
 
+  def getPatientsTable: F[List[(LocalDateTime, String, Option[String])]]
+
   def getRoles: F[List[Roles]]
 
 }
