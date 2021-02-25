@@ -1,6 +1,6 @@
 package protocols
 
-import cats.implicits.{catsSyntaxOptionId, none}
+import cats.implicits.{catsSyntaxOptionId}
 import org.apache.commons.lang3.StringUtils
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
@@ -194,6 +194,50 @@ object PatientProtocol {
 
   object MSKT1 extends AnalysisGroup("Bosh miya, Ko'z, Quloq, Burun bo'shliqlari", "mskt1", MSKT)
   object MSKT2 extends AnalysisGroup("Bo'yin umurtqalari", "mskt2", MSKT)
+  object MSKT3 extends AnalysisGroup("Ko'krak umurtqalari", "mskt3", MSKT)
+  object MSKT4 extends AnalysisGroup("Ko'krak qafasi", "mskt4", MSKT)
+  object MSKT5 extends AnalysisGroup("Bel umurtqalari", "mskt5", MSKT)
+  object MSKT6 extends AnalysisGroup("Buyrak usti bezlari", "mskt6", MSKT)
+  object MSKT7 extends AnalysisGroup("Qo'l oyoq bo'g'imlari", "mskt7", MSKT)
+  object MSKT8 extends AnalysisGroup("Chanoq son bo'g'inlari", "mskt8", MSKT)
+  object MSKT9 extends AnalysisGroup("Ayollar kichik chanoq a'zolari", "mskt9", MSKT)
+  object MSKT10 extends AnalysisGroup("Erkaklar kichik chanoq a'zolari", "mskt10", MSKT)
+  object MSKT11 extends AnalysisGroup("Qorin bo'shligi, Jigar, Taloq, O't pufagi qo'llari, Oshqozon osti bezi, Buyraklar", "mskt11", MSKT)
+  object MSKT12 extends AnalysisGroup("Buyraklar, Siydik yo'llari, Siydik pufagi", "mskt12", MSKT)
+  object MSKT13 extends AnalysisGroup("Kuks orligi a'zolari (Qizil ungach)", "mskt13", MSKT)
+
+
+  object UZI1 extends AnalysisGroup("Осмотр печени ж/п селезенки", "uzi1", MSKT)
+  object UZI2 extends AnalysisGroup("Поджелудочные железы", "uzi2", MSKT)
+  object UZI3 extends AnalysisGroup("Осмотр мочевого пузырья, придаткой матки в.т.ч", "uzi3", MSKT)
+  object UZI4 extends AnalysisGroup("Осмотр почек", "uzi4", MSKT)
+  object UZI5 extends AnalysisGroup("Осмотр простаты", "uzi5", MSKT)
+  object UZI6 extends AnalysisGroup("Осмотр щитовидной железы", "uzi6", MSKT)
+  object UZI7 extends AnalysisGroup("Осмотр плевральной полости", "uzi7", MSKT)
+  object UZI8 extends AnalysisGroup("УЗИ общее(печень, ж/п, селезенка, матка, яичники, м/п, почки)", "uzi8", MSKT)
+  object UZI9 extends AnalysisGroup("УЗИ общее(печень, ж/п, селезенка, м/п, простата, почки)", "uzi9", MSKT)
+  object UZI10 extends AnalysisGroup("Вагинальные исследования", "uzi10", MSKT)
+  object UZI11 extends AnalysisGroup("Узи беременность", "uzi11", MSKT)
+  object UZI12 extends AnalysisGroup("КУКС", "uzi12", MSKT)
+
+  object LAB1 extends AnalysisGroup("Общий анализ крови ОАК", "lab1", MSKT)
+  object LAB2 extends AnalysisGroup("Время свертываемости крови ВСК", "lab2", MSKT)
+  object LAB3 extends AnalysisGroup("Протромбиновое время ПТИ МНО", "lab3", MSKT)
+  object LAB4 extends AnalysisGroup("АЧТВ", "lab4", MSKT)
+  object LAB5 extends AnalysisGroup("Протромбиновое время, соотношение", "lab5", MSKT)
+  object LAB6 extends AnalysisGroup("ПТН", "lab6", MSKT)
+  object LAB7 extends AnalysisGroup("Протромбиновое время", "lab7", MSKT)
+  object LAB8 extends AnalysisGroup("HBsAg (Гепатит В)", "lab8", MSKT)
+  object LAB9 extends AnalysisGroup("HCV (Гепатит С)", "lab9", MSKT)
+  object LAB10 extends AnalysisGroup("Антистрептолизин-О (АСЛО)", "lab10", MSKT)
+  object LAB11 extends AnalysisGroup("С-реактивный белок (СРБ)", "lab11", MSKT)
+  object LAB12 extends AnalysisGroup("Ревматоидный фактор (РФ)", "lab12", MSKT)
+  object LAB13 extends AnalysisGroup("Общий белок", "lab13", MSKT)
+  object LAB14 extends AnalysisGroup("Билирубин (общий, прямой, непрямой)", "lab14", MSKT)
+  object LAB15 extends AnalysisGroup("Аланиноминотрансфераза (АЛТ)", "lab15", MSKT)
+  object LAB16 extends AnalysisGroup("Аланиноминотрансфераза (АЛТ)", "lab16", MSKT)
+  object LAB17 extends AnalysisGroup("Креатинин", "lab17", MSKT)
+  object LAB18 extends AnalysisGroup("Мочевина", "lab18", MSKT)
 
   val analysisType = List(
     "MRT",
