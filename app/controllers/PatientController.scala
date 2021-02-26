@@ -15,7 +15,6 @@ import protocols.Authentication.LoginSessionKey
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLoginAndCreate, SendSmsToDoctor, User}
 import views.html._
-import views.html.statistic._
 
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
@@ -71,18 +70,16 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
   def getAnalysisResultsAndSafeStats(customerId: String): Action[AnyContent] = Action.async { implicit request =>
     (patientManager ? GetAnalysisResultsByCustomerId(customerId)).mapTo[Either[String, PatientAnalysisResult]].map {
       case Right(patient) =>
-        logger.debug("sdsad")
-          val stats = StatsAction(LocalDateTime.now, request.host, "result_sms_click", getRemoteAddress,
-            login = patient.customerId, getUserAgent)
-          statsManager ! AddStatsAction(stats)
-          val patientStats = AddSmsLinkClick(customerId = patient.customerId, smsLinkClick = "click")
-          patientManager ! patientStats
-          Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysisFileName))
+        val stats = StatsAction(LocalDateTime.now, request.host, "result_sms_click", getRemoteAddress,
+          login = patient.customerId, getUserAgent)
+        statsManager ! AddStatsAction(stats)
+        val patientStats = AddSmsLinkClick(customerId = patient.customerId, smsLinkClick = "click")
+        patientManager ! patientStats
+        Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysisFileName))
       case Left(e) =>
-        logger.debug("asdas")
         BadRequest(e)
     }.recover(handleErrorWithStatus("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!",
-    "Error while getting patient"))
+      "Error while getting patient"))
   }
 
   def createDoctor: Action[DoctorForm] = Action.async(parse.json[DoctorForm]) { implicit request =>
@@ -115,15 +112,17 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
   }
 
   def createPatient: Action[PatientForm] = Action.async(parse.json[PatientForm]) { implicit request =>
+    logger.info(s"ss")
     authByRole(isRegister || isManager) {
       val body = request.body
+      logger.info(s"body: $body")
       val prefixPhone = "998"
       val phoneWithPrefix = prefixPhone + body.phone
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
         body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup,
         body.docFullName, body.docPhone, docId = body.docId)
-      getUniqueCustomerId(1, patient)
+      getUniqueCustomerId(patient)
       //      val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
       //        request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
       //      statsManager ! AddStatsAction(stats)
@@ -225,14 +224,14 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
     }
   }
 
-  private def getUniqueCustomerId(attempts: Int, patient: Patient): Future[Result] = {
+  private def getUniqueCustomerId(patient: Patient, attempts: Int = 1): Future[Result] = {
     if (attempts < 5) {
       (patientManager ? CheckCustomerId(patient.customer_id)).mapTo[Either[String, Patient]].flatMap {
         case Left(_) =>
           createPatientInDB(patient)
         case Right(_) =>
           val withNewCustomerId = patient.copy(customer_id = generateCustomerId)
-          getUniqueCustomerId(attempts + 1, withNewCustomerId)
+          getUniqueCustomerId(withNewCustomerId, attempts + 1)
       }
     } else {
       logger.error("Couldn't generate unique customerId")
