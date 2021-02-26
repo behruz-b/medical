@@ -23,7 +23,7 @@ trait CommonSQL {
   def addSmsLinkClick(customerId: String, smsLinkClick: String): Update0
   def searchByPatientName(firstname: String): ConnectionIO[List[Patient]]
   def getByCustomerId(customerId: String): Query0[Patient]
-  def getAnalysisResultsByCustomerId(customerId: String): Query0[PatientAnalysisResult]
+  def getAnalysisResultsByCustomerId(customerId: String): ConnectionIO[List[PatientAnalysisResult]]
   def getPatientByLogin(login: String): Query0[Patient]
   def getUserByLogin(login: String): Query0[User]
   def getPatients(analyseType: String,
@@ -69,8 +69,8 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def getByCustomerId(customerId: String): fs2.Stream[F,Patient] = {
     commonSql.getByCustomerId(customerId).stream.transact(xa)
   }
-  override def getAnalysisResultsByCustomerId(customerId: String): fs2.Stream[F,PatientAnalysisResult] = {
-    commonSql.getAnalysisResultsByCustomerId(customerId).stream.transact(xa)
+  override def getAnalysisResultsByCustomerId(customerId: String): F[List[PatientAnalysisResult]] = {
+    commonSql.getAnalysisResultsByCustomerId(customerId).transact(xa)
   }
   override def searchByPatientName(firstName: String): F[List[Patient]] = {
     commonSql.searchByPatientName(firstName).transact(xa)

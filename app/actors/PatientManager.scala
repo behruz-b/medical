@@ -133,10 +133,10 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def getAnalysisResultsByCustomerId(customerId: String): Future[Either[String, PatientAnalysisResult]] = {
-    DoobieModule.repo.getAnalysisResultsByCustomerId(customerId).compile.last.unsafeToFuture().map { patient =>
-      if (patient.isDefined) {
-        Right(patient.get)
+  private def getAnalysisResultsByCustomerId(customerId: String): Future[Either[String, List[PatientAnalysisResult]]] = {
+    DoobieModule.repo.getAnalysisResultsByCustomerId(customerId).unsafeToFuture().map { patient =>
+      if (patient.nonEmpty) {
+        Right(patient)
       } else {
         logger.debug("asdas")
         Left("Error happened while requesting patient")

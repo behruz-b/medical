@@ -68,14 +68,14 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
   }
 
   def getAnalysisResultsAndSafeStats(customerId: String): Action[AnyContent] = Action.async { implicit request =>
-    (patientManager ? GetAnalysisResultsByCustomerId(customerId)).mapTo[Either[String, PatientAnalysisResult]].map {
+    (patientManager ? GetAnalysisResultsByCustomerId(customerId)).mapTo[Either[String, List[PatientAnalysisResult]]].map {
       case Right(patient) =>
         val stats = StatsAction(LocalDateTime.now, request.host, "result_sms_click", getRemoteAddress,
-          login = patient.customerId, getUserAgent)
+          login = patient.head.customerId, getUserAgent)
         statsManager ! AddStatsAction(stats)
-        val patientStats = AddSmsLinkClick(customerId = patient.customerId, smsLinkClick = "click")
+        val patientStats = AddSmsLinkClick(customerId = patient.head.customerId, smsLinkClick = "click")
         patientManager ! patientStats
-        Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysisFileName))
+        Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.head.analysisFileName))
       case Left(e) =>
         BadRequest(e)
     }.recover(handleErrorWithStatus("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!",

@@ -163,9 +163,9 @@ object MessageSQL extends CommonSQL with LazyLogging {
     querySql.query[Patient]
   }
 
-  def getAnalysisResultsByCustomerId(customerId: String): Query0[PatientAnalysisResult] = {
+  def getAnalysisResultsByCustomerId(customerId: String): ConnectionIO[List[PatientAnalysisResult]] = {
     val querySql = fr"""SELECT analysis_image_name,created_at,customer_id  FROM "Analysis_Results" WHERE customer_id = $customerId"""
-    querySql.query[PatientAnalysisResult]
+    querySql.query[PatientAnalysisResult].to[List]
   }
 
   def searchByPatientName(firstname: String): ConnectionIO[List[Patient]] = {
