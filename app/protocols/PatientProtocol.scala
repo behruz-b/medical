@@ -1,11 +1,10 @@
 package protocols
 
-import cats.implicits.{catsSyntaxOptionId}
+import cats.implicits.catsSyntaxOptionId
 import org.apache.commons.lang3.StringUtils
-import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.functional.syntax.{toFunctionalBuilderOps, unlift}
 import play.api.libs.json._
 import protocols.AppProtocol.Paging.PageReq
-
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
@@ -239,6 +238,16 @@ object PatientProtocol {
   object LAB17 extends AnalysisGroup("Креатинин", "lab17", MSKT)
   object LAB18 extends AnalysisGroup("Мочевина", "lab18", MSKT)
 
+  val analysisTypes = Seq(MRT, MSKT, UZI, Laboratoriya)
+
+  val analysisGroups = Seq(MRT1, MRT2, MRT3, MRT4, MRT5, MRT6, MRT7, MRT8, MRT9, MRT10, MRT11, MRT12, MRT13, MRT14, MRT15,
+    MSKT1, MSKT2, MSKT3, MSKT4, MSKT5, MSKT6, MSKT7, MSKT8, MSKT9, MSKT10, MSKT11, MSKT12, MSKT13,
+    UZI1 ,UZI2, UZI3, UZI4, UZI5, UZI6, UZI7, UZI8, UZI9, UZI10, UZI11, UZI12,
+    LAB1, LAB2, LAB3, LAB4, LAB5, LAB6, LAB7, LAB8, LAB9, LAB10, LAB11, LAB12, LAB13, LAB14, LAB15, LAB16, LAB17, LAB18)
+
+  def getanalysisGroupsByCode(clientCode: String): Seq[AnalysisGroup] = {
+    analysisGroups.filter(_.analysisType.code == clientCode).sortBy(_.name)
+  }
   val analysisType = List(
     "MRT",
     "MSKT",

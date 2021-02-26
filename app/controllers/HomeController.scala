@@ -134,6 +134,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def availableRoles(clientCode: String) = Action.async { _
+    val roles = getanalysisGroupsByCode(clientCode)
+    Future.successful(Ok(Json.toJson(roles)))
+  }
+
   def getMrtType: Action[AnyContent] = Action { implicit request =>
     authByRole(isRegister || isManager) {
       Ok(Json.toJson(mrtType))
