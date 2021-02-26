@@ -3,7 +3,6 @@ package actors
 import akka.actor.Actor
 import akka.pattern.pipe
 import akka.util.Timeout
-import cats.effect.IO
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
 import play.api.http.Status.OK

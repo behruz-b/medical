@@ -112,10 +112,8 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
   }
 
   def createPatient: Action[PatientForm] = Action.async(parse.json[PatientForm]) { implicit request =>
-    logger.info(s"ss")
     authByRole(isRegister || isManager) {
       val body = request.body
-      logger.info(s"body: $body")
       val prefixPhone = "998"
       val phoneWithPrefix = prefixPhone + body.phone
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)

@@ -8,16 +8,27 @@ import doobie.repository.RepositoryInterpreter
 import doobie.util.fragment.Fragment
 
 import scala.concurrent.ExecutionContext
-import scala.io.{BufferedSource, Source}
+import scala.io.Source
 
 object DoobieModuleStub {
   private var postgres: EmbeddedPostgres = _
   private var transactor: Transactor[IO] = _
 
+  def getScriptsInFile: Array[String] = {
+    val source = Source.fromResource("db.sql")
+    try {
+      source.mkString.split(";")
+    } catch {
+      case err: java.io.IOException =>
+        println(s"error: $err")
+        Array.empty[String]
+    } finally {
+      source.close
+    }
+  }
+
   implicit private val ioContextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-  val source: BufferedSource = Source.fromResource("db.sql")
-  val inserts_sql = source.mkString.split(";")
-  source.close()
+  val inserts_sql: Array[String] = getScriptsInFile
 
   def dbTransactor: Transactor[IO] = {
     postgres = EmbeddedPostgres.builder().start()

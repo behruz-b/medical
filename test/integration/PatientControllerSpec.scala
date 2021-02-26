@@ -11,7 +11,7 @@ import utils.PlayStubEnv
 class PatientControllerSpec extends PlaySpec with GuiceOneAppPerSuite with PlayStubEnv{
   val patient: JsValue = Json.parse(
     """
-   {
+    {
       "firstName": "Test firstName",
        "lastName": "Test lastname",
        "phone": "991234567",
@@ -25,6 +25,27 @@ class PatientControllerSpec extends PlaySpec with GuiceOneAppPerSuite with PlayS
        "docId": 1
     }""")
 
+  val doc: JsValue = Json.parse(
+    """
+    {
+       "fullName": "firstname lastname",
+       "phone": "991234567"
+    }
+    """)
+
+  "Create patient doc" should {
+    "return OK" in {
+      val sendRequest = route(app, FakeRequest(POST, controllers.routes.PatientController.addPatientsDoc().url)
+        .withJsonBody(doc)
+        .withSession(
+          authInit(loginParams.sessionAttr.sessionKey, AdminRole, loginParams.sessionDuration) ++
+          authInit("login", "admin", loginParams.sessionDuration): _*
+        )
+      ).get
+      status(sendRequest) mustBe OK
+    }
+  }
+
   "Create patient" should {
     "return OK" in {
       val sendRequest = route(app, FakeRequest(POST, controllers.routes.PatientController.createPatient().url)
@@ -34,7 +55,7 @@ class PatientControllerSpec extends PlaySpec with GuiceOneAppPerSuite with PlayS
           authInit("login", "admin", loginParams.sessionDuration): _*
         )
       ).get
-      contentAsString(sendRequest) mustBe OK
+      status(sendRequest) mustBe OK
     }
   }
 
