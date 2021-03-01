@@ -8,7 +8,7 @@ import play.api.test.Helpers.{POST, route, status, _}
 import protocols.Authentication.AppRole.AdminRole
 import utils.PlayStubEnv
 
-class PatientControllerSpec extends PlaySpec with GuiceOneAppPerSuite with PlayStubEnv{
+class PatientControllerSpec extends PlaySpec with GuiceOneAppPerSuite with PlayStubEnv {
   val patient: JsValue = Json.parse(
     """
     {
@@ -39,7 +39,7 @@ class PatientControllerSpec extends PlaySpec with GuiceOneAppPerSuite with PlayS
         .withJsonBody(doc)
         .withSession(
           authInit(loginParams.sessionAttr.sessionKey, AdminRole, loginParams.sessionDuration) ++
-          authInit("login", "admin", loginParams.sessionDuration): _*
+            authInit("login", "admin", loginParams.sessionDuration): _*
         )
       ).get
       status(sendRequest) mustBe OK
@@ -52,9 +52,23 @@ class PatientControllerSpec extends PlaySpec with GuiceOneAppPerSuite with PlayS
         .withJsonBody(patient)
         .withSession(
           authInit(loginParams.sessionAttr.sessionKey, AdminRole, loginParams.sessionDuration) ++
-          authInit("login", "admin", loginParams.sessionDuration): _*
+            authInit("login", "admin", loginParams.sessionDuration): _*
         )
       ).get
+      status(sendRequest) mustBe OK
+    }
+  }
+
+  "Search Patient By Name" should {
+    "return patient list with status OK" in {
+      val sendRequest = route(app, FakeRequest(POST, controllers.routes.PatientController.searchByPatientName("Test firstName").url)
+        .withSession(
+          authInit(loginParams.sessionAttr.sessionKey, AdminRole, loginParams.sessionDuration) ++
+            authInit("login", "admin", loginParams.sessionDuration): _*
+        )
+      ).get
+      val res = contentAsJson(sendRequest)
+      (res.head \ "lastname").as[String] mustBe "Test lastname"
       status(sendRequest) mustBe OK
     }
   }
@@ -69,7 +83,7 @@ class PatientControllerSpec extends PlaySpec with GuiceOneAppPerSuite with PlayS
     "return OK" in {
       val request = route(app, FakeRequest(GET, controllers.routes.PatientController.patientsDocPage().url)
         .withSession(authInit(loginParams.sessionAttr.sessionKey, AdminRole, loginParams.sessionDuration) ++
-        authInit("login", "admin", loginParams.sessionDuration): _*)
+          authInit("login", "admin", loginParams.sessionDuration): _*)
       ).get
       status(request) mustBe OK
     }

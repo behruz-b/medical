@@ -1,6 +1,6 @@
 package protocols
 
-import cats.implicits.{catsSyntaxOptionId, none}
+import cats.implicits.catsSyntaxOptionId
 import org.apache.commons.lang3.StringUtils
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
@@ -44,7 +44,7 @@ object PatientProtocol {
                          docId: Option[Int] = None)
 
   implicit val patientFormReads: Reads[PatientForm] = (
-      (__ \ "firstName").read[String] and
+    (__ \ "firstName").read[String] and
       (__ \ "lastName").read[String] and
       (__ \ "phone").read[String] and
       localDateFormat("dateOfBirth") and
@@ -55,7 +55,9 @@ object PatientProtocol {
       optStringRead("docPhone") and
       (__ \ "companyCode").read[String] and
       optIntRead("docId")
-    )(PatientForm)
+    ) (PatientForm)
+
+  implicit val patientFormWrites: Writes[PatientForm] = Json.writes[PatientForm]
 
   case class DoctorForm(firstName: String,
                         lastName: String,
@@ -74,10 +76,10 @@ object PatientProtocol {
     ) (DoctorForm)
 
   case class PatientsDocForm(fullName: String,
-                        phone: String)
+                             phone: String)
 
   implicit val patientsDocFormReads: Reads[PatientsDocForm] = (
-      (__ \ "fullName").read[String] and
+    (__ \ "fullName").read[String] and
       (__ \ "phone").read[String]
     ) (PatientsDocForm)
 
@@ -128,6 +130,7 @@ object PatientProtocol {
   implicit val PatientsDocFormat: OFormat[PatientsDoc] = Json.format[PatientsDoc]
 
   case class GetPatientsDocById(id: Int, fullname: String, phone: String)
+
   implicit val formatPatientsDocByIdFormat: OFormat[GetPatientsDocById] = Json.format[GetPatientsDocById]
 
   case class CreatePatient(patient: Patient)
@@ -137,8 +140,9 @@ object PatientProtocol {
   case class AddPatientsDoc(patientsDoc: PatientsDoc)
 
   case class PatientAnalysisResult(analysisFileName: String,
-                               created_at: LocalDateTime,
-                               customerId: String)
+                                   created_at: LocalDateTime,
+                                   customerId: String)
+
   implicit val formatPatientAnalysisResults: OFormat[PatientAnalysisResult] = Json.format[PatientAnalysisResult]
 
   case class AddSmsLinkClick(customerId: String, smsLinkClick: String)

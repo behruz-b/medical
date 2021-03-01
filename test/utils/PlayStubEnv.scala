@@ -2,6 +2,7 @@ package utils
 
 import actors.ActorsModule
 import akka.actor.ActorSystem
+import cats.effect.{ContextShift, IO}
 import com.typesafe.config.{Config, ConfigFactory}
 import controllers.routes
 import org.scalatestplus.play.PlaySpec
@@ -17,11 +18,12 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
 trait PlayStubEnv extends PlaySpec with GuiceOneAppPerSuite {
-  implicit val actorSystem: ActorSystem = ActorSystem("medical-actor")
+  val configuration: Config = ConfigFactory.load("resources/application.test.conf")
+  implicit val actorSystem: ActorSystem = ActorSystem("medical-actor", configuration)
 
+  implicit val ioContextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
   val loginParams: Login = Login("/admin/", routes.HomeController.admin(), createSessionAttr(Set(AdminRole)))
-  val configuration: Config = ConfigFactory.load("resources/application.test.conf")
 
   override def fakeApplication(): Application = {
     new GuiceApplicationBuilder()
