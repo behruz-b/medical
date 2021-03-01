@@ -60,9 +60,17 @@
         </div>
           <!-- /ko -->
         <div class="form-group col-sm-6 col-12">
-          <select class="select form-control bg-white" id="patientsDoc" data-bind="options: vm.getPatientsDocList,
-           optionsText: 'fullname', optionsValue: 'id', value: vm.patient.docId, optionsCaption: vm.translate('selectDoctor')" autocomplete="off"></select>
+          <input class="form-control input-box" type="text" id="docFullName" name="docFullName" data-bind="value: vm.patient.docFullName" value="" onchange="this.setAttribute('value', this.value);">
+          <label for="docFullName" class="label"><span data-bind="text: vm.translate('docFullName')"></span></label>
         </div>
+        <div class="form-group col-sm-6 col-12">
+          <input class="form-control input-box" type="text" id="docPhone" name="docPhone" data-bind="value: vm.patient.docPhone" value="" onchange="this.setAttribute('value', this.value);">
+          <label for="docPhone" class="label"><span data-bind="text: vm.translate('docPhone')"></span></label>
+        </div>
+@*        <div class="form-group col-sm-6 col-12">*@
+@*          <select class="select form-control bg-white" id="patientsDoc" data-bind="options: vm.getPatientsDocList,*@
+@*           optionsText: 'fullname', optionsValue: 'id', value: vm.patient.docId, optionsCaption: vm.translate('selectDoctor')" autocomplete="off"></select>*@
+@*        </div>*@
         <div class="col-12">
           <div class="text-center">
             <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit"><span data-bind="text: vm.translate('register')"></span></button>

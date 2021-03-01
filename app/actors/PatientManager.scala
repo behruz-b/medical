@@ -3,6 +3,7 @@ package actors
 import akka.actor.Actor
 import akka.pattern.pipe
 import akka.util.Timeout
+import cats.implicits.catsSyntaxOptionId
 import com.typesafe.scalalogging.LazyLogging
 import doobie.common.DoobieUtil
 import play.api.http.Status.OK
@@ -71,9 +72,12 @@ class PatientManager @Inject()(val configuration: Configuration,
   }
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
-    DoobieModule.repo.create(patient.copy(password = md5(patient.password))).unsafeToFuture().map { _ =>
+    (for {
+      id <- DoobieModule.repo.addPatientsDoc(PatientsDoc(patient.docFullName.getOrElse(""), patient.docPhone.getOrElse(""))).unsafeToFuture()
+      _ <- DoobieModule.repo.create(patient.copy(password = md5(patient.password), docId = id.some)).unsafeToFuture()
+    } yield {
       Right("Successfully added")
-    }.recover {
+    }).recover {
       case error: Throwable =>
         logger.error("Error occurred while create patient.", error)
         Left("Bemorni ro'yhatga olishda xatolik yuz berdi. Iltimos qayta harakat qilib ko'ring!")
@@ -86,7 +90,7 @@ class PatientManager @Inject()(val configuration: Configuration,
         Right(patient.get)
       } else {
         Left("Error happened while requesting patient")
-    }
+      }
     }.recover {
       case error: Throwable =>
         logger.error("Error occurred while get patient by customer id", error)
@@ -150,8 +154,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def getPatients(analyseType: Option[String]): Future[Either[String,List[Patient]]] = {
-    DoobieModule.repo.getPatients(analyseType).unsafeToFuture().map{ patient =>
+  private def getPatients(analyseType: Option[String]): Future[Either[String, List[Patient]]] = {
+    DoobieModule.repo.getPatients(analyseType).unsafeToFuture().map { patient =>
       Right(patient)
     }.recover {
       case error: Throwable =>
@@ -163,7 +167,7 @@ class PatientManager @Inject()(val configuration: Configuration,
   private def sendSMS(customerId: String): Future[Either[String, String]] = {
     getPatientByCustomerId(customerId).flatMap {
       case Right(p) =>
-        actualSendingSMS(p.phone,SmsText(customerId, HostName), customerId)
+        actualSendingSMS(p.phone, SmsText(customerId, HostName), customerId)
       case Left(e) =>
         logger.error(s"Error happened", e)
         Future.successful(Left("Error occurred while sending SMS to Customer"))

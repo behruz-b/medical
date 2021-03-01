@@ -20,7 +20,7 @@ $ ->
     address: ''
     docFullName: ''
     docPhone: ''
-    docId: ''
+#    docId: ''
     analysisType: ''
     analysisGroup: ''
 
@@ -53,12 +53,12 @@ $ ->
   vm.convertIntToDate = (intDate) ->
     moment(+intDate).format('DD/MM/YYYY')
 
-  getPatientsDoc = ->
-    $.get(apiUrl.getPatientsDoc)
-    .fail handleError
-    .done (response) ->
-      vm.getPatientsDocList(response)
-  getPatientsDoc()
+#  getPatientsDoc = ->
+#    $.get(apiUrl.getPatientsDoc)
+#    .fail handleError
+#    .done (response) ->
+#      vm.getPatientsDocList(response)
+#  getPatientsDoc()
 
   getAnalysisType = ->
     $.get(apiUrl.getAnalysisType)
@@ -147,9 +147,11 @@ $ ->
           vm.selectedUzi()
         else if vm.patient.analysisType() is "Laboratoriya"
           vm.selectedLaboratory()
-      docInfo = vm.getPatientsDocList().filter (x) -> x.id == data.docId
-      data.docFullName = docInfo[0].fullname
-      data.docPhone = docInfo[0].phone
+#      docInfo = vm.getPatientsDocList().filter (x) -> x.id == data.docId
+#      data.docFullName = docInfo[0].fullname
+#      data.docPhone = docInfo[0].phone
+      data.docFullName = vm.patient.docFullName
+      data.docPhone = vm.patient.docPhone
       my.blockUI()
       $.post(apiUrl.registerUrl, JSON.stringify(data))
       .fail handleError
