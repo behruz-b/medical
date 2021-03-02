@@ -37,12 +37,12 @@ object UserProtocol {
   case object GetRoles
   implicit val rolesFormat: OFormat[Roles] = Json.format[Roles]
 
-  val SmsTextDoc: (String, String) => String = (customerId: String, hostName: String) =>
-    s"'Elegant Farm' Diagnostika Markazi.\\nSizning bemoringizning tibbiy xulosasi tayyor.\\nTibbiy xulosani" +
+  val SmsTextDoc: (String, String, String) => String = (customerId: String, hostName: String, welcomeText: String) =>
+    s"$welcomeText\\nSizning bemoringizning tibbiy xulosasi tayyor.\\nTibbiy xulosani" +
       s"quyidagi havola orqali olishingiz mumkin:\\nhttp://$hostName.uz/r/$customerId"
 
-  def getSmsTextForUserCreation(role: String, login: String, password: String): String = {
-    s"'Elegant Farm' Diagnostika Markazi.\\nSizga '${role.toUpperCase}' berildi:\\n" +
+  def getSmsTextForUserCreation(role: String, login: String, password: String, welcomeText: String): String = {
+    s"$welcomeText\\nSizga '${role.toUpperCase}' berildi:\\n" +
       s"Login: $login\\nParol: $password"
   }
 }

@@ -150,8 +150,8 @@ $ ->
 #      docInfo = vm.getPatientsDocList().filter (x) -> x.id == data.docId
 #      data.docFullName = docInfo[0].fullname
 #      data.docPhone = docInfo[0].phone
-      data.docFullName = vm.patient.docFullName
-      data.docPhone = vm.patient.docPhone
+      data.docFullName = vm.patient.docFullName()
+      data.docPhone = my.clearPhone(vm.patient.docPhone())
       my.blockUI()
       $.post(apiUrl.registerUrl, JSON.stringify(data))
       .fail handleError

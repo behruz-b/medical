@@ -1,16 +1,10 @@
 package controllers
 
-import java.nio.file.Paths
-import java.text.SimpleDateFormat
-import java.time._
-import java.util.Date
-
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import cats.data.EitherT
 import cats.implicits._
-import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
@@ -69,14 +63,14 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
 
   def changePass(language: String): Action[AnyContent] = Action { implicit request =>
     authByDashboard(isRegister || isAdmin || isDoctor || isManager) {
-      Ok(passTemplate(isAuthorized, isManager,language))
+      Ok(passTemplate(isAuthorized, isManager, language))
     }
   }
 
   def changePassword: Action[ChangePassword] = Action.async(parse.json[ChangePassword]) { implicit request =>
     authByRole(isDoctor || isRegister || isAdmin) {
       val body = request.body
-      (userManager ? ChangePassword(body.login,body.newPass)).mapTo[Either[String, String]].map {
+      (userManager ? ChangePassword(body.login, body.newPass)).mapTo[Either[String, String]].map {
         case Right(_) =>
           Ok(Json.toJson("Successfully updated"))
         case Left(error) =>
@@ -197,10 +191,11 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       val body = request.body
       val prefixPhone = "998"
       val phoneWithPrefix = prefixPhone + body.phone
+      val docPhoneWithPrefix = body.docPhone.map(p => prefixPhone + p)
       val login = (body.firstName.head.toString + body.lastName).toLowerCase() + getRandomDigit(3)
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
         body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup,
-        body.docFullName, body.docPhone, docId = body.docId)
+        body.docFullName, docPhoneWithPrefix, docId = body.docId)
       getUniqueCustomerId(1, patient)
 //      val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
 //        request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)

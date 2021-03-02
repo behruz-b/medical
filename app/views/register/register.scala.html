@@ -64,7 +64,7 @@
           <label for="docFullName" class="label"><span data-bind="text: vm.translate('docFullName')"></span></label>
         </div>
         <div class="form-group col-sm-6 col-12">
-          <input class="form-control input-box" type="text" id="docPhone" name="docPhone" data-bind="value: vm.patient.docPhone" value="" onchange="this.setAttribute('value', this.value);">
+          <input class="form-control input-box" type="text" id="docPhone" name="docPhone" data-bind="masked: vm.patient.docPhone, mask: '(99)-999-99-99'" value="" onchange="this.setAttribute('value', this.value);">
           <label for="docPhone" class="label"><span data-bind="text: vm.translate('docPhone')"></span></label>
         </div>
 @*        <div class="form-group col-sm-6 col-12">*@

@@ -33,6 +33,7 @@ class UserManager @Inject()(val configuration: Configuration,
   private val SmsLogin = smsConfig.get[String]("login")
   private val SmsPassword = smsConfig.get[String]("password")
   private val HostName = configuration.get[String]("HostName")
+  private val WelcomeText = configuration.get[String]("WelcomeText")
 
   override def receive: Receive = {
     case CheckUserByLogin(login, password) =>
@@ -84,7 +85,7 @@ class UserManager @Inject()(val configuration: Configuration,
 
   private def checkUserByLoginAndCreate(user: User): Future[Either[String, String]] = {
     DoobieModule.repo.createUser(user.copy(password = md5(user.password))).unsafeToFuture().map { _ =>
-      actualSendingSMS(user.phone, getSmsTextForUserCreation(user.role, user.login, user.password))
+      actualSendingSMS(user.phone, getSmsTextForUserCreation(user.role, user.login, user.password, WelcomeText))
       Right("Successfully created!")
     }.recover {
       case error: Throwable =>
@@ -117,7 +118,7 @@ class UserManager @Inject()(val configuration: Configuration,
         if (p.docPhone.isDefined) {
           val statsAction = StatsAction(LocalDateTime.now, "-", "doc_send_sms", "-", "-", "-")
           statsManager ! AddStatsAction(statsAction)
-          actualSendingSMS(p.docPhone.get, SmsTextDoc(customerId, HostName))
+          actualSendingSMS(p.docPhone.get, SmsTextDoc(customerId, HostName, WelcomeText))
         } else {
           Future.successful(Right("Message not sent to doctor"))
         }
