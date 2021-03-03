@@ -123,6 +123,7 @@
                                 <tr>
                                     <th><span data-bind="text: $root.vm.translate('createdAt')"></span></th>
                                     <th><span data-bind="text: $root.vm.translate('analysisType')"></span></th>
+                                    <th><span data-bind="text: $root.vm.translate('analysisGroup')"></span></th>
                                     <th><span data-bind="text: $root.vm.translate('analysisResult')"></span></th>
                                 </tr>
                             </thead>
@@ -130,6 +131,7 @@
                                 <tr>
                                     <td data-bind="text: $root.vm.convertStringToDate($data.created_at)"></td>
                                     <td data-bind="text: $data.analyseType"></td>
+                                    <td data-bind="text: $data.analyseGroup"></td>
                                     <td>
                                             <!-- ko if: $data.analysis_image_name -->
                                         <img width="50" height="50" data-bind="attr: {src: '/analyse-result/' + $data.customer_id},
