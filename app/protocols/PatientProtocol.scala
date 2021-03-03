@@ -141,7 +141,9 @@ object PatientProtocol {
 
   case class PatientAnalysisResult(analysisFileName: String,
                                    created_at: LocalDateTime,
-                                   customerId: String)
+                                   customerId: String,
+                                   analyseType: String,
+                                   analyseGroup: String)
 
   implicit val formatPatientAnalysisResults: OFormat[PatientAnalysisResult] = Json.format[PatientAnalysisResult]
 

@@ -3,12 +3,30 @@ $ ->
 
   Glob = window.Glob || {}
 
+  apiUrl =
+    getAnalysisType: '/patient/get-analysis-type'
+    getMrtType: '/patient/get-mrt-type'
+    getMsktType: '/patient/get-mskt-type'
+    getUziType: '/patient/get-uzi-type'
+    getLabType: '/patient/get-lab-type'
+
   defaultPatient =
     id: ''
+    analysisType: ''
+    analysisGroup: ''
     file: ''
 
   vm = ko.mapping.fromJS
     patient: defaultPatient
+    getAnalysisTypeList: []
+    getMrtTypeList: []
+    getMsktTypeList: []
+    getUziTypeList: []
+    getLabTypeList: []
+    selectedMrt: ''
+    selectedMskt: ''
+    selectedUzi: ''
+    selectedLaboratory: ''
     enableSubmitButton: no
     language: Glob.language
 
@@ -31,6 +49,41 @@ $ ->
       toastr.error(error.responseText)
     else
       toastr.error('Something went wrong! Please try again.')
+
+  getAnalysisType = ->
+    $.get(apiUrl.getAnalysisType)
+    .fail handleError
+    .done (response) ->
+      vm.getAnalysisTypeList(response)
+  getAnalysisType()
+
+  getMrtType = ->
+    $.get(apiUrl.getMrtType)
+    .fail handleError
+    .done (response) ->
+      vm.getMrtTypeList(response)
+  getMrtType()
+
+  getMsktType = ->
+    $.get(apiUrl.getMsktType)
+    .fail handleError
+    .done (response) ->
+      vm.getMsktTypeList(response)
+  getMsktType()
+
+  getUziType = ->
+    $.get(apiUrl.getUziType)
+    .fail handleError
+    .done (response) ->
+      vm.getUziTypeList(response)
+  getUziType()
+
+  getLabType = ->
+    $.get(apiUrl.getLabType)
+    .fail handleError
+    .done (response) ->
+      vm.getLabTypeList(response)
+  getLabType()
 
   $contentFile = $('input[name=file]')
   $contentFile.change ->
@@ -72,6 +125,21 @@ $ ->
     else if !vm.patient.file()
       toastr.error("Iltimos faylni kiriting!")
       return no
+    else if !vm.patient.analysisType()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
+    else if vm.patient.analysisType() is "MRT" and !vm.selectedMrt()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
+    else if vm.patient.analysisType() is "MSKT" and !vm.selectedMskt()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
+    else if vm.patient.analysisType() is "UZI" and !vm.selectedUzi()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
+    else if vm.patient.analysisType() is "Laboratoriya" and !vm.selectedLaboratory()
+      toastr.error("Iltimos tahlil turini kiriting!")
+      return no
     else if formData
       my.blockUI()
       vm.enableSubmitButton(no)
@@ -93,6 +161,36 @@ $ ->
       "Файл"
       "Fayl"
       "Файл"
+    ]
+    analysisType: [
+      "Analysis type"
+      "Тип анализа"
+      "Tahlil turi"
+      "Таҳлил тури"
+    ]
+    mrtType: [
+      "MRT type"
+      "Тип МРТ"
+      "MRT turi"
+      "МРТ тури"
+    ]
+    msktType: [
+      "MSKT type"
+      "Тип МСКТ"
+      "MSKT turi"
+      "МСКТ тури"
+    ]
+    uziType: [
+      "Ultrasound type"
+      "Узи типа"
+      "UZI turi"
+      "УЗИ тури"
+    ]
+    labType: [
+      "Laboratory type"
+      "Тип лаборатории"
+      "Laboratoriya turi"
+      "Лаборатория тури"
     ]
     submit: [
       "Submit"

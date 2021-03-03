@@ -47,8 +47,8 @@ class PatientManager @Inject()(val configuration: Configuration,
     case CreatePatient(patient) =>
       createPatient(patient).pipeTo(sender())
 
-    case PatientAnalysisResult(analysisFileName, created_at,customerId) =>
-      addAnalysisResult(analysisFileName, created_at,customerId).pipeTo(sender())
+    case PatientAnalysisResult(analysisFileName, created_at,customerId, analyseType, analyseGroup) =>
+      addAnalysisResult(analysisFileName, created_at,customerId, analyseType, analyseGroup).pipeTo(sender())
 
     case AddSmsLinkClick(customerId, smsLinkClick) =>
       addSmsLinkClick(customerId, smsLinkClick).pipeTo(sender())
@@ -94,10 +94,10 @@ class PatientManager @Inject()(val configuration: Configuration,
   private def updaterPatients(): Future[Any] = {
     DoobieModule.repo.getPatientsTable.unsafeToFuture().map { patient =>
       val analysisImageName = patient.filter(_._3.nonEmpty)
-      analysisImageName.foldLeft(Future.successful(0)) { case (accF, (createdAt, customerId, imageName)) =>
+      analysisImageName.foldLeft(Future.successful(0)) { case (accF, (createdAt, customerId, imageName, analyseType, analyseGroup)) =>
         for {
           acc <- accF
-          res <- addAnalysisResult(imageName.get, createdAt, customerId)
+          res <- addAnalysisResult(imageName.get, createdAt, customerId, analyseType, analyseGroup)
         } yield res match {
           case Left(result) =>
             logger.error(s"customer id: $customerId, Error: $result")
@@ -176,10 +176,10 @@ class PatientManager @Inject()(val configuration: Configuration,
     }
   }
 
-  private def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String): Future[Either[String, String]] = {
+  private def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String, analysisType: String, analysisGroup: String): Future[Either[String, String]] = {
     getPatientByCustomerId(customerId).flatMap {
       case Right(patient) =>
-        DoobieModule.repo.addAnalysisResult(analysisFileName, created_at, patient.customer_id).unsafeToFuture().map { _ =>
+        DoobieModule.repo.addAnalysisResult(analysisFileName, created_at, patient.customer_id, analysisType, analysisGroup).unsafeToFuture().map { _ =>
           Right("Successfully added")
         }
       case Left(e) =>

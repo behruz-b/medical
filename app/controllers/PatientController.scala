@@ -171,6 +171,10 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
         .file("file")
         .map { picture =>
           val body = request.body.asFormUrlEncoded
+          val analyseTypeOptStr = body.get("analysisType")
+          val analyseType: String = analyseTypeOptStr.map(a => a.mkString(" ")).get
+          val analyseGroupOptStr = body.get("analysisGroup")
+          val analyseGroup: String = analyseGroupOptStr.map(a => a.mkString(" ")).get
           body.get("id").flatMap(_.headOption) match {
             case Some(customerId) =>
               // need to create folder "patients_results" out of the project
@@ -183,7 +187,7 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
                   logger.error("Error while parsing tempFilePath", e)
               }
               (for {
-                _ <- EitherT((patientManager ? PatientAnalysisResult(analysisFileName, LocalDateTime.now, customerId)).mapTo[Either[String, String]])
+                _ <- EitherT((patientManager ? PatientAnalysisResult(analysisFileName, LocalDateTime.now, customerId, analyseType, analyseGroup)).mapTo[Either[String, String]])
                 _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
               } yield {
                 val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", getRemoteAddress, getUserLogin, getUserAgent)
