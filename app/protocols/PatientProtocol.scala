@@ -145,6 +145,13 @@ object PatientProtocol {
                                    analyseType: String,
                                    analyseGroup: String)
 
+  implicit val formatPatientAnalysisResultsReads: Reads[PatientAnalysisResult] = (
+      (__ \ "analysisFileName").read[String] and
+      ldtRead("created_at") and
+      (__ \ "customerId").read[String] and
+      (__ \ "analyseType").read[String] and
+      (__ \ "analyseGroup").read[String]
+    ) (PatientAnalysisResult)
   implicit val formatPatientAnalysisResults: OFormat[PatientAnalysisResult] = Json.format[PatientAnalysisResult]
 
   case class AddSmsLinkClick(customerId: String, smsLinkClick: String)
