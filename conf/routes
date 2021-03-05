@@ -33,7 +33,9 @@ GET     /stats/get-stats                                        @controllers.Hom
 
 POST    /stub-sms                                               @controllers.HomeController.stubSmsRequest
 POST    /stub-sms/status                                        @controllers.HomeController.stubSmsDeliveryStatus
-GET     /r/:customerId                                          @controllers.PatientController.getAnalysisResultsAndSafeStats(customerId)
+GET     /r/:customerId                                          @controllers.PatientController.getAnalysisResults(customerId: String)
+GET     /get-analysis-results                                   @controllers.PatientController.getAnalysisResultsAndSafeStats(customerId: String)
+GET     /get-image/:filename                                    @controllers.PatientController.getImage(filename: String)
 GET     /analyse-result/:customerId                             @controllers.HomeController.analysisResult(customerId)
 
 # Map static resources from the /public folder to the /assets URL path

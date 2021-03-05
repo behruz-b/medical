@@ -30,6 +30,7 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
                                   val dashboardTemp: views.html.dashboard.dashboard,
                                   patientsDocTemplate: views.html.patientsDoc.patientsDoc,
                                   loginPage: views.html.admin.login,
+                                  analysisResult: views.html.getAnalysisResults.result,
                                   configuration: Configuration,
                                   addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                   getPatientsTemp: patients.patientsTable,
@@ -67,6 +68,15 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
     }
   }
 
+  def getAnalysisResults(customerId: String): Action[AnyContent] = Action.async {
+    (patientManager ? GetAnalysisResultsByCustomerId(customerId))
+      .mapTo[Either[String, List[PatientAnalysisResult]]].map {
+      case Right(images) =>
+        Ok(analysisResult(images))
+      case Left(e) => BadRequest(e)
+    }
+  }
+
   def getAnalysisResultsAndSafeStats(customerId: String): Action[AnyContent] = Action.async { implicit request =>
     (patientManager ? GetAnalysisResultsByCustomerId(customerId)).mapTo[Either[String, List[PatientAnalysisResult]]].map {
       case Right(patient) =>
@@ -80,6 +90,26 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
         BadRequest(e)
     }.recover(handleErrorWithStatus("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!",
       "Error while getting patient"))
+  }
+
+  private def isImage(filename: String): Boolean = {
+    Try {
+      val Array(_, fileType) = filename.split("\\.")
+      filename.split("\\.").length == 2 && ("jpg" :: "png" :: Nil).contains(fileType)
+    }.getOrElse(false)
+  }
+
+  def getImage(fileName: String): Action[AnyContent] = Action {
+    if (fileName.isBlank || isImage(fileName)) {
+      val image = new java.io.File(tempFilesPath + "/" + fileName)
+      if (image.isFile) {
+        Ok.sendFile(image)
+      } else {
+        BadRequest("Url not found!")
+      }
+    } else {
+      BadRequest("Url not found!")
+    }
   }
 
   def createDoctor: Action[DoctorForm] = Action.async(parse.json[DoctorForm]) { implicit request =>
