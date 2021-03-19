@@ -5,6 +5,7 @@ $ ->
 
   apiUrl =
     registerUrl: '/patient/add-patient'
+    register: '/patient/add-patient-analysis'
     getAnalysisType: '/patient/get-analysis-type'
     getMrtType: '/patient/get-mrt-type'
     getMsktType: '/patient/get-mskt-type'
@@ -24,6 +25,8 @@ $ ->
     docId: ''
     analysisType: ''
     analysisGroup: ''
+    registered: false
+    customer_Id: ''
 
   vm = ko.mapping.fromJS
     patient: defaultPatient
@@ -54,6 +57,9 @@ $ ->
 
   vm.convertIntToDate = (intDate) ->
     moment(+intDate).format('DD/MM/YYYY')
+
+  vm.convertStringToDate = (stringDate) ->
+    moment(stringDate).format('DD/MM/YYYY')
 
   getPatientsDoc = ->
     $.get(apiUrl.getPatientsDoc)
@@ -160,12 +166,36 @@ $ ->
       data.docFullName = docInfo[0]?.fullname
       data.docPhone = docInfo[0]?.phone
       my.blockUI()
-      $.post(apiUrl.registerUrl, JSON.stringify(data))
-      .fail handleError
-      .done (response) ->
-        vm.customerId(response)
-        ko.mapping.fromJS(defaultPatient, {}, vm.patient)
-        $thankYou.modal('show')
+      if vm.patient.registered()
+        $.post(apiUrl.register, JSON.stringify(data))
+        .fail handleError
+        .done (response) ->
+          vm.customerId(response)
+          ko.mapping.fromJS(defaultPatient, {}, vm.patient)
+          vm.patient.registered false
+          console.log(vm.patient.registered())
+          $thankYou.modal('show')
+      else
+        $.post(apiUrl.registerUrl, JSON.stringify(data))
+        .fail handleError
+        .done (response) ->
+          vm.customerId(response)
+          ko.mapping.fromJS(defaultPatient, {}, vm.patient)
+          $thankYou.modal('show')
+
+  $(document).on 'click', '.patient-info-by-patient-id', (e) ->
+    customerId = $(e.currentTarget).closest('a').data('patient-id')
+    msg = ko.utils.arrayFirst(vm.searchByPatientNameReport(), (items) -> items.customer_id is customerId)
+    console.log(msg)
+    vm.patient.firstName(msg.firstname)
+    vm.patient.lastName(msg.lastname)
+    vm.patient.phone(msg.phone.replace('998', ''))
+    vm.patient.dateOfBirth(vm.convertStringToDate(msg.dateOfBirth))
+    vm.patient.address(msg.address)
+    vm.patient.customer_Id(msg.customer_id)
+    vm.patient.registered true
+    console.log(vm.patient.registered())
+    vm.searchByPatientNameReport('')
 
   vm.translate = (fieldName) -> ko.computed () ->
     index = if vm.language() is 'en' then 0 else if vm.language() is 'ru' then 1 else if vm.language() is 'uz' then 2 else if vm.language() is 'cy' then 3 else 4
@@ -195,6 +225,12 @@ $ ->
       "Регистрация"
       "Ro'yxatdan o'tish"
       "Рўйҳатдан ўтиш"
+    ]
+    Register: [
+      "re-register"
+      "Перерегистрация"
+      "Yana ro'yxatdan o'tish"
+      "Кайтадан рўйҳатдан ўтиш"
     ]
     firstName: [
       "First name"

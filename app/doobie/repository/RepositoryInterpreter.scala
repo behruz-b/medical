@@ -110,6 +110,22 @@ object MessageSQL extends CommonSQL with LazyLogging {
     updateQueryWithUniqueId(fieldsName ++ values)
   }
 
+  def addPatientAnalysis(patientAnalysis: PatientAnalysis): doobie.ConnectionIO[Int] = {
+    val values = {
+      fr""" values (
+        ${javaLdTime2JavaSqlTimestamp(patientAnalysis.created_at)}, ${patientAnalysis.customer_id},
+        ${patientAnalysis.analyseType}, ${patientAnalysis.analyseGroup}
+      )"""
+    }
+
+    val fieldsName =
+      fr"""
+        insert into "Patients_Analysis" (created_at, customer_id, analysis_type, analysis_group)
+        """
+
+    updateQueryWithUniqueId(fieldsName ++ values)
+  }
+
   def addDeliveryStatus(customerId: String, deliveryStatus: String): Update0 = {
     sql"""UPDATE "Patients" SET delivery_status=$deliveryStatus
           WHERE customer_id=$customerId""".update

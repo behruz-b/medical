@@ -64,9 +64,16 @@
            optionsText: 'fullname', optionsValue: 'id', value: vm.patient.docId, optionsCaption: vm.translate('selectDoctor')" autocomplete="off"></select>
         </div>
         <div class="col-12">
-          <div class="text-center">
-            <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit"><span data-bind="text: vm.translate('register')"></span></button>
-          </div>
+          <!-- ko if: vm.patient.registered() -->
+            <div class="text-center">
+              <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit"><span data-bind="text: vm.translate('Register')"></span></button>
+            </div>
+          <!-- /ko -->
+          <!-- ko if: !vm.patient.registered() -->
+            <div class="text-center">
+              <button class="btn btn-success w-75 mt-5" data-bind="click: vm.onSubmit"><span data-bind="text: vm.translate('register')"></span></button>
+            </div>
+          <!-- /ko -->
         </div>
       </form>
     </div>
@@ -76,9 +83,10 @@
       <h2 class="text-white"><span data-bind="text: vm.translate('existingPatients')"></span></h2>
         <!-- /ko -->
       <div class="list-group mt-3" data-bind="foreach: vm.searchByPatientNameReport">
-        <a href="#" class="list-group-item list-group-item-action">
+        <a href="#" class="list-group-item list-group-item-action patient-info-by-patient-id" data-bind="attr: {'data-patient-id': $data.customer_id}">
           <span data-bind="text: $data.firstname"></span>
           <span data-bind="text: $data.lastname"></span>
+          <span data-bind="text: $data.phone"></span>
         </a>
       </div>
     </div>

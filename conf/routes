@@ -17,6 +17,7 @@ GET     /change-password/                                       @controllers.Hom
 POST    /doctor/add-password                                    @controllers.HomeController.changePassword
 
 GET     /patient/                                               @controllers.PatientController.getPatientsTemplate(language = "cy")
+POST    /patient/add-patient-analysis                           @controllers.PatientController.addPatientAnalysis
 POST    /patient/get-patients                                   @controllers.PatientController.getPatients(page: Int ?= 1, pageSize: Int ?= 30)
 GET     /patient/get-patients-doc                               @controllers.PatientController.getPatientsDoc
 GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType

@@ -14,6 +14,7 @@ import java.time.{LocalDate, LocalDateTime}
 trait CommonSQL {
 
   def create(patient: Patient): ConnectionIO[Int]
+  def addPatientAnalysis(patientAnalysis: PatientAnalysis): ConnectionIO[Int]
   def createUser(user: User): ConnectionIO[Int]
   def addStatsAction(statsAction: StatsAction): ConnectionIO[Int]
   def addPatientsDoc(patientsDoc: PatientsDoc): ConnectionIO[Int]
@@ -48,6 +49,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
 
   override def create(patient: Patient): F[Int] = {
     commonSql.create(patient).transact(xa)
+  }
+  override def addPatientAnalysis(patientAnalysis: PatientAnalysis): F[Int] = {
+    commonSql.addPatientAnalysis(patientAnalysis).transact(xa)
   }
   override def createUser(user: User): F[Int] = {
     commonSql.createUser(user).transact(xa)

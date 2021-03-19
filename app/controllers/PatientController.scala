@@ -8,7 +8,7 @@ import cats.implicits._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.AppProtocol.Paging.{PageReq, PageRes}
 import protocols.Authentication.LoginSessionKey
@@ -138,6 +138,24 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
           BadRequest(error)
       }.recover(handleErrorWithStatus("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!",
         "Error while creating doctor"))
+    }
+  }
+
+  def addPatientAnalysis: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    authByRole(isRegister || isManager) {
+      val analyseType = (request.body \ "analysisType").as[String]
+      val analysisGroup = (request.body \ "analysisGroup").as[String]
+      val customerId = (request.body \ "customer_Id").as[String]
+      val patientAnalysis = PatientAnalysis(LocalDateTime.now, customerId, analyseType, analysisGroup)
+      (patientManager ? AddPatientAnalysis(patientAnalysis)).mapTo[Either[String, String]].map {
+        case Right(_) =>
+          Ok(Json.toJson(patientAnalysis.customer_id))
+        case Left(e) => BadRequest(e)
+      }.recover {
+        case e: Throwable =>
+          logger.error("Error while creating patient", e)
+          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+      }
     }
   }
 

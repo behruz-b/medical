@@ -10,6 +10,8 @@ trait PatientRepositoryAlgebra[F[_]] {
 
   def create(patient: Patient): F[Int]
 
+  def addPatientAnalysis(patientAnalysis: PatientAnalysis): F[Int]
+
   def createUser(user: User): F[Int]
 
   def addStatsAction(statsAction: StatsAction): F[Int]

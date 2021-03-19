@@ -47,6 +47,9 @@ class PatientManager @Inject()(val configuration: Configuration,
     case CreatePatient(patient) =>
       createPatient(patient).pipeTo(sender())
 
+    case AddPatientAnalysis(patientAnalysis) =>
+      addPatientAnalysis(patientAnalysis).pipeTo(sender())
+
     case PatientAnalysisResult(analysisFileName, created_at,customerId, analyseType, analyseGroup) =>
       addAnalysisResult(analysisFileName, created_at,customerId, analyseType, analyseGroup).pipeTo(sender())
 
@@ -83,6 +86,16 @@ class PatientManager @Inject()(val configuration: Configuration,
 
   private def createPatient(patient: Patient): Future[Either[String, String]] = {
     DoobieModule.repo.create(patient.copy(password = md5(patient.password))).unsafeToFuture().map { _ =>
+      Right("Successfully added")
+    }.recover {
+      case error: Throwable =>
+        logger.error("Error occurred while create patient.", error)
+        Left("Bemorni ro'yhatga olishda xatolik yuz berdi. Iltimos qayta harakat qilib ko'ring!")
+    }
+  }
+
+  private def addPatientAnalysis(patientAnalysis: PatientAnalysis): Future[Either[String, String]] = {
+    DoobieModule.repo.addPatientAnalysis(patientAnalysis).unsafeToFuture().map { _ =>
       Right("Successfully added")
     }.recover {
       case error: Throwable =>
