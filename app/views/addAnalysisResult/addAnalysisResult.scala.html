@@ -18,9 +18,37 @@
         <h2 class="text-white"><span data-bind="text: vm.translate('addAnalysisResult')"></span></h2>
         <form name="register_form" id="patient-form" class="row" action="@routes.PatientController.uploadAnalysisResult()" method="post" enctype="multipart/form-data">
           <div class="form-group col-sm-6 col-12">
-            <input class="form-control input-box" type="text" id="id" data-bind="value: vm.patient.id" name="id" value="" onchange="this.setAttribute('value', this.value);">
+            <input class="form-control input-box" style="text-transform: uppercase;" type="text" id="id" data-bind="value: vm.patient.id" name="id" value="" onchange="this.setAttribute('value', this.value);">
             <label for="id" class="label">ID</label>
           </div>
+          <div class="form-group col-sm-6 col-12">
+            <select class="select form-control bg-white" id="analysisType" data-bind="options: vm.getAnalysisTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.patient.analysisType, optionsCaption: vm.translate('analysisType')" autocomplete="off" name="analysisType"></select>
+          </div>
+                <!-- ko if: vm.patient.analysisType() == 'MRT' -->
+            <div class="form-group col-sm-6 col-12">
+                <select class="select form-control bg-white" id="mrtType" data-bind="options: vm.getMrtTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.selectedMrt, optionsCaption: vm.translate('mrtType')" autocomplete="off" name="analysisGroup"></select>
+            </div>
+                <!-- /ko -->
+                <!-- ko if: vm.patient.analysisType() == 'MSKT' -->
+            <div class="form-group col-sm-6 col-12">
+                <select class="select form-control bg-white" id="msktType" data-bind="options: vm.getMsktTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.selectedMskt, optionsCaption: vm.translate('msktType')" autocomplete="off" name="analysisGroup"></select>
+            </div>
+                <!-- /ko -->
+                <!-- ko if: vm.patient.analysisType() == 'UZI' -->
+            <div class="form-group col-sm-6 col-12">
+                <select class="select form-control bg-white" id="uziType" data-bind="options: vm.getUziTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.selectedUzi, optionsCaption: vm.translate('uziType')" autocomplete="off" name="analysisGroup"></select>
+            </div>
+                <!-- /ko -->
+                <!-- ko if: vm.patient.analysisType() == 'Laboratoriya' -->
+            <div class="form-group col-sm-6 col-12">
+                <select class="select form-control bg-white" id="labType" data-bind="options: vm.getLabTypeList,
+           optionsText: $data, optionsValue: $data, value: vm.selectedLaboratory, optionsCaption: vm.translate('labType')" autocomplete="off" name="analysisGroup"></select>
+            </div>
+                <!-- /ko -->
           <div class="col-sm-6 col-12">
             <label for="capture-image" class="capture-label mt-3" data-bind="text: vm.translate('file')"></label>
             <input type="file" name="file" data-bind="value: vm.patient.file" accept="image/*" capture="camera" id="capture-image" style="display: none">

@@ -17,6 +17,7 @@ GET     /change-password/                                       @controllers.Hom
 POST    /doctor/add-password                                    @controllers.HomeController.changePassword
 
 GET     /patient/                                               @controllers.PatientController.getPatientsTemplate(language = "cy")
+POST    /patient/add-patient-analysis                           @controllers.PatientController.addPatientAnalysis
 POST    /patient/get-patients                                   @controllers.PatientController.getPatients(page: Int ?= 1, pageSize: Int ?= 30)
 GET     /patient/get-patients-doc                               @controllers.PatientController.getPatientsDoc
 GET     /patient/get-analysis-type                              @controllers.HomeController.getAnalysisType
@@ -33,7 +34,9 @@ GET     /stats/get-stats                                        @controllers.Hom
 
 POST    /stub-sms                                               @controllers.HomeController.stubSmsRequest
 POST    /stub-sms/status                                        @controllers.HomeController.stubSmsDeliveryStatus
-GET     /r/:customerId                                          @controllers.PatientController.getAnalysisResultsAndSafeStats(customerId)
+GET     /r/:customerId                                          @controllers.PatientController.getAnalysisResults(customerId: String)
+GET     /get-analysis-results                                   @controllers.PatientController.getAnalysisResultsAndSafeStats(customerId: String)
+GET     /get-image/:filename                                    @controllers.PatientController.getImage(filename: String)
 GET     /analyse-result/:customerId                             @controllers.HomeController.analysisResult(customerId)
 
 # Map static resources from the /public folder to the /assets URL path

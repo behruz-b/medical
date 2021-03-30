@@ -13,6 +13,9 @@ object PatientProtocol {
   implicit def localDateFormat(fieldName: String, dateFormat: String = "dd/MM/yyyy"): Reads[LocalDate] =
     (__ \ fieldName).read[String].map(s => LocalDate.parse(s, DateTimeFormatter.ofPattern(dateFormat)))
 
+  implicit def ldtRead(fieldName: String, dateFormat: String = "yyyy-MM-dd HH:mm:ss"): Reads[LocalDateTime] =
+    (__ \ fieldName).read[String].map(s => LocalDateTime.parse(s, DateTimeFormatter.ofPattern(dateFormat)))
+
   implicit def optLdtRead(fieldName: String, dateFormat: String = "yyyy-MM-dd HH:mm:ss"): Reads[Option[LocalDateTime]] = {
     (__ \ fieldName).readNullable[String] map {
       case Some(s) if StringUtils.isNotBlank(s) => LocalDateTime.parse(s, DateTimeFormatter.ofPattern(dateFormat)).some
@@ -43,7 +46,7 @@ object PatientProtocol {
                          docId: Option[Int] = None)
 
   implicit val patientFormReads: Reads[PatientForm] = (
-      (__ \ "firstName").read[String] and
+    (__ \ "firstName").read[String] and
       (__ \ "lastName").read[String] and
       (__ \ "phone").read[String] and
       localDateFormat("dateOfBirth") and
@@ -54,7 +57,9 @@ object PatientProtocol {
       optStringRead("docPhone") and
       (__ \ "companyCode").read[String] and
       optIntRead("docId")
-    )(PatientForm)
+    ) (PatientForm)
+
+  implicit val patientFormWrites: Writes[PatientForm] = Json.writes[PatientForm]
 
   case class DoctorForm(firstName: String,
                         lastName: String,
@@ -73,10 +78,10 @@ object PatientProtocol {
     ) (DoctorForm)
 
   case class PatientsDocForm(fullName: String,
-                        phone: String)
+                             phone: String)
 
   implicit val patientsDocFormReads: Reads[PatientsDocForm] = (
-      (__ \ "fullName").read[String] and
+    (__ \ "fullName").read[String] and
       (__ \ "phone").read[String]
     ) (PatientsDocForm)
 
@@ -127,6 +132,7 @@ object PatientProtocol {
   implicit val PatientsDocFormat: OFormat[PatientsDoc] = Json.format[PatientsDoc]
 
   case class GetPatientsDocById(id: Int, fullname: String, phone: String)
+
   implicit val formatPatientsDocByIdFormat: OFormat[GetPatientsDocById] = Json.format[GetPatientsDocById]
 
   case class CreatePatient(patient: Patient)
@@ -136,8 +142,28 @@ object PatientProtocol {
   case class AddPatientsDoc(patientsDoc: PatientsDoc)
 
   case class PatientAnalysisResult(analysisFileName: String,
-                               created_at: LocalDateTime,
-                               customerId: String)
+                                   created_at: LocalDateTime,
+                                   customerId: String,
+                                   analyseType: String,
+                                   analyseGroup: String)
+
+  case class PatientAnalysis(created_at: LocalDateTime,
+                             customer_id: String,
+                             analyseType: String,
+                             analyseGroup: String)
+
+  implicit val formatPatientAnalysisResultsReads: Reads[PatientAnalysisResult] = (
+      (__ \ "analysisFileName").read[String] and
+      ldtRead("created_at") and
+      (__ \ "customerId").read[String] and
+      (__ \ "analyseType").read[String] and
+      (__ \ "analyseGroup").read[String]
+    ) (PatientAnalysisResult)
+
+  case class AddPatientAnalysis(patientAnalysis: PatientAnalysis)
+
+  implicit val formatAddPatientAnalysis: OFormat[PatientAnalysis] = Json.format[PatientAnalysis]
+
   implicit val formatPatientAnalysisResults: OFormat[PatientAnalysisResult] = Json.format[PatientAnalysisResult]
 
   case class AddSmsLinkClick(customerId: String, smsLinkClick: String)

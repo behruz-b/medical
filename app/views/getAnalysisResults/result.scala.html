@@ -1,0 +1,45 @@
+@import protocols.PatientProtocol.PatientAnalysisResult
+@this(webJarsUtil: org.webjars.play.WebJarsUtil)
+@(images: List[PatientAnalysisResult])
+@getAnalysisResults.main("Get Analysis", webJarsUtil) {
+    <div class="container mt-lg-5">
+        <div class="column">
+            <div class="content">
+                <div class="row">
+                    @for(image <- images.filter(_.analyseType == "MRT").maxByOption(_.created_at)) {
+                        <div class="col-sm-3 text-center">
+                            <h4>@image.analyseType</h4>
+                            <a href="@routes.PatientController.getImage(image.analysisFileName)">
+                                <i class="fas fa-image fa-10x"></i>
+                            </a>
+                        </div>
+                    }
+                    @for(image <- images.filter(_.analyseType == "MSKT").maxByOption(_.created_at)) {
+                        <div class="col-sm-3 text-center">
+                            <h4>@image.analyseType</h4>
+                            <a href="@routes.PatientController.getImage(image.analysisFileName)">
+                                <i class="fas fa-image fa-10x"></i>
+                            </a>
+                        </div>
+                    }
+                    @for(image <- images.filter(_.analyseType == "UZI").maxByOption(_.created_at)) {
+                        <div class="col-sm-3 text-center">
+                            <h4>@image.analyseType</h4>
+                            <a href="@routes.PatientController.getImage(image.analysisFileName)">
+                                <i class="fas fa-image fa-10x"></i>
+                            </a>
+                        </div>
+                    }
+                    @for(image <- images.filter(_.analyseType == "Laboratoriya").maxByOption(_.created_at)) {
+                        <div class="col-sm-3 text-center">
+                            <h4>@image.analyseType</h4>
+                            <a href="@routes.PatientController.getImage(image.analysisFileName)">
+                                <i class="fas fa-image fa-10x"></i>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

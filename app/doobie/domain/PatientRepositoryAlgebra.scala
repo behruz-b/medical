@@ -10,13 +10,15 @@ trait PatientRepositoryAlgebra[F[_]] {
 
   def create(patient: Patient): F[Int]
 
+  def addPatientAnalysis(patientAnalysis: PatientAnalysis): F[Int]
+
   def createUser(user: User): F[Int]
 
   def addStatsAction(statsAction: StatsAction): F[Int]
 
   def addPatientsDoc(patientsDoc: PatientsDoc): F[Int]
 
-  def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String): F[Int]
+  def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String, analysisType: String, analysisGroup: String): F[Int]
 
   def changePassword(login: String, newPass: String): F[Int]
 
@@ -28,7 +30,7 @@ trait PatientRepositoryAlgebra[F[_]] {
 
   def getByCustomerId(customerId: String): fs2.Stream[F, Patient]
 
-  def getAnalysisResultsByCustomerId(customerId: String): fs2.Stream[F, PatientAnalysisResult]
+  def getAnalysisResultsByCustomerId(customerId: String): F[List[PatientAnalysisResult]]
 
   def getPatientByLogin(login: String): fs2.Stream[F, Patient]
 
@@ -43,7 +45,7 @@ trait PatientRepositoryAlgebra[F[_]] {
 
   def getPatientsDoc: F[List[GetPatientsDocById]]
 
-  def getPatientsTable: F[List[(LocalDateTime, String, Option[String])]]
+  def getPatientsTable: F[List[(LocalDateTime, String, Option[String], String, String)]]
 
   def getRoles: F[List[Roles]]
 

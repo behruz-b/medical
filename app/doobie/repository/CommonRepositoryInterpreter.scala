@@ -14,16 +14,21 @@ import java.time.{LocalDate, LocalDateTime}
 trait CommonSQL {
 
   def create(patient: Patient): ConnectionIO[Int]
+  def addPatientAnalysis(patientAnalysis: PatientAnalysis): ConnectionIO[Int]
   def createUser(user: User): ConnectionIO[Int]
   def addStatsAction(statsAction: StatsAction): ConnectionIO[Int]
   def addPatientsDoc(patientsDoc: PatientsDoc): ConnectionIO[Int]
-  def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String): ConnectionIO[Int]
+  def addAnalysisResult(analysisFileName: String,
+                        created_at: LocalDateTime,
+                        customerId: String,
+                        analysisType: String,
+                        analysisGroup: String): ConnectionIO[Int]
   def changePassword(login: String, newPass: String): Update0
   def addDeliveryStatus(customerId: String, deliveryStatus: String): Update0
   def addSmsLinkClick(customerId: String, smsLinkClick: String): Update0
   def searchByPatientName(firstname: String): ConnectionIO[List[Patient]]
   def getByCustomerId(customerId: String): Query0[Patient]
-  def getAnalysisResultsByCustomerId(customerId: String): Query0[PatientAnalysisResult]
+  def getAnalysisResultsByCustomerId(customerId: String): ConnectionIO[List[PatientAnalysisResult]]
   def getPatientByLogin(login: String): Query0[Patient]
   def getUserByLogin(login: String): Query0[User]
   def getPatients(analyseType: String,
@@ -32,7 +37,7 @@ trait CommonSQL {
                   pageReq: PageReq): ConnectionIO[PageRes[Patient]]
   def getStats: ConnectionIO[List[StatsAction]]
   def getPatientsDoc: ConnectionIO[List[GetPatientsDocById]]
-  def getPatientsTable: ConnectionIO[List[(LocalDateTime, String, Option[String])]]
+  def getPatientsTable: ConnectionIO[List[(LocalDateTime, String, Option[String], String, String)]]
   def getRoles: ConnectionIO[List[Roles]]
 
 }
@@ -45,6 +50,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def create(patient: Patient): F[Int] = {
     commonSql.create(patient).transact(xa)
   }
+  override def addPatientAnalysis(patientAnalysis: PatientAnalysis): F[Int] = {
+    commonSql.addPatientAnalysis(patientAnalysis).transact(xa)
+  }
   override def createUser(user: User): F[Int] = {
     commonSql.createUser(user).transact(xa)
   }
@@ -54,8 +62,9 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def addPatientsDoc(patientsDoc: PatientsDoc): F[Int] = {
     commonSql.addPatientsDoc(patientsDoc).transact(xa)
   }
-  override def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String): F[Int] = {
-    commonSql.addAnalysisResult(analysisFileName, created_at, customerId).transact(xa)
+  override def addAnalysisResult(analysisFileName: String, created_at: LocalDateTime, customerId: String,
+                                 analysisType: String, analysisGroup: String): F[Int] = {
+    commonSql.addAnalysisResult(analysisFileName, created_at, customerId, analysisType, analysisGroup).transact(xa)
   }
   override def changePassword(login: String, newPass: String): F[Int] = {
     commonSql.changePassword(login, newPass).run.transact(xa)
@@ -69,8 +78,8 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def getByCustomerId(customerId: String): fs2.Stream[F,Patient] = {
     commonSql.getByCustomerId(customerId).stream.transact(xa)
   }
-  override def getAnalysisResultsByCustomerId(customerId: String): fs2.Stream[F,PatientAnalysisResult] = {
-    commonSql.getAnalysisResultsByCustomerId(customerId).stream.transact(xa)
+  override def getAnalysisResultsByCustomerId(customerId: String): F[List[PatientAnalysisResult]] = {
+    commonSql.getAnalysisResultsByCustomerId(customerId).transact(xa)
   }
   override def searchByPatientName(firstName: String): F[List[Patient]] = {
     commonSql.searchByPatientName(firstName).transact(xa)
@@ -93,7 +102,7 @@ abstract class CommonRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val x
   override def getPatientsDoc: F[List[GetPatientsDocById]] = {
     commonSql.getPatientsDoc.transact(xa)
   }
-  override def getPatientsTable: F[List[(LocalDateTime, String, Option[String])]] = {
+  override def getPatientsTable: F[List[(LocalDateTime, String, Option[String], String, String)]] = {
     commonSql.getPatientsTable.transact(xa)
   }
   override def getRoles: F[List[Roles]] = {

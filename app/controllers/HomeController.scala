@@ -1,6 +1,6 @@
 package controllers
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.ask
 import akka.util.Timeout
 import org.webjars.play.WebJarsUtil
@@ -10,12 +10,11 @@ import play.api.mvc._
 import protocols.Authentication.LoginSessionKey
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{ChangePassword, GetRoles, Roles}
-import views.html._
 import views.html.statistic._
 
 import javax.inject._
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
@@ -27,6 +26,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                loginPage: views.html.admin.login,
                                configuration: Configuration,
                                statsActionTemp: statisticTemplete,
+                               implicit val actorSystem: ActorSystem,
                                @Named("patient-manager") val patientManager: ActorRef,
                                @Named("user-manager") val userManager: ActorRef,
                                @Named("stats-manager") val statsManager: ActorRef,
@@ -70,7 +70,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       }.recover {
         case e: Throwable =>
           logger.error("Error while creating doctor", e)
-          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+          BadRequest("Xatolik yuz berdi iltimos qPlaySpecayta harakat qilib ko'ring!")
       }
     }
   }

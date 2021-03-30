@@ -8,14 +8,13 @@ import cats.implicits._
 import org.webjars.play.WebJarsUtil
 import play.api.Configuration
 import play.api.libs.Files
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.AppProtocol.Paging.{PageReq, PageRes}
 import protocols.Authentication.LoginSessionKey
 import protocols.PatientProtocol._
 import protocols.UserProtocol.{CheckUserByLoginAndCreate, SendSmsToDoctor, User}
 import views.html._
-import views.html.statistic._
 
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
@@ -31,6 +30,7 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
                                   val dashboardTemp: views.html.dashboard.dashboard,
                                   patientsDocTemplate: views.html.patientsDoc.patientsDoc,
                                   loginPage: views.html.admin.login,
+                                  analysisResult: views.html.getAnalysisResults.result,
                                   configuration: Configuration,
                                   addAnalysisResultPageTemp: addAnalysisResult.addAnalysisResult,
                                   getPatientsTemp: patients.patientsTable,
@@ -68,21 +68,48 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
     }
   }
 
+  def getAnalysisResults(customerId: String): Action[AnyContent] = Action.async {
+    (patientManager ? GetAnalysisResultsByCustomerId(customerId))
+      .mapTo[Either[String, List[PatientAnalysisResult]]].map {
+      case Right(images) =>
+        Ok(analysisResult(images))
+      case Left(e) => BadRequest(e)
+    }
+  }
+
   def getAnalysisResultsAndSafeStats(customerId: String): Action[AnyContent] = Action.async { implicit request =>
-    (patientManager ? GetAnalysisResultsByCustomerId(customerId)).mapTo[Either[String, PatientAnalysisResult]].map {
+    (patientManager ? GetAnalysisResultsByCustomerId(customerId)).mapTo[Either[String, List[PatientAnalysisResult]]].map {
       case Right(patient) =>
-        logger.debug("sdsad")
-          val stats = StatsAction(LocalDateTime.now, request.host, "result_sms_click", getRemoteAddress,
-            login = patient.customerId, getUserAgent)
-          statsManager ! AddStatsAction(stats)
-          val patientStats = AddSmsLinkClick(customerId = patient.customerId, smsLinkClick = "click")
-          patientManager ! patientStats
-          Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.analysisFileName))
+        val stats = StatsAction(LocalDateTime.now, request.host, "result_sms_click", getRemoteAddress,
+          login = patient.head.customerId, getUserAgent)
+        statsManager ! AddStatsAction(stats)
+        val patientStats = AddSmsLinkClick(customerId = patient.head.customerId, smsLinkClick = "click")
+        patientManager ! patientStats
+        Ok.sendFile(new java.io.File(tempFilesPath + "/" + patient.head.analysisFileName))
       case Left(e) =>
-        logger.debug("asdas")
         BadRequest(e)
     }.recover(handleErrorWithStatus("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!",
-    "Error while getting patient"))
+      "Error while getting patient"))
+  }
+
+  private def isImage(filename: String): Boolean = {
+    Try {
+      val Array(_, fileType) = filename.split("\\.")
+      filename.split("\\.").length == 2 && ("jpg" :: "png" :: Nil).contains(fileType)
+    }.getOrElse(false)
+  }
+
+  def getImage(fileName: String): Action[AnyContent] = Action {
+    if (fileName.isBlank || isImage(fileName)) {
+      val image = new java.io.File(tempFilesPath + "/" + fileName)
+      if (image.isFile) {
+        Ok.sendFile(image)
+      } else {
+        BadRequest("Url not found!")
+      }
+    } else {
+      BadRequest("Url not found!")
+    }
   }
 
   def createDoctor: Action[DoctorForm] = Action.async(parse.json[DoctorForm]) { implicit request =>
@@ -114,6 +141,24 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
     }
   }
 
+  def addPatientAnalysis: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    authByRole(isRegister || isManager) {
+      val analyseType = (request.body \ "analysisType").as[String]
+      val analysisGroup = (request.body \ "analysisGroup").as[String]
+      val customerId = (request.body \ "customer_Id").as[String]
+      val patientAnalysis = PatientAnalysis(LocalDateTime.now, customerId, analyseType, analysisGroup)
+      (patientManager ? AddPatientAnalysis(patientAnalysis)).mapTo[Either[String, String]].map {
+        case Right(_) =>
+          Ok(Json.toJson(patientAnalysis.customer_id))
+        case Left(e) => BadRequest(e)
+      }.recover {
+        case e: Throwable =>
+          logger.error("Error while creating patient", e)
+          BadRequest("Xatolik yuz berdi iltimos qayta harakat qilib ko'ring!")
+      }
+    }
+  }
+
   def createPatient: Action[PatientForm] = Action.async(parse.json[PatientForm]) { implicit request =>
     authByRole(isRegister || isManager) {
       val body = request.body
@@ -123,7 +168,7 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
       val patient = Patient(LocalDateTime.now, body.firstName, body.lastName, phoneWithPrefix, generateCustomerId,
         body.companyCode, login, generatePassword, body.address, body.dateOfBirth, body.analyseType, body.analyseGroup,
         body.docFullName, body.docPhone, docId = body.docId)
-      getUniqueCustomerId(1, patient)
+      getUniqueCustomerId(patient)
       //      val stats = StatsAction(LocalDateTime.now, body.companyCode, action = "reg_submit", request.headers.get("Remote-Address").get,
       //        request.session.get(LoginWithSession).getOrElse(LoginWithSession), request.headers.get("User-Agent").get)
       //      statsManager ! AddStatsAction(stats)
@@ -174,6 +219,10 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
         .file("file")
         .map { picture =>
           val body = request.body.asFormUrlEncoded
+          val analyseTypeOptStr = body.get("analysisType")
+          val analyseType: String = analyseTypeOptStr.map(a => a.mkString(" ")).get
+          val analyseGroupOptStr = body.get("analysisGroup")
+          val analyseGroup: String = analyseGroupOptStr.map(a => a.mkString(" ")).get
           body.get("id").flatMap(_.headOption) match {
             case Some(customerId) =>
               // need to create folder "patients_results" out of the project
@@ -186,7 +235,7 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
                   logger.error("Error while parsing tempFilePath", e)
               }
               (for {
-                _ <- EitherT((patientManager ? PatientAnalysisResult(analysisFileName, LocalDateTime.now, customerId)).mapTo[Either[String, String]])
+                _ <- EitherT((patientManager ? PatientAnalysisResult(analysisFileName, LocalDateTime.now, customerId, analyseType, analyseGroup)).mapTo[Either[String, String]])
                 _ <- EitherT((patientManager ? SendSmsToCustomer(customerId)).mapTo[Either[String, String]])
               } yield {
                 val statsAction = StatsAction(LocalDateTime.now, request.host, "doc_upload", getRemoteAddress, getUserLogin, getUserAgent)
@@ -225,14 +274,14 @@ class PatientController @Inject()(val controllerComponents: ControllerComponents
     }
   }
 
-  private def getUniqueCustomerId(attempts: Int, patient: Patient): Future[Result] = {
+  private def getUniqueCustomerId(patient: Patient, attempts: Int = 1): Future[Result] = {
     if (attempts < 5) {
       (patientManager ? CheckCustomerId(patient.customer_id)).mapTo[Either[String, Patient]].flatMap {
         case Left(_) =>
           createPatientInDB(patient)
         case Right(_) =>
           val withNewCustomerId = patient.copy(customer_id = generateCustomerId)
-          getUniqueCustomerId(attempts + 1, withNewCustomerId)
+          getUniqueCustomerId(withNewCustomerId, attempts + 1)
       }
     } else {
       logger.error("Couldn't generate unique customerId")
