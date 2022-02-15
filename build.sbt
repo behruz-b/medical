@@ -5,6 +5,8 @@ name := "medical"
 
 version := "1.0"
 
+herokuAppName in Compile := "fierce-everglades-63028"
+
 maintainer := "smart-medical@scala.uz"
 
 SassKeys.cssStyle := Maxified

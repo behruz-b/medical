@@ -1,0 +1,22 @@
+{
+  "name": "medical",
+  "version": "1.0.0",
+  "description": "[![Build Status](https://travis-ci.org/behruz-b/medical.svg?branch=main)](https://travis-ci.org/behruz-b/medical)",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/behruz-b/medical.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/behruz-b/medical/issues"
+  },
+  "homepage": "https://github.com/behruz-b/medical#readme"
+}
